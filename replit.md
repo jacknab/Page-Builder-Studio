@@ -10,6 +10,8 @@ The public root route `/` is a marketing homepage for LaunchSite. The authentica
 
 The marketing homepage includes a public template gallery section. Each template card shows a preview and an "Edit this template" call-to-action that routes visitors to `/signup`.
 
+The admin panel (`/admin`) includes an **AI Generate** tab powered by OpenAI (via Replit AI Integrations). It generates fully-responsive HTML templates for Nail Salon businesses across four styles (Luxury, Modern, Minimal, Bold). Templates are saved in the PostgreSQL `templates` table and are retrievable via the API.
+
 ## Stack
 
 - **Monorepo tool**: pnpm workspaces
@@ -22,7 +24,8 @@ The marketing homepage includes a public template gallery section. Each template
 - **API codegen**: Orval (from OpenAPI spec)
 - **Build**: esbuild (CJS bundle)
 - **Frontend app**: React + Vite (`artifacts/webpage-editor`)
-- **Template sources**: built-in block templates plus full HTML templates generated from `attached_assets/*.html`
+- **Template sources**: built-in block templates, custom HTML templates, and AI-generated templates (PostgreSQL `templates` table)
+- **AI Integration**: OpenAI via Replit AI Integrations (`@workspace/integrations-openai-ai-server`)
 
 ## Key Commands
 

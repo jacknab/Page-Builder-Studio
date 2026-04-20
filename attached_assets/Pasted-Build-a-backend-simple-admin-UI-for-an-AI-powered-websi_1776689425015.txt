@@ -1,0 +1,144 @@
+Build a backend + simple admin UI for an AI-powered website template generator.
+
+## 🎯 GOAL
+
+Create a system where I can generate website templates using OpenAI API, store them in a database, and reuse them in a website builder platform.
+
+---
+
+## 🧱 TECH STACK
+
+* Node.js (Express)
+* SQLite (or PostgreSQL if easier)
+* OpenAI API (GPT-4o-mini or similar)
+* Basic HTML admin dashboard (no frameworks required)
+
+---
+
+## ⚙️ CORE FEATURES
+
+### 1. AI TEMPLATE GENERATOR ENDPOINT
+
+Create API endpoint:
+
+POST /generate-template
+
+Input:
+{
+"type": "nail-salon",
+"style": "luxury | modern | minimal | bold"
+}
+
+This endpoint must:
+
+* Call OpenAI API
+* Generate a FULL HTML template
+* Return structured response
+* Save result to database
+
+---
+
+## 🤖 OPENAI PROMPT RULE (IMPORTANT)
+
+Use this exact prompt structure:
+
+"You are generating website templates for a SaaS website builder.
+
+Return ONLY valid HTML.
+
+Requirements:
+
+* Fully responsive layout
+* Clean modern design
+* Must include:
+
+  * hero section
+  * services section
+  * gallery section
+  * contact section
+* Use inline CSS only
+* Use placeholder images from Unsplash
+* No explanations, ONLY HTML output"
+
+Style should be applied based on user input (luxury, modern, minimal, bold).
+
+---
+
+## 🗄️ DATABASE STRUCTURE
+
+Create table: templates
+
+Fields:
+
+* id (auto increment)
+* name (string)
+* type (string)
+* style (string)
+* html (text)
+* created_at (timestamp)
+
+---
+
+## 📦 TEMPLATE STORAGE RULE
+
+Every AI response must be:
+
+* saved exactly as HTML string
+* associated with type + style
+* retrievable later via API
+
+---
+
+## 📥 GET TEMPLATE ENDPOINT
+
+GET /templates
+
+Returns:
+
+* list of all templates
+* filtered by type optional
+
+GET /template/:id
+
+Returns:
+
+* single template HTML
+
+---
+
+## 🧑‍💻 SIMPLE ADMIN UI
+
+Create a basic admin page:
+
+Features:
+
+* Dropdown: select type (nail-salon, barber, spa)
+* Dropdown: select style (luxury, modern, minimal, bold)
+* Button: "Generate Template"
+* Display generated HTML preview
+* Button: "Save Template"
+
+Also show list of saved templates.
+
+---
+
+## 🚀 BONUS (IF POSSIBLE)
+
+* Add "Generate 10 templates" batch mode
+* Add preview iframe
+* Add delete template function
+* Add rename template function
+
+---
+
+## 🎯 FINAL RESULT
+
+After setup:
+
+1. I choose style + type
+2. Click generate
+3. OpenAI generates full HTML template
+4. Template is saved in database
+5. I can reuse it inside website builder system
+
+This is the foundation of an AI-powered website builder SaaS.
