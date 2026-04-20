@@ -231,7 +231,8 @@ export default function Home() {
 
     try {
       const parsed = JSON.parse(saved) as WebsiteSite[];
-      return parsed.length ? parsed.map(normalizeSite) : [starterSite()];
+      // Enforce 1-site limit: only keep the first site
+      return parsed.length ? [normalizeSite(parsed[0])] : [starterSite()];
     } catch {
       return [starterSite()];
     }
@@ -278,43 +279,43 @@ export default function Home() {
   };
 
   const addSite = (template: Template) => {
-    const site = createSiteFromTemplate(template);
-    setSites((current) => [site, ...current]);
-    setActiveSiteId(site.id);
+    setSites((current) => {
+      if (current.length > 0) {
+        return current.map((site, i) =>
+          i === 0
+            ? { ...site, templateId: template.id, source: "blocks" as const, blocks: cloneBlocks(template.blocks), html: undefined, lastEdited: new Date().toISOString() }
+            : site
+        );
+      }
+      const site = createSiteFromTemplate(template);
+      return [site];
+    });
+    setActiveSiteId((id) => id || sites[0]?.id || "");
     setViewMode("builder");
-    toast({ title: "Site created", description: `${site.name} is ready to edit.` });
+    toast({ title: "Template applied", description: `${template.name} is now your active site.` });
   };
 
   const addHtmlSite = (template: HtmlTemplate) => {
-    const site = createSiteFromHtmlTemplate(template);
-    setSites((current) => [site, ...current]);
-    setActiveSiteId(site.id);
+    setSites((current) => {
+      if (current.length > 0) {
+        return current.map((site, i) =>
+          i === 0
+            ? { ...site, templateId: template.id, source: "html" as const, blocks: [], html: template.html, lastEdited: new Date().toISOString() }
+            : site
+        );
+      }
+      const site = createSiteFromHtmlTemplate(template);
+      return [site];
+    });
+    setActiveSiteId((id) => id || sites[0]?.id || "");
     setViewMode("builder");
-    toast({ title: "HTML template added", description: `${site.name} is loaded with its original design.` });
+    toast({ title: "Template applied", description: `${template.name} is now your active site.` });
   };
 
   const scrollToTemplates = () => {
     document.getElementById("template-library")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const duplicateSite = (site: WebsiteSite) => {
-    const copy: WebsiteSite = {
-      ...site,
-      id: generateId(),
-      name: `${site.name} Copy`,
-      slug: `${site.slug}-copy`,
-      status: "draft",
-      source: site.source,
-      blocks: cloneBlocks(site.blocks),
-      html: site.html,
-      createdAt: new Date().toISOString(),
-      lastEdited: new Date().toISOString(),
-      publishedAt: undefined,
-    };
-
-    setSites((current) => [copy, ...current]);
-    toast({ title: "Site duplicated", description: `${copy.name} has been added to your workspace.` });
-  };
 
   const deleteSite = (siteId: string) => {
     setSites((current) => {
@@ -468,9 +469,9 @@ export default function Home() {
                 <Settings className="h-4 w-4" />
                 Admin
               </Button>
-              <Button onClick={scrollToTemplates} className="gap-2 bg-blue-600 hover:bg-blue-700">
-                <Plus className="h-4 w-4" />
-                Create new site
+              <Button onClick={() => openSite(activeSite.id)} className="gap-2 bg-blue-600 hover:bg-blue-700">
+                <PenTool className="h-4 w-4" />
+                Edit my site
               </Button>
               <Button
                 variant="ghost"
@@ -494,13 +495,13 @@ export default function Home() {
                 <div className="space-y-3">
                   <h2 className="max-w-3xl text-4xl font-extrabold tracking-tight md:text-6xl">A Wix-style service for launching simple websites fast.</h2>
                   <p className="max-w-2xl text-lg leading-8 text-slate-300">
-                    Pick a template, edit every section visually, manage multiple customer sites, preview mobile layouts, then export the finished page.
+                    Pick a template, edit every section visually, preview mobile layouts, then export your finished page.
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-3">
                   <Button onClick={scrollToTemplates} size="lg" className="gap-2 bg-white text-slate-950 hover:bg-blue-50">
                     <LayoutTemplate className="h-4 w-4" />
-                    Browse templates
+                    Change template
                   </Button>
                   <Button onClick={() => openSite(activeSite.id)} size="lg" variant="outline" className="gap-2 border-white/20 bg-white/10 text-white hover:bg-white/20">
                     <PenTool className="h-4 w-4" />
@@ -512,10 +513,10 @@ export default function Home() {
                 <div className="rounded-2xl bg-white p-4 text-slate-950">
                   <div className="mb-3 flex items-center justify-between text-xs text-slate-500">
                     <span>Live workspace</span>
-                    <span>{sites.length} site{sites.length === 1 ? "" : "s"}</span>
+                    <span>1 site</span>
                   </div>
                   <div className="space-y-3">
-                    {sites.slice(0, 3).map((site) => (
+                    {sites.slice(0, 1).map((site) => (
                       <div key={site.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
                         <div className="flex items-center justify-between gap-3">
                           <div>
@@ -537,8 +538,8 @@ export default function Home() {
           <section id="template-library" className="mb-10 scroll-mt-24 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
             <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-extrabold tracking-tight">Template library</h2>
-                <p className="text-sm text-slate-500">Choose a starter page below. No popup needed — browse and launch directly from here.</p>
+                <h2 className="text-2xl font-extrabold tracking-tight">Change your site template</h2>
+                <p className="text-sm text-slate-500">Pick a new starting point — this will replace your current site design. Your site name and settings are kept.</p>
               </div>
               <div className="flex items-center gap-2">
                 <TemplateCounter />
@@ -553,13 +554,13 @@ export default function Home() {
 
           <div className="mb-4 flex items-end justify-between">
             <div>
-              <h2 className="text-2xl font-extrabold tracking-tight">Your sites</h2>
-              <p className="text-sm text-slate-500">Create, edit, duplicate, and export customer-ready pages.</p>
+              <h2 className="text-2xl font-extrabold tracking-tight">Your site</h2>
+              <p className="text-sm text-slate-500">Edit, preview, and export your site.</p>
             </div>
           </div>
 
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {sites.map((site) => (
+            {sites.slice(0, 1).map((site) => (
               <article key={site.id} className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
                 <button onClick={() => openSite(site.id)} className="block w-full bg-slate-100 p-4 text-left">
                   <div className="h-44 overflow-hidden rounded-2xl bg-white shadow-inner">
@@ -588,10 +589,8 @@ export default function Home() {
                   <div className="flex gap-2">
                     <Button onClick={() => openSite(site.id)} className="flex-1 gap-2 bg-blue-600 hover:bg-blue-700">
                       <PenTool className="h-4 w-4" />
-                      Edit
+                      Edit site
                     </Button>
-                    <Button onClick={() => duplicateSite(site)} variant="outline">Duplicate</Button>
-                    <Button onClick={() => deleteSite(site.id)} variant="outline">Delete</Button>
                   </div>
                 </div>
               </article>
