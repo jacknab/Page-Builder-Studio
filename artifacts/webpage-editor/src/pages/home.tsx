@@ -195,7 +195,6 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<ViewMode>("dashboard");
   const [isPreview, setIsPreview] = useState(false);
   const [deviceMode, setDeviceMode] = useState<DeviceMode>("desktop");
-  const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   const [showCodeDialog, setShowCodeDialog] = useState(false);
   const { toast } = useToast();
 
@@ -236,7 +235,6 @@ export default function Home() {
     const site = createSiteFromTemplate(template);
     setSites((current) => [site, ...current]);
     setActiveSiteId(site.id);
-    setShowTemplateDialog(false);
     setViewMode("builder");
     toast({ title: "Site created", description: `${site.name} is ready to edit.` });
   };
@@ -245,9 +243,12 @@ export default function Home() {
     const site = createSiteFromHtmlTemplate(template);
     setSites((current) => [site, ...current]);
     setActiveSiteId(site.id);
-    setShowTemplateDialog(false);
     setViewMode("builder");
     toast({ title: "HTML template added", description: `${site.name} is loaded with its original design.` });
+  };
+
+  const scrollToTemplates = () => {
+    document.getElementById("template-library")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const duplicateSite = (site: WebsiteSite) => {
@@ -396,7 +397,7 @@ export default function Home() {
                 <p className="text-sm text-slate-500">Website builder service workspace</p>
               </div>
             </div>
-            <Button onClick={() => setShowTemplateDialog(true)} className="gap-2 bg-blue-600 hover:bg-blue-700">
+            <Button onClick={scrollToTemplates} className="gap-2 bg-blue-600 hover:bg-blue-700">
               <Plus className="h-4 w-4" />
               Create new site
             </Button>
@@ -418,7 +419,7 @@ export default function Home() {
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-3">
-                  <Button onClick={() => setShowTemplateDialog(true)} size="lg" className="gap-2 bg-white text-slate-950 hover:bg-blue-50">
+                  <Button onClick={scrollToTemplates} size="lg" className="gap-2 bg-white text-slate-950 hover:bg-blue-50">
                     <LayoutTemplate className="h-4 w-4" />
                     Browse templates
                   </Button>
@@ -452,6 +453,19 @@ export default function Home() {
                 </div>
               </div>
             </div>
+          </section>
+
+          <section id="template-library" className="mb-10 scroll-mt-24 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-extrabold tracking-tight">Template library</h2>
+                <p className="text-sm text-slate-500">Choose a starter page below. No popup needed — browse and launch directly from here.</p>
+              </div>
+              <div className="rounded-full bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700">
+                {TEMPLATES.length + HTML_TEMPLATES.length} templates available
+              </div>
+            </div>
+            <TemplateLibrary onSelect={addSite} onSelectHtml={addHtmlSite} />
           </section>
 
           <div className="mb-4 flex items-end justify-between">
@@ -502,7 +516,6 @@ export default function Home() {
           </div>
         </main>
 
-        <TemplateDialog open={showTemplateDialog} onOpenChange={setShowTemplateDialog} onSelect={addSite} onSelectHtml={addHtmlSite} />
       </div>
     );
   }
@@ -741,46 +754,39 @@ export default function Home() {
   );
 }
 
-function TemplateDialog({ open, onOpenChange, onSelect, onSelectHtml }: { open: boolean; onOpenChange: (open: boolean) => void; onSelect: (template: Template) => void; onSelectHtml: (template: HtmlTemplate) => void }) {
+function TemplateLibrary({ onSelect, onSelectHtml }: { onSelect: (template: Template) => void; onSelectHtml: (template: HtmlTemplate) => void }) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl">
-        <DialogHeader>
-          <DialogTitle>Start from a template</DialogTitle>
-        </DialogHeader>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {TEMPLATES.map((template) => (
-            <button key={template.id} onClick={() => onSelect(template)} className="group rounded-3xl border border-border bg-card p-4 text-left transition hover:-translate-y-1 hover:shadow-xl">
-              <div className="mb-4 h-40 overflow-hidden rounded-2xl bg-muted">
-                <div className="origin-top scale-[0.28] w-[360%] pointer-events-none">
-                  {template.blocks.slice(0, 3).map((block) => (
-                    <BlockRenderer key={block.id} block={block} onChange={() => undefined} onDelete={() => undefined} preview />
-                  ))}
-                </div>
-              </div>
-              <h3 className="text-lg font-extrabold tracking-tight">{template.name}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{template.description}</p>
-              <div className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-primary">
-                Use this template
-                <Globe2 className="h-4 w-4 transition group-hover:translate-x-1" />
-              </div>
-            </button>
-          ))}
-          {HTML_TEMPLATES.map((template) => (
-            <button key={template.id} onClick={() => onSelectHtml(template)} className="group rounded-3xl border border-border bg-card p-4 text-left transition hover:-translate-y-1 hover:shadow-xl">
-              <div className="mb-4 h-40 overflow-hidden rounded-2xl bg-muted">
-                <iframe title={`${template.name} preview`} srcDoc={template.html} className="h-[520px] w-full origin-top scale-[0.28] border-0" />
-              </div>
-              <h3 className="text-lg font-extrabold tracking-tight">{template.name}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{template.description}</p>
-              <div className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-primary">
-                Use full HTML template
-                <Globe2 className="h-4 w-4 transition group-hover:translate-x-1" />
-              </div>
-            </button>
-          ))}
-        </div>
-      </DialogContent>
-    </Dialog>
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {TEMPLATES.map((template) => (
+        <button key={template.id} onClick={() => onSelect(template)} className="group rounded-3xl border border-border bg-card p-4 text-left transition hover:-translate-y-1 hover:shadow-xl">
+          <div className="mb-4 h-40 overflow-hidden rounded-2xl bg-muted">
+            <div className="origin-top scale-[0.28] w-[360%] pointer-events-none">
+              {template.blocks.slice(0, 3).map((block) => (
+                <BlockRenderer key={block.id} block={block} onChange={() => undefined} onDelete={() => undefined} preview />
+              ))}
+            </div>
+          </div>
+          <h3 className="text-lg font-extrabold tracking-tight">{template.name}</h3>
+          <p className="mt-1 text-sm text-muted-foreground">{template.description}</p>
+          <div className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-primary">
+            Use this template
+            <Globe2 className="h-4 w-4 transition group-hover:translate-x-1" />
+          </div>
+        </button>
+      ))}
+      {HTML_TEMPLATES.map((template) => (
+        <button key={template.id} onClick={() => onSelectHtml(template)} className="group rounded-3xl border border-border bg-card p-4 text-left transition hover:-translate-y-1 hover:shadow-xl">
+          <div className="mb-4 h-40 overflow-hidden rounded-2xl bg-muted">
+            <iframe title={`${template.name} preview`} srcDoc={template.html} className="h-[520px] w-full origin-top scale-[0.28] border-0" />
+          </div>
+          <h3 className="text-lg font-extrabold tracking-tight">{template.name}</h3>
+          <p className="mt-1 text-sm text-muted-foreground">{template.description}</p>
+          <div className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-primary">
+            Use full HTML template
+            <Globe2 className="h-4 w-4 transition group-hover:translate-x-1" />
+          </div>
+        </button>
+      ))}
+    </div>
   );
 }
