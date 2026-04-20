@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>VOLT Nail Atelier — Bold Nails & Precision Manicures in Brooklyn</title>
+<meta name="description" content="VOLT Nail Atelier — unapologetic, high-energy nail salon in Brooklyn offering gel manicures, luxe nail art, and express treatments. Book online or call (718) 555-0147." />
+<style>
+:root{
+  --bg:#0f0f0f;
+  --coral:#ff4d4d;
+  --lime:#ccff00;
+  --muted:rgba(255,255,255,0.08);
+  --max-width:1200px;
+  --gap:1.25rem;
+  --radius:8px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size:16px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:#fff;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  line-height:1.35;
+  -webkit-text-size-adjust:100%;
+}
+
+/* Header bar */
+header.site-header{
+  position:sticky;
+  top:0;
+  z-index:40;
+  background:linear-gradient(180deg, rgba(15,15,15,0.92), rgba(15,15,15,0.85));
+  border-bottom:1px solid rgba(255,255,255,0.03);
+  backdrop-filter: blur(4px);
+}
+.header-inner{
+  max-width:var(--max-width);
+  margin:0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:var(--gap);
+  padding:.75rem 1rem;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:.75rem;
+  letter-spacing:.06em;
+  font-weight:900;
+  color:var(--coral);
+  font-size:1rem;
+}
+.brand .badge{
+  display:inline-grid;
+  place-items:center;
+  width:36px;height:36px;
+  background:var(--lime);
+  color:#0a0a0a;
+  border-radius:6px;
+  font-weight:900;
+  font-size:.9rem;
+}
+.header-contact{font-size:.9rem;color:rgba(255,255,255,0.7)}
+.nav{
+  display:flex;
+  gap:1rem;
+  align-items:center;
+}
+.nav a{
+  color:rgba(255,255,255,0.8);
+  text-decoration:none;
+  font-weight:700;
+  font-size:.9rem;
+  padding:.35rem .5rem;
+  border-radius:6px;
+}
+.nav a.cta{background:var(--coral); color:#111}
+
+/* HERO: centered typographic with image behind */
+.hero{
+  position:relative;
+  min-height:62vh;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  padding:4rem 1rem;
+}
+.hero .hero-media{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  overflow:hidden;
+}
+.hero .hero-media img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  filter:contrast(.9) saturate(.95) brightness(.45);
+  transform:scale(1.03);
+}
+.hero .overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.55));
+  z-index:1;
+  mix-blend-mode:multiply;
+}
+.hero-inner{
+  position:relative;
+  z-index:2;
+  text-align:center;
+  max-width:var(--max-width);
+  width:100%;
+  padding:2rem 1rem;
+}
+h1{
+  margin:0;
+  font-size:clamp(2.2rem,6.5vw,5rem);
+  line-height:0.9;
+  letter-spacing:-0.02em;
+  color:var(--coral);
+  font-weight:900;
+  text-transform:uppercase;
+  text-shadow:0 6px 18px rgba(0,0,0,0.6);
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
+.hero-sub{
+  margin-top:.6rem;
+  color:var(--lime);
+  font-weight:900;
+  font-size:clamp(1rem,2.3vw,1.25rem);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+/* Cinematic service strips */
+.services{
+  display:flex;
+  flex-direction:column;
+  gap:1.25rem;
+  margin-top: -2.5rem; /* overlap hero */
+  padding:1rem;
+}
+.service-strip{
+  position:relative;
+  border-radius:12px;
+  overflow:hidden;
+  min-height:220px;
+  display:grid;
+  grid-template-columns: 1fr 480px;
+  align-items:stretch;
+  background:linear-gradient(90deg, rgba(0,0,0,0.18), rgba(0,0,0,0.15));
+}
+.service-strip:nth-child(odd){ grid-template-columns:480px 1fr; }
+.service-strip img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  filter:brightness(.9) contrast(1.05);
+}
+.service-info{
+  padding:1.4rem 1.6rem;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:.6rem;
+  background:linear-gradient(180deg, rgba(0,0,0,0.2), rgba(0,0,0,0.28));
+}
+.service-title{
+  font-size:1.35rem;
+  color:var(--coral);
+  font-weight:900;
+  letter-spacing:.02em;
+  margin:0;
+}
+.service-desc{
+  margin:0;
+  color:rgba(255,255,255,0.86);
+  font-size:.98rem;
+}
+.service-meta{
+  margin-top:.6rem;
+  display:flex;
+  gap:.6rem;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.pill{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.04);
+  padding:.4rem .7rem;
+  border-radius:999px;
+  color:rgba(255,255,255,0.85);
+  font-weight:700;
+  font-size:.85rem;
+}
+.btn{
+  background:var(--coral);
+  color:#0b0b0b;
+  padding:.6rem .9rem;
+  border-radius:8px;
+  font-weight:900;
+  border:none;
+  cursor:pointer;
+  font-size:.95rem;
+  margin-left:auto;
+}
+
+/* Gallery: creative non-uniform grid */
+.gallery-wrap{
+  max-width:var(--max-width);
+  margin:2rem auto;
+  padding:0 1rem 2rem 1rem;
+}
+.gallery-title{
+  font-size:1.05rem;
+  color:var(--lime);
+  font-weight:900;
+  letter-spacing:.12em;
+  margin-bottom:.75rem;
+  text-transform:uppercase;
+}
+.gallery{
+  display:grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-auto-rows:120px;
+  gap:10px;
+}
+.gallery .item{overflow:hidden; border-radius:8px; position:relative}
+.gallery img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  transform-origin:center;
+  transition:transform .6s cubic-bezier(.2,.9,.2,1);
+}
+.gallery .item:hover img{ transform:scale(1.06); }
+
+/* Assign creative spans */
+.item.a{ grid-column:1 / span 2; grid-row:1 / span 2; }
+.item.b{ grid-column:3 / span 1; grid-row:1 / span 1; }
+.item.c{ grid-column:4 / span 2; grid-row:1 / span 2; }
+.item.d{ grid-column:6 / span 1; grid-row:1 / span 2; }
+.item.e{ grid-column:3 / span 1; grid-row:2 / span 1; }
+.item.f{ grid-column:5 / span 1; grid-row:2 / span 1; }
+
+/* About: overlapping editorial block */
+.about{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1rem;
+  max-width:var(--max-width);
+  margin: -1.5rem auto 2rem auto;
+  padding:2rem 1rem;
+  align-items:center;
+}
+.about .photo{
+  position:relative;
+  border-radius:12px;
+  overflow:hidden;
+  transform:rotate(-1deg);
+  box-shadow:0 18px 40px rgba(0,0,0,0.6);
+}
+.about img{ width:100%; height:100%; object-fit:cover; display:block; }
+.about .copy{
+  padding:1.25rem 1.1rem;
+  background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius:12px;
+}
+.about h2{
+  margin:0 0 .4rem 0;
+  font-size:1.35rem;
+  color:var(--coral);
+  font-weight:900;
+}
+.about p{margin:0;color:rgba(255,255,255,0.86);font-size:1rem}
+.chips{display:flex;gap:.5rem;margin-top:.9rem;flex-wrap:wrap}
+.chips span{font-weight:800;padding:.35rem .6rem;border-radius:999px;background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.9);font-size:.85rem}
+
+/* Contact split */
+.contact-split{
+  display:grid;
+  grid-template-columns:1fr 420px;
+  gap:1rem;
+  max-width:var(--max-width);
+  margin:2rem auto 3rem auto;
+  padding:1rem;
+}
+.contact-form{
+  background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  padding:1.25rem;
+  border-radius:12px;
+}
+form label{display:block;font-size:.85rem;color:rgba(255,255,255,0.8);margin-bottom:.35rem;font-weight:700}
+input,textarea,select{
+  width:100%;
+  padding:.7rem;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,0.06);
+  background:rgba(255,255,255,0.02);
+  color:#fff;
+  font-size:1rem;
+  margin-bottom:.8rem;
+  resize:vertical;
+}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.contact-aside{
+  background:linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.35));
+  border-radius:12px;
+  padding:1rem;
+  display:flex;
+  flex-direction:column;
+  gap:.9rem;
+  align-items:stretch;
+  justify-content:flex-start;
+}
+.contact-aside img{width:100%;height:180px;object-fit:cover;border-radius:8px}
+.contact-info{display:flex;flex-direction:column;gap:.4rem}
+.contact-info .phone{font-weight:900;color:var(--coral);font-size:1.15rem}
+.address{color:rgba(255,255,255,0.8);font-weight:700}
+.hours{color:rgba(255,255,255,0.72);font-size:.95rem}
+
+/* Footer */
+footer{max-width:var(--max-width);margin:0 auto 2rem auto;padding:1rem;color:rgba(255,255,255,0.6);font-size:.9rem;text-align:center}
+
+/* Responsive */
+@media (max-width:900px){
+  .service-strip{grid-template-columns:1fr; min-height:200px}
+  .service-strip:nth-child(odd){}
+  .about{grid-template-columns:1fr; margin-top:0}
+  .contact-split{grid-template-columns:1fr; padding:1rem}
+  .gallery{grid-template-columns: repeat(3, 1fr); grid-auto-rows:100px}
+  .gallery .item.a{ grid-column:1 / span 2; grid-row:1 / span 2;}
+  .gallery .item.c{ grid-column:3 / span 1; grid-row:1 / span 2;}
+  .gallery .item.d{ display:none; }
+}
+@media (max-width:480px){
+  .header-inner{padding:.6rem .8rem}
+  .brand{font-size:.95rem}
+  h1{font-size:2.4rem}
+  .hero{padding:2.2rem 1rem}
+  .gallery{grid-template-columns:repeat(2,1fr);grid-auto-rows:100px}
+  .gallery .item.a{grid-column:1 / span 2;grid-row:1/ span 1}
+  .gallery .item.c{grid-column:1 / span 1}
+  .gallery .item.e{grid-column:2 / span 1}
+  .service-info{padding:1rem}
+  .hero-sub{font-size:.95rem}
+}
+</style>
+</head>
+<body>
+<header class="site-header" role="banner">
+  <div class="header-inner">
+    <div class="brand" aria-label="VOLT Nail Atelier brand">
+      <div class="badge">V</div>
+      VOLT Nail Atelier
+    </div>
+    <nav class="nav" role="navigation" aria-label="Main navigation">
+      <a href="#services">Services</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#about">About</a>
+      <a href="#contact" class="cta">Book Now</a>
+    </nav>
+    <div class="header-contact">Call (718) 555-0147</div>
+  </div>
+</header>
+
+<main>
+
+  <section class="hero" aria-label="Hero — VOLT Nail Atelier">
+    <div class="hero-media" aria-hidden="false">
+      <img src="https://loremflickr.com/1400/800/manicure,nails,elegant?lock=104" alt="elegant manicure close-up at a luxury nail salon" />
+    </div>
+    <div class="overlay" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <h1>VOLT — Nails, Elevated</h1>
+      <div class="hero-sub">Brooklyn • Gel • Nail Art • Express</div>
+    </div>
+  </section>
+
+  <section id="services" class="services" aria-labelledby="services-heading">
+    <h2 id="services-heading" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden">Services at VOLT Nail Atelier</h2>
+
+    <article class="service-strip" aria-labelledby="svc-gel">
+      <img src="https://loremflickr.com/800/600/gel,nails,hands?lock=202" alt="gel manicure close-up with vibrant polish at a nail salon" />
+      <div class="service-info" role="region" aria-label="Gel Manicure details">
+        <div style="display:flex;align-items:center;gap:1rem">
+          <h3 id="svc-gel" class="service-title">Signature Gel</h3>
+          <div class="pill">45–75 min</div>
+        </div>
+        <p class="service-desc">High-shine gel manicures with precise shaping and chip-resistant finish. Custom color blends and long-lasting gloss for an unapologetic look.</p>
+        <div class="service-meta">
+          <div class="pill">From $48</div>
+          <div style="margin-left:auto"><button class="btn" onclick="location.href='#contact'">Book Signature Gel</button></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="service-strip" aria-labelledby="svc-art">
+      <div class="service-info" role="region" aria-label="Nail Art details">
+        <h3 id="svc-art" class="service-title">Bespoke Nail Art</h3>
+        <p class="service-desc">Editorial nail art created by our senior technicians — hand-painted accents, metallic inlays, and couture finishes tailored to your style.</p>
+        <div class="service-meta">
+          <div class="pill">Advanced design</div>
+          <div class="pill">From $65</div>
+          <div style="margin-left:auto"><button class="btn" onclick="location.href='#contact'">Design Consultation</button></div>
+        </div>
+      </div>
+      <img src="https://loremflickr.com/800/600/nail,polish,beauty?lock=203" alt="detailed nail polish and design tools on display at a salon" />
+    </article>
+
+  </section>
+
+  <section id="gallery" class="gallery-wrap" aria-labelledby="gallery-heading">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div class="gallery-title" id="gallery-heading">Gallery — Editorial Nail Works</div>
+        <p style="margin:0 0 .6rem 0;color:rgba(255,255,255,0.75)">A curated selection of recent gel work, textures, and high-impact finishes straight from our Brooklyn studio.</p>
+      </div>
+      <div style="color:rgba(255,255,255,0.5);font-weight:700">Open Tue–Sun • Walk-ins & Appointments</div>
+    </div>
+
+    <div class="gallery" role="list" aria-label="Nail art gallery">
+      <div class="item a" role="listitem"><img src="https://loremflickr.com/600/600/nail,art,design?lock=301" alt="nail art design with geometric accents on glossy gel manicure" /></div>
+      <div class="item b" role="listitem"><img src="https://loremflickr.com/600/600/manicure,nails,pink?lock=302" alt="soft pink manicure close-up in a boutique nail salon" /></div>
+      <div class="item c" role="listitem"><img src="https://loremflickr.com/600/600/gel,nails,design?lock=303" alt="bold gel nails with layered textures and metallic detail" /></div>
+      <div class="item d" role="listitem"><img src="https://loremflickr.com/600/600/nail,art,macro?lock=304" alt="macro shot of intricate nail art and crystals on a salon table" /></div>
+      <div class="item e" role="listitem"><img src="https://loremflickr.com/600/600/nails,beauty,fashion?lock=305" alt="fashion-forward nails with high-contrast polish in studio lighting" /></div>
+      <div class="item f" role="listitem"><img src="https://loremflickr.com/600/600/nail,glitter,design?lock=306" alt="glitter gel manicure with layered sparkle finish in salon" /></div>
+    </div>
+  </section>
+
+  <section id="about" class="about" aria-labelledby="about-heading">
+    <div class="photo" aria-hidden="false">
+      <img src="https://loremflickr.com/900/600/nail,technician,working?lock=403" alt="nail technician working on a client's manicure in a salon studio" />
+    </div>
+    <div class="copy">
+      <h2 id="about-heading">About VOLT</h2>
+      <p>VOLT Nail Atelier is a high-energy, editorial nail studio in Brooklyn. We blend precise technique with fearless color — offering gel services, custom nail art, and express treatments designed for the person who means business.</p>
+      <div class="chips" aria-hidden="false">
+        <span>Master Technicians</span>
+        <span>Medical-grade sanitation</span>
+        <span>Custom polish mixing</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="contact-split" aria-labelledby="contact-heading">
+    <div class="contact-form" role="form" aria-labelledby="contact-heading">
+      <h2 id="contact-heading" style="margin-top:0;color:var(--coral);font-size:1.15rem">Book Your Appointment</h2>
+      <p style="margin:0 0 1rem 0;color:rgba(255,255,255,0.78)">Fast bookings and same-week availability. For urgent requests call (718) 555-0147.</p>
+      <form action="#" method="post" onsubmit="alert('Booking request sent — this is a demo.'); return false;">
+        <label for="name">Full name</label>
+        <input id="name" name="name" type="text" required placeholder="Alex Rivera" />
+        <div class="form-row">
+          <div>
+            <label for="phone">Phone</label>
+            <input id="phone" name="phone" type="tel" required placeholder="(718) 555-0147" />
+          </div>
+          <div>
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="alex@example.com" />
+          </div>
+        </div>
+        <label for="service">Service</label>
+        <select id="service" name="service" required>
+          <option value="signature-gel">Signature Gel — $48+</option>
+          <option value="bespoke-art">Bespoke Nail Art — $65+</option>
+          <option value="express-polish">Express Polish — $28</option>
+        </select>
+        <label for="notes">Notes / Preferred day</label>
+        <textarea id="notes" name="notes" rows="4" placeholder="Preferred date, color notes, accessibility needs"></textarea>
+        <div style="display:flex;gap:.6rem;align-items:center">
+          <button class="btn" type="submit">Request Booking</button>
+          <div style="color:rgba(255,255,255,0.6);font-weight:700">or call <span style="color:var(--coral)">(718) 555-0147</span></div>
+        </div>
+      </form>
+    </div>
+
+    <aside class="contact-aside" aria-label="Contact details and Salon image">
+      <img src="https://loremflickr.com/900/600/salon,desk,reception?lock=501" alt="salon reception desk and interior at a nail salon" />
+      <div class="contact-info">
+        <div class="phone">Tel: (718) 555-0147</div>
+        <div class="address">VOLT Nail Atelier — 142 Wythe Ave, Brooklyn, NY 11249</div>
+        <div class="hours">Hours: Tue–Sun 10:00 — 20:00 • Closed Monday</div>
+      </div>
+      <div style="margin-top:auto;color:rgba(255,255,255,0.68);font-size:.95rem">Walk-ins welcome when available. We accept major cards and contactless payments.</div>
+    </aside>
+  </section>
+
+</main>
+
+<footer role="contentinfo">
+  <div>VOLT Nail Atelier • 142 Wythe Ave, Brooklyn, NY 11249 • (718) 555-0147</div>
+  <div style="margin-top:.5rem;color:rgba(255,255,255,0.45)">© <span id="yr"></span> VOLT Nail Atelier. All rights reserved.</div>
+</footer>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,9 +1,25 @@
 import { useLocation } from "wouter";
+import { useState, useEffect } from "react";
 import { ArrowRight, CheckCircle2, Code2, Download, LayoutTemplate, MousePointer2, Palette, ShieldCheck, Sparkles, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { isLoggedIn } from "@/lib/auth";
 import { HTML_TEMPLATES } from "@/lib/htmlTemplates";
 import { TEMPLATES } from "@/lib/templates";
+
+type AiTemplate = {
+  id: number;
+  name: string;
+  description: string;
+  style: string;
+  html: string;
+};
+
+const STYLE_BADGE: Record<string, string> = {
+  luxury: "AI · Luxury",
+  modern: "AI · Modern",
+  minimal: "AI · Minimal",
+  bold: "AI · Bold",
+};
 
 const features = [
   {
@@ -29,13 +45,13 @@ const steps = [
   "Preview on desktop and mobile, then export the final page",
 ];
 
-const templateGallery = [
+const BASE_GALLERY = [
   ...TEMPLATES.map((template) => ({
     id: template.id,
     name: template.name,
     description: template.description,
     type: "Block template",
-    html: null,
+    html: null as string | null,
     imageUrl: String(template.blocks.find((block) => block.type === "hero" || block.type === "image")?.props.imageUrl ?? template.blocks.find((block) => block.type === "image")?.props.url ?? ""),
   })),
   ...HTML_TEMPLATES.map((template) => ({
@@ -43,7 +59,7 @@ const templateGallery = [
     name: template.name,
     description: template.description,
     type: "Full-page HTML",
-    html: template.html,
+    html: template.html as string | null,
     imageUrl: "",
   })),
 ];
@@ -51,6 +67,28 @@ const templateGallery = [
 export default function Landing() {
   const [, navigate] = useLocation();
   const loggedIn = isLoggedIn();
+  const [aiTemplates, setAiTemplates] = useState<AiTemplate[]>([]);
+
+  useEffect(() => {
+    fetch("/api/templates")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data.templates)) setAiTemplates(data.templates);
+      })
+      .catch(() => {});
+  }, []);
+
+  const templateGallery = [
+    ...BASE_GALLERY,
+    ...aiTemplates.map((t) => ({
+      id: String(t.id),
+      name: t.name,
+      description: t.description,
+      type: STYLE_BADGE[t.style] ?? "AI Template",
+      html: t.html as string | null,
+      imageUrl: "",
+    })),
+  ];
 
   return (
     <div className="min-h-screen overflow-hidden bg-[#f5f1e8] text-slate-950">
@@ -231,8 +269,8 @@ export default function Landing() {
                     <iframe
                       title={`${template.name} preview`}
                       srcDoc={template.html}
-                      className="h-[720px] w-full origin-top scale-[0.31] border-0 pointer-events-none"
-                      style={{ width: "323%" }}
+                      className="h-[600px] w-full border-0 pointer-events-none"
+                      style={{ transform: "scale(0.31)", transformOrigin: "top left", width: "323%" }}
                     />
                   ) : template.imageUrl ? (
                     <div className="relative h-full">
