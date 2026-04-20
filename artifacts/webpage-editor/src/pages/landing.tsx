@@ -261,43 +261,37 @@ export default function Landing() {
             </Button>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {templateGallery.map((template) => (
-              <article key={template.id} className="group overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-                <div className="h-56 overflow-hidden bg-slate-100">
+              <article
+                key={template.id}
+                onClick={() => navigate("/signup")}
+                className="group cursor-pointer overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+              >
+                <div className="h-44 overflow-hidden bg-slate-100">
                   {template.html ? (
                     <iframe
                       title={`${template.name} preview`}
                       srcDoc={template.html}
-                      className="h-[600px] w-full border-0 pointer-events-none"
-                      style={{ transform: "scale(0.31)", transformOrigin: "top left", width: "323%" }}
+                      className="h-[520px] w-full border-0 pointer-events-none"
+                      style={{ transform: "scale(0.28)", transformOrigin: "top left", width: "358%" }}
                     />
                   ) : template.imageUrl ? (
-                    <div className="relative h-full">
-                      <img src={template.imageUrl} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-                      <div className="absolute inset-0 bg-gradient-to-br from-slate-950/65 via-slate-950/25 to-blue-700/40" />
-                      <div className="absolute bottom-5 left-5 right-5 text-white">
-                        <div className="mb-3 h-2 w-24 rounded-full bg-white/40" />
-                        <p className="text-3xl font-black leading-tight">{template.name}</p>
-                      </div>
-                    </div>
+                    <img src={template.imageUrl} alt={template.name} className="h-full w-full object-cover" />
                   ) : (
                     <div className="flex h-full items-center justify-center bg-gradient-to-br from-blue-600 to-slate-950 p-8 text-center text-white">
-                      <p className="text-3xl font-black">{template.name}</p>
+                      <p className="text-2xl font-black">{template.name}</p>
                     </div>
                   )}
                 </div>
-                <div className="p-6">
-                  <div className="mb-4 flex items-center justify-between gap-3">
-                    <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-extrabold text-blue-700">{template.type}</span>
-                    <span className="text-xs font-semibold text-slate-400">Ready to customize</span>
+                <div className="flex items-center justify-between gap-2 px-4 py-4">
+                  <div className="min-w-0">
+                    <h3 className="text-base font-bold tracking-tight text-slate-900 truncate">{template.name}</h3>
+                    <span className="mt-1.5 inline-flex items-center rounded-full bg-blue-100 px-3 py-0.5 text-xs font-semibold text-blue-700">
+                      {template.type}
+                    </span>
                   </div>
-                  <h3 className="text-xl font-extrabold tracking-tight text-slate-950">{template.name}</h3>
-                  <p className="mt-2 min-h-[3.5rem] text-sm leading-6 text-slate-600">{template.description}</p>
-                  <Button onClick={() => navigate("/signup")} className="mt-5 w-full gap-2 rounded-2xl bg-slate-950 font-extrabold hover:bg-blue-600">
-                    Edit this template
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
+                  <ArrowRight className="h-4 w-4 shrink-0 text-slate-400 transition group-hover:translate-x-1 group-hover:text-blue-600" />
                 </div>
               </article>
             ))}

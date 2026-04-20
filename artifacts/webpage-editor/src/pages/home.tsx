@@ -33,6 +33,7 @@ import {
   Settings,
   Smartphone,
   Sparkles,
+  Trash2,
   Wand2,
 } from "lucide-react";
 
@@ -997,24 +998,25 @@ function TemplateLibrary({ onSelect, onSelectHtml }: { onSelect: (template: Temp
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {filteredBlockTemplates.map((template) => (
-          <button key={template.id} onClick={() => onSelect(template)} className="group rounded-3xl border border-border bg-card p-4 text-left transition hover:-translate-y-1 hover:shadow-xl">
-            <div className="mb-4 h-40 overflow-hidden rounded-2xl bg-muted">
+          <button
+            key={template.id}
+            onClick={() => onSelect(template)}
+            className="group overflow-hidden rounded-2xl border border-slate-200 bg-white text-left shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+          >
+            <div className="h-44 overflow-hidden bg-slate-100">
               <div className="origin-top scale-[0.28] w-[360%] pointer-events-none">
                 {template.blocks.slice(0, 3).map((block) => (
                   <BlockRenderer key={block.id} block={block} onChange={() => undefined} onDelete={() => undefined} preview />
                 ))}
               </div>
             </div>
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <h3 className="text-lg font-extrabold tracking-tight">{template.name}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{template.description}</p>
+            <div className="flex items-center justify-between gap-2 px-4 py-4">
+              <div className="min-w-0">
+                <h3 className="text-base font-bold tracking-tight text-slate-900 truncate">{template.name}</h3>
+                <span className="mt-1.5 inline-flex items-center rounded-full bg-slate-100 px-3 py-0.5 text-xs font-semibold text-slate-600">
+                  Built-in
+                </span>
               </div>
-              <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-500">Built-in</span>
-            </div>
-            <div className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-primary">
-              Use this template
-              <Globe2 className="h-4 w-4 transition group-hover:translate-x-1" />
             </div>
           </button>
         ))}
@@ -1023,39 +1025,57 @@ function TemplateLibrary({ onSelect, onSelectHtml }: { onSelect: (template: Temp
           const category = getCategoryById(template.categoryId);
           const isCustom = template.isCustom;
           const handleClick = () => {
-            if (isCustom) {
-              onSelectHtml({ id: template.id, name: template.name, description: template.description, html: template.html });
-            } else {
-              onSelectHtml({ id: template.id, name: template.name, description: template.description, html: template.html });
-            }
+            onSelectHtml({ id: template.id, name: template.name, description: template.description, html: template.html });
           };
           return (
-            <button key={template.id} onClick={handleClick} className="group rounded-3xl border border-border bg-card p-4 text-left transition hover:-translate-y-1 hover:shadow-xl">
-              <div className="mb-4 h-40 overflow-hidden rounded-2xl bg-muted">
-                <iframe title={`${template.name} preview`} srcDoc={template.html} className="h-[520px] w-full origin-top scale-[0.28] border-0 pointer-events-none" />
-              </div>
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <h3 className="text-lg font-extrabold tracking-tight truncate">{template.name}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{template.description}</p>
-                  {category && (
-                    <span
-                      className="mt-1.5 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold text-white"
-                      style={{ backgroundColor: category.color }}
+            <div key={template.id} className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+              <button onClick={handleClick} className="w-full text-left">
+                <div className="h-44 overflow-hidden bg-slate-100">
+                  <iframe
+                    title={`${template.name} preview`}
+                    srcDoc={template.html}
+                    className="h-[520px] w-full origin-top scale-[0.28] border-0 pointer-events-none"
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-2 px-4 py-4">
+                  <div className="min-w-0">
+                    <h3 className="text-base font-bold tracking-tight text-slate-900 truncate">{template.name}</h3>
+                    {category ? (
+                      <span
+                        className="mt-1.5 inline-flex items-center rounded-full px-3 py-0.5 text-xs font-semibold text-white"
+                        style={{ backgroundColor: category.color }}
+                      >
+                        {category.name}
+                      </span>
+                    ) : isCustom ? (
+                      <span className="mt-1.5 inline-flex items-center rounded-full bg-blue-100 px-3 py-0.5 text-xs font-semibold text-blue-700">
+                        Custom
+                      </span>
+                    ) : (
+                      <span className="mt-1.5 inline-flex items-center rounded-full bg-slate-100 px-3 py-0.5 text-xs font-semibold text-slate-600">
+                        Built-in
+                      </span>
+                    )}
+                  </div>
+                  {isCustom && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const confirmed = window.confirm(`Delete "${template.name}"?`);
+                        if (confirmed) {
+                          const stored = JSON.parse(localStorage.getItem("admin-custom-templates") ?? "[]");
+                          localStorage.setItem("admin-custom-templates", JSON.stringify(stored.filter((t: { id: string }) => t.id !== template.id)));
+                          window.dispatchEvent(new Event(ADMIN_STORAGE_EVENT));
+                        }
+                      }}
+                      className="shrink-0 rounded-full p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-500"
                     >
-                      {category.name}
-                    </span>
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   )}
                 </div>
-                {isCustom && (
-                  <span className="shrink-0 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-600">Custom</span>
-                )}
-              </div>
-              <div className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-primary">
-                {isCustom ? "Use custom template" : "Use full HTML template"}
-                <Globe2 className="h-4 w-4 transition group-hover:translate-x-1" />
-              </div>
-            </button>
+              </button>
+            </div>
           );
         })}
       </div>
