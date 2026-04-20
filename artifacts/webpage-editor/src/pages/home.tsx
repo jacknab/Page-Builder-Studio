@@ -921,10 +921,153 @@ function TemplateCounter() {
   );
 }
 
+type TemplateCardItem =
+  | { kind: "block"; template: Template }
+  | { kind: "html"; template: { id: string; name: string; description: string; html: string; categoryId?: string | null; isCustom?: boolean } };
+
+function TemplateCard({
+  item,
+  category,
+  onSelect,
+  onSelectHtml,
+  onDelete,
+}: {
+  item: TemplateCardItem;
+  category?: Category | null;
+  onSelect: (t: Template) => void;
+  onSelectHtml: (t: HtmlTemplate) => void;
+  onDelete?: () => void;
+}) {
+  if (item.kind === "block") {
+    const t = item.template;
+    return (
+      <button
+        onClick={() => onSelect(t)}
+        className="group overflow-hidden rounded-2xl border border-slate-200 bg-white text-left shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+      >
+        <div className="h-48 overflow-hidden bg-slate-100">
+          <div className="origin-top-left pointer-events-none" style={{ transform: "scale(0.3)", width: "333%", transformOrigin: "top left" }}>
+            {t.blocks.slice(0, 3).map((block) => (
+              <BlockRenderer key={block.id} block={block} onChange={() => undefined} onDelete={() => undefined} preview />
+            ))}
+          </div>
+        </div>
+        <div className="flex items-center justify-between gap-2 px-4 py-4">
+          <div className="min-w-0">
+            <h3 className="text-base font-bold tracking-tight text-slate-900 truncate">{t.name}</h3>
+            <span className="mt-1.5 inline-flex items-center rounded-full bg-slate-100 px-3 py-0.5 text-xs font-semibold text-slate-600">
+              Built-in
+            </span>
+          </div>
+        </div>
+      </button>
+    );
+  }
+
+  const t = item.template;
+  const isCustom = !!t.isCustom;
+
+  return (
+    <div className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+      <button
+        onClick={() => onSelectHtml({ id: t.id, name: t.name, description: t.description, html: t.html })}
+        className="w-full text-left"
+      >
+        <div className="h-48 overflow-hidden bg-slate-100">
+          <iframe
+            title={`${t.name} preview`}
+            srcDoc={t.html}
+            className="h-[600px] w-full border-0 pointer-events-none"
+            style={{ transform: "scale(0.3)", transformOrigin: "top left", width: "333%" }}
+          />
+        </div>
+        <div className="flex items-center justify-between gap-2 px-4 py-4">
+          <div className="min-w-0">
+            <h3 className="text-base font-bold tracking-tight text-slate-900 truncate">{t.name}</h3>
+            {category ? (
+              <span
+                className="mt-1.5 inline-flex items-center rounded-full px-3 py-0.5 text-xs font-semibold text-white"
+                style={{ backgroundColor: category.color }}
+              >
+                {category.name}
+              </span>
+            ) : isCustom ? (
+              <span className="mt-1.5 inline-flex items-center rounded-full bg-blue-100 px-3 py-0.5 text-xs font-semibold text-blue-700">
+                Custom
+              </span>
+            ) : (
+              <span className="mt-1.5 inline-flex items-center rounded-full bg-slate-100 px-3 py-0.5 text-xs font-semibold text-slate-600">
+                Built-in
+              </span>
+            )}
+          </div>
+          {isCustom && onDelete && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                const confirmed = window.confirm(`Delete "${t.name}"?`);
+                if (confirmed) onDelete();
+              }}
+              className="shrink-0 rounded-full p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-500"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      </button>
+    </div>
+  );
+}
+
+function TemplateCategorySection({
+  label,
+  color,
+  items,
+  categories,
+  onSelect,
+  onSelectHtml,
+  onDelete,
+}: {
+  label: string;
+  color?: string;
+  items: TemplateCardItem[];
+  categories: Category[];
+  onSelect: (t: Template) => void;
+  onSelectHtml: (t: HtmlTemplate) => void;
+  onDelete: (id: string) => void;
+}) {
+  if (items.length === 0) return null;
+  return (
+    <div className="mb-8">
+      <div className="mb-4 flex items-center gap-2">
+        {color && <span className="inline-block h-3 w-3 rounded-full" style={{ backgroundColor: color }} />}
+        <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500">{label}</h3>
+        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-500">{items.length}</span>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {items.map((item) => {
+          const catId = item.kind === "html" ? item.template.categoryId : null;
+          const cat = catId ? categories.find((c) => c.id === catId) : null;
+          const id = item.kind === "block" ? item.template.id : item.template.id;
+          return (
+            <TemplateCard
+              key={id}
+              item={item}
+              category={cat}
+              onSelect={onSelect}
+              onSelectHtml={onSelectHtml}
+              onDelete={item.kind === "html" && item.template.isCustom ? () => onDelete(id) : undefined}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function TemplateLibrary({ onSelect, onSelectHtml }: { onSelect: (template: Template) => void; onSelectHtml: (template: HtmlTemplate) => void }) {
   const [customTemplates, setCustomTemplates] = useState<CustomHtmlTemplate[]>(() => getCustomTemplates());
   const [categories, setCategories] = useState<Category[]>(() => getCategories());
-  const [activeCategory, setActiveCategory] = useState<string>("all");
 
   useEffect(() => {
     const update = () => {
@@ -944,141 +1087,50 @@ function TemplateLibrary({ onSelect, onSelectHtml }: { onSelect: (template: Temp
     };
   }, []);
 
-  const allHtmlTemplates: Array<{ id: string; name: string; description: string; html: string; categoryId?: string | null; isCustom?: boolean }> = [
-    ...HTML_TEMPLATES.map((t) => ({ ...t, categoryId: null, isCustom: false })),
-    ...customTemplates.map((t) => ({ ...t, isCustom: true })),
+  const handleDelete = (id: string) => {
+    const stored: CustomHtmlTemplate[] = JSON.parse(localStorage.getItem("launchsite-admin-templates") ?? "[]");
+    localStorage.setItem("launchsite-admin-templates", JSON.stringify(stored.filter((t) => t.id !== id)));
+    window.dispatchEvent(new CustomEvent(ADMIN_STORAGE_EVENT));
+  };
+
+  const builtInItems: TemplateCardItem[] = [
+    ...TEMPLATES.map((t): TemplateCardItem => ({ kind: "block", template: t })),
+    ...HTML_TEMPLATES.map((t): TemplateCardItem => ({ kind: "html", template: { ...t, categoryId: null, isCustom: false } })),
   ];
 
-  const filteredBlockTemplates = activeCategory === "all" || activeCategory === "built-in"
-    ? TEMPLATES
-    : [];
-
-  const filteredHtmlTemplates = allHtmlTemplates.filter((t) => {
-    if (activeCategory === "all") return true;
-    if (activeCategory === "built-in") return !t.isCustom;
-    if (activeCategory === "custom") return t.isCustom;
-    return t.categoryId === activeCategory;
-  });
-
-  const categoryTabs = [
-    { id: "all", label: "All templates" },
-    { id: "built-in", label: "Built-in" },
-    ...(customTemplates.length > 0 ? [{ id: "custom", label: "Custom" }] : []),
-    ...categories.map((c) => ({ id: c.id, label: c.name, color: c.color })),
+  const sections: Array<{ label: string; color?: string; items: TemplateCardItem[] }> = [
+    { label: "Built-in", items: builtInItems },
+    ...categories.map((cat) => ({
+      label: cat.name,
+      color: cat.color,
+      items: customTemplates
+        .filter((t) => t.categoryId === cat.id)
+        .map((t): TemplateCardItem => ({ kind: "html", template: { ...t, isCustom: true } })),
+    })),
   ];
 
-  const getCategoryById = (id: string | null | undefined) =>
-    id ? categories.find((c) => c.id === id) : null;
+  const uncategorizedCustom = customTemplates.filter((t) => !t.categoryId);
+  if (uncategorizedCustom.length > 0) {
+    sections.push({
+      label: "Custom",
+      items: uncategorizedCustom.map((t): TemplateCardItem => ({ kind: "html", template: { ...t, isCustom: true } })),
+    });
+  }
 
   return (
     <div>
-      {(categories.length > 0 || customTemplates.length > 0) && (
-        <div className="mb-5 flex flex-wrap gap-2">
-          {categoryTabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveCategory(tab.id)}
-              className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold transition ${
-                activeCategory === tab.id
-                  ? "bg-slate-900 text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
-            >
-              {"color" in tab && tab.color && (
-                <span
-                  className="inline-block h-2 w-2 rounded-full"
-                  style={{ backgroundColor: tab.color }}
-                />
-              )}
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      )}
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filteredBlockTemplates.map((template) => (
-          <button
-            key={template.id}
-            onClick={() => onSelect(template)}
-            className="group overflow-hidden rounded-2xl border border-slate-200 bg-white text-left shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
-          >
-            <div className="h-44 overflow-hidden bg-slate-100">
-              <div className="origin-top scale-[0.28] w-[360%] pointer-events-none">
-                {template.blocks.slice(0, 3).map((block) => (
-                  <BlockRenderer key={block.id} block={block} onChange={() => undefined} onDelete={() => undefined} preview />
-                ))}
-              </div>
-            </div>
-            <div className="flex items-center justify-between gap-2 px-4 py-4">
-              <div className="min-w-0">
-                <h3 className="text-base font-bold tracking-tight text-slate-900 truncate">{template.name}</h3>
-                <span className="mt-1.5 inline-flex items-center rounded-full bg-slate-100 px-3 py-0.5 text-xs font-semibold text-slate-600">
-                  Built-in
-                </span>
-              </div>
-            </div>
-          </button>
-        ))}
-
-        {filteredHtmlTemplates.map((template) => {
-          const category = getCategoryById(template.categoryId);
-          const isCustom = template.isCustom;
-          const handleClick = () => {
-            onSelectHtml({ id: template.id, name: template.name, description: template.description, html: template.html });
-          };
-          return (
-            <div key={template.id} className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-              <button onClick={handleClick} className="w-full text-left">
-                <div className="h-44 overflow-hidden bg-slate-100">
-                  <iframe
-                    title={`${template.name} preview`}
-                    srcDoc={template.html}
-                    className="h-[520px] w-full origin-top scale-[0.28] border-0 pointer-events-none"
-                  />
-                </div>
-                <div className="flex items-center justify-between gap-2 px-4 py-4">
-                  <div className="min-w-0">
-                    <h3 className="text-base font-bold tracking-tight text-slate-900 truncate">{template.name}</h3>
-                    {category ? (
-                      <span
-                        className="mt-1.5 inline-flex items-center rounded-full px-3 py-0.5 text-xs font-semibold text-white"
-                        style={{ backgroundColor: category.color }}
-                      >
-                        {category.name}
-                      </span>
-                    ) : isCustom ? (
-                      <span className="mt-1.5 inline-flex items-center rounded-full bg-blue-100 px-3 py-0.5 text-xs font-semibold text-blue-700">
-                        Custom
-                      </span>
-                    ) : (
-                      <span className="mt-1.5 inline-flex items-center rounded-full bg-slate-100 px-3 py-0.5 text-xs font-semibold text-slate-600">
-                        Built-in
-                      </span>
-                    )}
-                  </div>
-                  {isCustom && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const confirmed = window.confirm(`Delete "${template.name}"?`);
-                        if (confirmed) {
-                          const stored = JSON.parse(localStorage.getItem("admin-custom-templates") ?? "[]");
-                          localStorage.setItem("admin-custom-templates", JSON.stringify(stored.filter((t: { id: string }) => t.id !== template.id)));
-                          window.dispatchEvent(new Event(ADMIN_STORAGE_EVENT));
-                        }
-                      }}
-                      className="shrink-0 rounded-full p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-500"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  )}
-                </div>
-              </button>
-            </div>
-          );
-        })}
-      </div>
+      {sections.map((section) => (
+        <TemplateCategorySection
+          key={section.label}
+          label={section.label}
+          color={section.color}
+          items={section.items}
+          categories={categories}
+          onSelect={onSelect}
+          onSelectHtml={onSelectHtml}
+          onDelete={handleDelete}
+        />
+      ))}
     </div>
   );
 }

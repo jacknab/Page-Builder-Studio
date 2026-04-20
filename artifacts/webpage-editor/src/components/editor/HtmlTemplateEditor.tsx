@@ -19,41 +19,55 @@ interface SelectedElement {
 
 const decorateHtml = (html: string, preview: boolean) => {
   const escapedPreview = preview ? "true" : "false";
-  const injection = `
-<style data-launchsite-editor="true">
-  ${preview ? "" : `
-  [contenteditable="true"] * { outline-offset: 3px; }
+
+  // Strip CSP meta tags that would block our injected scripts
+  let processed = html.replace(/<meta[^>]*http-equiv=["']Content-Security-Policy["'][^>]*\/?>/gi, "");
+
+  // Early script — injected into <head> to run BEFORE page scripts.
+  // Overrides window.top so frame-busting checks (top !== self) silently fail,
+  // while parent.postMessage still works normally for our editor communication.
+  const earlyScript = `<script data-launchsite-editor="true">
+(function(){
+  try { Object.defineProperty(window,'top',{get:function(){return window;},configurable:true}); } catch(e){}
+})();
+</script>`;
+
+  const editorStyles = preview ? "" : `
+  *, *::before, *::after { pointer-events: auto !important; }
+  [contenteditable="true"] { user-select: text !important; }
   [data-launchsite-selected="true"] { outline: 3px solid #2563eb !important; outline-offset: 4px !important; }
-  a, button { cursor: ${preview ? "pointer" : "text"} !important; }
-  `}
-</style>
+  a[href], button { cursor: text !important; }`;
+
+  const editorInjection = `
+<style data-launchsite-editor="true">${editorStyles}</style>
 <script data-launchsite-editor="true">
 (function(){
   var preview = ${escapedPreview};
   var selected = null;
+  var realParent = (function(){ try { return Object.getOwnPropertyDescriptor(Window.prototype,'parent')||Object.getOwnPropertyDescriptor(window,'parent'); } catch(e){ return null; } })();
+  function getParent(){ try { return realParent && realParent.get ? realParent.get.call(window) : parent; } catch(e){ return null; } }
   function cleanHtml(){
     var clone = document.documentElement.cloneNode(true);
-    clone.querySelectorAll('[data-launchsite-editor="true"]').forEach(function(node){ node.remove(); });
-    clone.querySelectorAll('[data-launchsite-selected]').forEach(function(node){ node.removeAttribute('data-launchsite-selected'); });
-    clone.querySelectorAll('[contenteditable]').forEach(function(node){ node.removeAttribute('contenteditable'); });
+    clone.querySelectorAll('[data-launchsite-editor="true"]').forEach(function(n){ n.remove(); });
+    clone.querySelectorAll('[data-launchsite-selected]').forEach(function(n){ n.removeAttribute('data-launchsite-selected'); });
+    clone.querySelectorAll('[contenteditable]').forEach(function(n){ n.removeAttribute('contenteditable'); });
     return '<!DOCTYPE html>\n' + clone.outerHTML;
   }
-  function postSave(){ parent.postMessage({ type:'launchsite-html-updated', html: cleanHtml() }, '*'); }
-  function clearSelection(){
-    document.querySelectorAll('[data-launchsite-selected]').forEach(function(node){ node.removeAttribute('data-launchsite-selected'); });
-  }
+  function postSave(){ var p=getParent(); if(p) p.postMessage({ type:'launchsite-html-updated', html: cleanHtml() }, '*'); }
+  function clearSelection(){ document.querySelectorAll('[data-launchsite-selected]').forEach(function(n){ n.removeAttribute('data-launchsite-selected'); }); }
   if (!preview) {
     document.body.setAttribute('contenteditable', 'true');
     document.addEventListener('click', function(event){
       var target = event.target;
       if (!target || target === document.documentElement || target === document.body) return;
-      if (target.closest('[data-launchsite-editor="true"]')) return;
+      if (target.closest && target.closest('[data-launchsite-editor="true"]')) return;
       event.preventDefault();
       event.stopPropagation();
       clearSelection();
       selected = target;
       selected.setAttribute('data-launchsite-selected', 'true');
-      parent.postMessage({
+      var p=getParent();
+      if(p) p.postMessage({
         type:'launchsite-selected',
         tag: selected.tagName || '',
         text: selected.innerText || selected.alt || '',
@@ -64,15 +78,11 @@ const decorateHtml = (html: string, preview: boolean) => {
     window.addEventListener('message', function(event){
       var data = event.data || {};
       if (data.type === 'launchsite-delete-selected' && selected) {
-        var removeTarget = selected;
-        selected = null;
-        removeTarget.remove();
-        clearSelection();
-        postSave();
+        var removeTarget = selected; selected = null;
+        removeTarget.remove(); clearSelection(); postSave();
       }
       if (data.type === 'launchsite-update-image' && selected && selected.tagName === 'IMG') {
-        selected.setAttribute('src', data.src || '');
-        postSave();
+        selected.setAttribute('src', data.src || ''); postSave();
       }
       if (data.type === 'launchsite-save') postSave();
     });
@@ -80,11 +90,20 @@ const decorateHtml = (html: string, preview: boolean) => {
 })();
 </script>`;
 
-  if (html.includes("</body>")) {
-    return html.replace("</body>", `${injection}</body>`);
+  // Inject early script into <head> so it runs before any page scripts
+  if (processed.includes("<head>")) {
+    processed = processed.replace("<head>", `<head>${earlyScript}`);
+  } else if (/<html[^>]*>/i.test(processed)) {
+    processed = processed.replace(/<html[^>]*>/i, (m) => `${m}${earlyScript}`);
+  } else {
+    processed = earlyScript + processed;
   }
 
-  return `${html}${injection}`;
+  // Inject editor script/styles just before </body>
+  if (processed.includes("</body>")) {
+    return processed.replace("</body>", `${editorInjection}</body>`);
+  }
+  return `${processed}${editorInjection}`;
 };
 
 export function HtmlTemplateEditor({ html, onChange, preview, deviceMode }: HtmlTemplateEditorProps) {
