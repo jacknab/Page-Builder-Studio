@@ -27,7 +27,7 @@ export default function Signup() {
     const result = await signup(email, password);
 
     if (result.success) {
-      navigate("/");
+      navigate("/app");
     } else {
       setError(result.error ?? "Something went wrong.");
       setLoading(false);

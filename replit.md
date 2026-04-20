@@ -6,6 +6,8 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 
 The primary user-facing app is **Webpage Editor**, a standalone React/Vite web app for selecting pre-made single-page HTML-style templates, editing copy and images, deleting unwanted blocks, previewing desktop/mobile layouts, and downloading generated HTML. It now supports both block-based templates and complete uploaded HTML page templates.
 
+The public root route `/` is a marketing homepage for LaunchSite. The authenticated editor/studio experience lives at `/app`, and admin/template management lives at `/admin`.
+
 ## Stack
 
 - **Monorepo tool**: pnpm workspaces

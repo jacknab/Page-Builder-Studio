@@ -21,7 +21,7 @@ export default function Login() {
     const result = await login(email, password);
 
     if (result.success) {
-      navigate("/");
+      navigate("/app");
     } else {
       setError(result.error ?? "Something went wrong.");
       setLoading(false);

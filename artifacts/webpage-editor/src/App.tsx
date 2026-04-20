@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
+import Landing from "@/pages/landing";
 import Home from "@/pages/home";
 import Admin from "@/pages/admin";
 import Login from "@/pages/login";
@@ -22,7 +23,7 @@ function PrivateRoute({ component: Component }: { component: React.ComponentType
 
 function PublicOnlyRoute({ component: Component }: { component: React.ComponentType }) {
   if (isLoggedIn()) {
-    return <Redirect to="/" />;
+    return <Redirect to="/app" />;
   }
   return <Component />;
 }
@@ -30,12 +31,13 @@ function PublicOnlyRoute({ component: Component }: { component: React.ComponentT
 function Router() {
   return (
     <Switch>
+      <Route path="/" component={Landing} />
       <Route path="/login" component={() => <PublicOnlyRoute component={Login} />} />
       <Route path="/signup" component={() => <PublicOnlyRoute component={Signup} />} />
       <Route path="/forgot-password" component={ForgotPassword} />
       <Route path="/reset-password" component={ResetPassword} />
       <Route path="/admin" component={() => <PrivateRoute component={Admin} />} />
-      <Route path="/" component={() => <PrivateRoute component={Home} />} />
+      <Route path="/app" component={() => <PrivateRoute component={Home} />} />
       <Route component={NotFound} />
     </Switch>
   );
