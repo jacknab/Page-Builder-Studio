@@ -9,6 +9,7 @@ import { HtmlTemplateEditor } from "@/components/editor/HtmlTemplateEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
@@ -17,17 +18,22 @@ import { useToast } from "@/hooks/use-toast";
 import { generateHtml } from "@/lib/export";
 import {
   ArrowLeft,
+  Calendar,
   CheckCircle2,
   Clock3,
   Code,
+  Code2,
   Download,
   Eye,
   FileText,
   Globe2,
   Grid3X3,
   LayoutTemplate,
+  Link,
+  Map,
   Monitor,
   PenTool,
+  Play,
   Plus,
   Rocket,
   Settings,
@@ -235,23 +241,8 @@ export default function Home() {
   const [isPreview, setIsPreview] = useState(false);
   const [deviceMode, setDeviceMode] = useState<DeviceMode>("desktop");
   const [showCodeDialog, setShowCodeDialog] = useState(false);
-  const [sidebarCustomTemplates, setSidebarCustomTemplates] = useState<CustomHtmlTemplate[]>(() => getCustomTemplates());
+  const [customCode, setCustomCode] = useState("");
   const { toast } = useToast();
-
-  useEffect(() => {
-    const update = () => setSidebarCustomTemplates(getCustomTemplates());
-    update();
-    window.addEventListener("focus", update);
-    window.addEventListener("storage", update);
-    window.addEventListener("visibilitychange", update);
-    window.addEventListener(ADMIN_STORAGE_EVENT, update);
-    return () => {
-      window.removeEventListener("focus", update);
-      window.removeEventListener("storage", update);
-      window.removeEventListener("visibilitychange", update);
-      window.removeEventListener(ADMIN_STORAGE_EVENT, update);
-    };
-  }, []);
 
   const activeSite = useMemo(
     () => sites.find((site) => site.id === activeSiteId) ?? sites[0],
@@ -372,6 +363,23 @@ export default function Home() {
 
   const addBlock = (type: Block["type"]) => {
     updateActiveSite((site) => ({ ...site, blocks: [...site.blocks, createBlock(type)] }));
+  };
+
+  const injectCodeToSite = (code: string) => {
+    if (!code.trim()) return;
+    if (activeSite.source === "html") {
+      const html = activeSite.html ?? "";
+      const injected = html.includes("</body>")
+        ? html.replace("</body>", `${code}\n</body>`)
+        : `${html}\n${code}`;
+      updateActiveSite((site) => ({ ...site, html: injected }));
+      toast({ title: "Code injected", description: "Your code has been added to the page." });
+    } else {
+      const newBlock = createBlock("widget");
+      newBlock.props = { ...newBlock.props, html: code };
+      updateActiveSite((site) => ({ ...site, blocks: [...site.blocks, newBlock] }));
+      toast({ title: "Widget added", description: "A widget block with your code has been added." });
+    }
   };
 
   const applyTemplateToActiveSite = (template: Template) => {
@@ -624,49 +632,101 @@ export default function Home() {
               </TabsList>
 
               <TabsContent value="site" className="mt-5 space-y-6">
+                {/* Pages */}
                 <div className="space-y-3">
                   <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    <LayoutTemplate className="h-4 w-4" /> Templates
+                    <FileText className="h-4 w-4" /> Pages
                   </h3>
-                  <div className="grid gap-2">
-                    {TEMPLATES.map((template) => (
-                      <Button
-                        key={template.id}
-                        variant={activeSite.templateId === template.id ? "default" : "outline"}
-                        className="block h-auto w-full justify-start px-4 py-3 text-left"
-                        onClick={() => applyTemplateToActiveSite(template)}
-                      >
-                        <span className="block font-semibold">{template.name}</span>
-                        <span className="block whitespace-normal text-xs font-normal opacity-75">{template.description}</span>
-                      </Button>
-                    ))}
-                    {HTML_TEMPLATES.map((template) => (
-                      <Button
-                        key={template.id}
-                        variant={activeSite.templateId === template.id ? "default" : "outline"}
-                        className="block h-auto w-full justify-start px-4 py-3 text-left"
-                        onClick={() => applyHtmlTemplateToActiveSite(template)}
-                      >
-                        <span className="block font-semibold">{template.name}</span>
-                        <span className="block whitespace-normal text-xs font-normal opacity-75">{template.description}</span>
-                      </Button>
-                    ))}
-                    {sidebarCustomTemplates.map((template) => (
-                      <Button
-                        key={template.id}
-                        variant={activeSite.templateId === template.id ? "default" : "outline"}
-                        className="block h-auto w-full justify-start px-4 py-3 text-left"
-                        onClick={() => applyHtmlTemplateToActiveSite({ id: template.id, name: template.name, description: template.description, html: template.html })}
-                      >
-                        <span className="block font-semibold">{template.name} <span className="text-blue-500 text-xs">(custom)</span></span>
-                        <span className="block whitespace-normal text-xs font-normal opacity-75">{template.description}</span>
-                      </Button>
-                    ))}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50 px-3 py-2.5">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-blue-600" />
+                        <span className="text-sm font-semibold text-blue-900">Home page</span>
+                      </div>
+                      <span className="rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-bold text-white">Active</span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      className="w-full gap-2 border-dashed"
+                      onClick={() => { setViewMode("dashboard"); setTimeout(() => { document.getElementById("template-library")?.scrollIntoView({ behavior: "smooth" }); }, 100); }}
+                    >
+                      <Plus className="h-4 w-4" />
+                      Add new page
+                    </Button>
                   </div>
                 </div>
 
                 <Separator />
 
+                {/* Embeds & Widgets */}
+                <div className="space-y-3">
+                  <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <Link className="h-4 w-4" /> Quick Embeds
+                  </h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      variant="outline"
+                      className="h-14 flex-col gap-1 items-start px-3 text-left"
+                      onClick={() => injectCodeToSite(`<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;margin:2rem 0"><iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allowfullscreen></iframe></div>`)}
+                    >
+                      <Play className="h-4 w-4 text-red-500" />
+                      <span className="text-xs font-semibold">YouTube Video</span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="h-14 flex-col gap-1 items-start px-3 text-left"
+                      onClick={() => injectCodeToSite(`<div style="margin:2rem 0"><iframe src="https://maps.google.com/maps?q=YOUR+LOCATION&output=embed" width="100%" height="350" style="border:0;border-radius:12px" allowfullscreen loading="lazy"></iframe></div>`)}
+                    >
+                      <Map className="h-4 w-4 text-green-600" />
+                      <span className="text-xs font-semibold">Google Maps</span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="h-14 flex-col gap-1 items-start px-3 text-left"
+                      onClick={() => injectCodeToSite(`<!-- Calendly inline widget -->\n<div class="calendly-inline-widget" data-url="https://calendly.com/YOUR_LINK" style="min-width:320px;height:630px;margin:2rem 0"></div>\n<script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>`)}
+                    >
+                      <Calendar className="h-4 w-4 text-blue-500" />
+                      <span className="text-xs font-semibold">Calendly</span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="h-14 flex-col gap-1 items-start px-3 text-left"
+                      onClick={() => injectCodeToSite(`<iframe src="YOUR_EMBED_URL" width="100%" height="400" style="border:0;border-radius:12px;margin:2rem 0" allowfullscreen></iframe>`)}
+                    >
+                      <Globe2 className="h-4 w-4 text-slate-500" />
+                      <span className="text-xs font-semibold">URL / iFrame</span>
+                    </Button>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Custom Code */}
+                <div className="space-y-3">
+                  <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <Code2 className="h-4 w-4" /> Custom Code
+                  </h3>
+                  <p className="text-xs text-muted-foreground">Paste any HTML, script, or widget code. It will be added to the bottom of the page.</p>
+                  <Textarea
+                    placeholder={'<script src="...">\n<!-- or any HTML embed -->'}
+                    value={customCode}
+                    onChange={(e) => setCustomCode(e.target.value)}
+                    className="font-mono text-xs"
+                    rows={5}
+                  />
+                  <Button
+                    className="w-full gap-2"
+                    disabled={!customCode.trim()}
+                    onClick={() => { injectCodeToSite(customCode); setCustomCode(""); }}
+                  >
+                    <Code2 className="h-4 w-4" />
+                    Add to page
+                  </Button>
+                </div>
+
+                <Separator />
+
+                {/* Page Sections */}
                 <div className="space-y-3">
                   <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     <Grid3X3 className="h-4 w-4" /> Page sections
@@ -674,7 +734,7 @@ export default function Home() {
                   <div className="space-y-2">
                     {activeSite.source === "html" ? (
                       <div className="rounded-xl border border-border bg-background p-4 text-sm text-muted-foreground">
-                        This is a complete HTML page template. Edit text directly inside the page, click images to replace them, and use Delete selected for unwanted elements.
+                        Full HTML template — edit text directly on the page, click images to replace them, and use Delete selected to remove elements.
                       </div>
                     ) : activeSite.blocks.map((block, index) => (
                       <div key={block.id} className="flex items-center justify-between rounded-xl border border-border bg-background p-3 text-sm">
