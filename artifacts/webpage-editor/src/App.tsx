@@ -1,18 +1,37 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Admin from "@/pages/admin";
+import Login from "@/pages/login";
+import Signup from "@/pages/signup";
+import { isLoggedIn } from "@/lib/auth";
 
 const queryClient = new QueryClient();
+
+function PrivateRoute({ component: Component }: { component: React.ComponentType }) {
+  if (!isLoggedIn()) {
+    return <Redirect to="/login" />;
+  }
+  return <Component />;
+}
+
+function PublicOnlyRoute({ component: Component }: { component: React.ComponentType }) {
+  if (isLoggedIn()) {
+    return <Redirect to="/" />;
+  }
+  return <Component />;
+}
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/admin" component={Admin} />
+      <Route path="/login" component={() => <PublicOnlyRoute component={Login} />} />
+      <Route path="/signup" component={() => <PublicOnlyRoute component={Signup} />} />
+      <Route path="/admin" component={() => <PrivateRoute component={Admin} />} />
+      <Route path="/" component={() => <PrivateRoute component={Home} />} />
       <Route component={NotFound} />
     </Switch>
   );
