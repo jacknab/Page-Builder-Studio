@@ -4,7 +4,7 @@
 
 pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
 
-The primary user-facing app is **Webpage Editor**, a standalone React/Vite web app for selecting pre-made single-page HTML-style templates, editing copy and images, deleting unwanted blocks, previewing desktop/mobile layouts, and downloading generated HTML.
+The primary user-facing app is **Webpage Editor**, a standalone React/Vite web app for selecting pre-made single-page HTML-style templates, editing copy and images, deleting unwanted blocks, previewing desktop/mobile layouts, and downloading generated HTML. It now supports both block-based templates and complete uploaded HTML page templates.
 
 ## Stack
 
@@ -18,6 +18,7 @@ The primary user-facing app is **Webpage Editor**, a standalone React/Vite web a
 - **API codegen**: Orval (from OpenAPI spec)
 - **Build**: esbuild (CJS bundle)
 - **Frontend app**: React + Vite (`artifacts/webpage-editor`)
+- **Template sources**: built-in block templates plus full HTML templates generated from `attached_assets/*.html`
 
 ## Key Commands
 

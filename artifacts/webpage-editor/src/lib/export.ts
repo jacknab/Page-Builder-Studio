@@ -1,6 +1,6 @@
 import { Block } from './templates';
 
-export function generateHtml(blocks: Block[]): string {
+export function generateHtml(blocks: Block[], title = 'My Generated Site'): string {
   const blockHtmls = blocks.map(b => {
     switch (b.type) {
       case 'hero':
@@ -71,7 +71,7 @@ export function generateHtml(blocks: Block[]): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Generated Site</title>
+  <title>${title}</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">

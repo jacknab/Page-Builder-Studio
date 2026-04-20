@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Block, TEMPLATES, Template, generateId } from "@/lib/templates";
+import { HTML_TEMPLATES, HtmlTemplate } from "@/lib/htmlTemplates";
 import { BlockRenderer } from "@/components/editor/blocks";
+import { HtmlTemplateEditor } from "@/components/editor/HtmlTemplateEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,14 +36,17 @@ import {
 type DeviceMode = "desktop" | "mobile";
 type ViewMode = "dashboard" | "builder";
 type SiteStatus = "draft" | "live";
+type SiteSource = "blocks" | "html";
 
 interface WebsiteSite {
   id: string;
   name: string;
   slug: string;
   status: SiteStatus;
+  source: SiteSource;
   templateId: string;
   blocks: Block[];
+  html?: string;
   createdAt: string;
   lastEdited: string;
   publishedAt?: string;
@@ -68,10 +73,17 @@ const starterSite = (): WebsiteSite => ({
   name: "New Startup Site",
   slug: "new-startup-site",
   status: "draft",
+  source: "blocks",
   templateId: TEMPLATES[0].id,
   blocks: cloneBlocks(TEMPLATES[0].blocks),
   createdAt: new Date().toISOString(),
   lastEdited: new Date().toISOString(),
+});
+
+const normalizeSite = (site: WebsiteSite): WebsiteSite => ({
+  ...site,
+  source: site.source ?? "blocks",
+  blocks: site.blocks ?? [],
 });
 
 const createSiteFromTemplate = (template: Template, name?: string): WebsiteSite => {
@@ -82,12 +94,26 @@ const createSiteFromTemplate = (template: Template, name?: string): WebsiteSite 
     name: siteName,
     slug: toSlug(siteName),
     status: "draft",
+    source: "blocks",
     templateId: template.id,
     blocks: cloneBlocks(template.blocks),
     createdAt: new Date().toISOString(),
     lastEdited: new Date().toISOString(),
   };
 };
+
+const createSiteFromHtmlTemplate = (template: HtmlTemplate): WebsiteSite => ({
+  id: generateId(),
+  name: template.name,
+  slug: toSlug(template.name),
+  status: "draft",
+  source: "html",
+  templateId: template.id,
+  blocks: [],
+  html: template.html,
+  createdAt: new Date().toISOString(),
+  lastEdited: new Date().toISOString(),
+});
 
 const blockLabels: Record<Block["type"], string> = {
   hero: "Hero",
@@ -160,7 +186,7 @@ export default function Home() {
 
     try {
       const parsed = JSON.parse(saved) as WebsiteSite[];
-      return parsed.length ? parsed : [starterSite()];
+      return parsed.length ? parsed.map(normalizeSite) : [starterSite()];
     } catch {
       return [starterSite()];
     }
@@ -215,6 +241,15 @@ export default function Home() {
     toast({ title: "Site created", description: `${site.name} is ready to edit.` });
   };
 
+  const addHtmlSite = (template: HtmlTemplate) => {
+    const site = createSiteFromHtmlTemplate(template);
+    setSites((current) => [site, ...current]);
+    setActiveSiteId(site.id);
+    setShowTemplateDialog(false);
+    setViewMode("builder");
+    toast({ title: "HTML template added", description: `${site.name} is loaded with its original design.` });
+  };
+
   const duplicateSite = (site: WebsiteSite) => {
     const copy: WebsiteSite = {
       ...site,
@@ -222,7 +257,9 @@ export default function Home() {
       name: `${site.name} Copy`,
       slug: `${site.slug}-copy`,
       status: "draft",
+      source: site.source,
       blocks: cloneBlocks(site.blocks),
+      html: site.html,
       createdAt: new Date().toISOString(),
       lastEdited: new Date().toISOString(),
       publishedAt: undefined,
@@ -284,10 +321,23 @@ export default function Home() {
   const applyTemplateToActiveSite = (template: Template) => {
     updateActiveSite((site) => ({
       ...site,
+      source: "blocks",
       templateId: template.id,
       blocks: cloneBlocks(template.blocks),
+      html: undefined,
     }));
     toast({ title: "Template loaded", description: "The builder canvas has been replaced with the selected template." });
+  };
+
+  const applyHtmlTemplateToActiveSite = (template: HtmlTemplate) => {
+    updateActiveSite((site) => ({
+      ...site,
+      source: "html",
+      templateId: template.id,
+      blocks: [],
+      html: template.html,
+    }));
+    toast({ title: "Full HTML template loaded", description: "The original uploaded page is now editable in the builder." });
   };
 
   const publishSite = () => {
@@ -309,7 +359,7 @@ export default function Home() {
   const exportHtml = () => {
     if (!activeSite) return;
 
-    const html = generateHtml(activeSite.blocks, activeSite.name);
+    const html = activeSite.source === "html" ? activeSite.html ?? "" : generateHtml(activeSite.blocks, activeSite.name);
     const blob = new Blob([html], { type: "text/html" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -323,13 +373,13 @@ export default function Home() {
   const copyHtml = async () => {
     if (!activeSite) return;
 
-    await navigator.clipboard.writeText(generateHtml(activeSite.blocks, activeSite.name));
+    await navigator.clipboard.writeText(activeSite.source === "html" ? activeSite.html ?? "" : generateHtml(activeSite.blocks, activeSite.name));
     toast({ title: "HTML copied", description: "The full page code is now on your clipboard." });
   };
 
   if (!activeSite) return null;
 
-  const generatedHtml = generateHtml(activeSite.blocks, activeSite.name);
+  const generatedHtml = activeSite.source === "html" ? activeSite.html ?? "" : generateHtml(activeSite.blocks, activeSite.name);
   const liveUrl = `${activeSite.slug}.launchsite.local`;
 
   if (viewMode === "dashboard") {
@@ -417,9 +467,13 @@ export default function Home() {
                 <button onClick={() => openSite(site.id)} className="block w-full bg-slate-100 p-4 text-left">
                   <div className="h-44 overflow-hidden rounded-2xl bg-white shadow-inner">
                     <div className="origin-top scale-[0.34] w-[300%] pointer-events-none">
-                      {site.blocks.slice(0, 3).map((block) => (
-                        <BlockRenderer key={block.id} block={block} onChange={() => undefined} onDelete={() => undefined} preview />
-                      ))}
+                      {site.source === "html" ? (
+                        <iframe title={`${site.name} preview`} srcDoc={site.html} className="h-[520px] w-full origin-top scale-[0.34] border-0" />
+                      ) : (
+                        site.blocks.slice(0, 3).map((block) => (
+                          <BlockRenderer key={block.id} block={block} onChange={() => undefined} onDelete={() => undefined} preview />
+                        ))
+                      )}
                     </div>
                   </div>
                 </button>
@@ -448,7 +502,7 @@ export default function Home() {
           </div>
         </main>
 
-        <TemplateDialog open={showTemplateDialog} onOpenChange={setShowTemplateDialog} onSelect={addSite} />
+        <TemplateDialog open={showTemplateDialog} onOpenChange={setShowTemplateDialog} onSelect={addSite} onSelectHtml={addHtmlSite} />
       </div>
     );
   }
@@ -498,6 +552,17 @@ export default function Home() {
                         <span className="block whitespace-normal text-xs font-normal opacity-75">{template.description}</span>
                       </Button>
                     ))}
+                    {HTML_TEMPLATES.map((template) => (
+                      <Button
+                        key={template.id}
+                        variant={activeSite.templateId === template.id ? "default" : "outline"}
+                        className="block h-auto w-full justify-start px-4 py-3 text-left"
+                        onClick={() => applyHtmlTemplateToActiveSite(template)}
+                      >
+                        <span className="block font-semibold">{template.name}</span>
+                        <span className="block whitespace-normal text-xs font-normal opacity-75">{template.description}</span>
+                      </Button>
+                    ))}
                   </div>
                 </div>
 
@@ -508,7 +573,11 @@ export default function Home() {
                     <Grid3X3 className="h-4 w-4" /> Page sections
                   </h3>
                   <div className="space-y-2">
-                    {activeSite.blocks.map((block, index) => (
+                    {activeSite.source === "html" ? (
+                      <div className="rounded-xl border border-border bg-background p-4 text-sm text-muted-foreground">
+                        This is a complete HTML page template. Edit text directly inside the page, click images to replace them, and use Delete selected for unwanted elements.
+                      </div>
+                    ) : activeSite.blocks.map((block, index) => (
                       <div key={block.id} className="flex items-center justify-between rounded-xl border border-border bg-background p-3 text-sm">
                         <div>
                           <p className="font-semibold">{index + 1}. {blockLabels[block.type]}</p>
@@ -528,13 +597,17 @@ export default function Home() {
                 <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   <Plus className="h-4 w-4" /> Add a section
                 </h3>
-                <div className="grid grid-cols-2 gap-2">
+                {activeSite.source === "html" ? (
+                  <div className="rounded-2xl border border-dashed border-border bg-muted/40 p-4 text-sm text-muted-foreground">
+                    Complete HTML templates keep their original structure. Use the in-page editor for text, image, and delete changes.
+                  </div>
+                ) : <div className="grid grid-cols-2 gap-2">
                   {(Object.keys(blockLabels) as Block["type"][]).map((type) => (
                     <Button key={type} variant="secondary" onClick={() => addBlock(type)} className="h-12 bg-muted text-sm shadow-none hover:bg-accent">
                       {blockLabels[type]}
                     </Button>
                   ))}
-                </div>
+                </div>}
                 <div className="rounded-2xl border border-dashed border-border bg-muted/40 p-4 text-sm text-muted-foreground">
                   Click text directly on the page to edit it. Hover images to replace them. Hover sections to delete them.
                 </div>
@@ -624,7 +697,14 @@ export default function Home() {
 
         <ScrollArea className="flex-1">
           <div className={`mx-auto transition-all duration-300 ${isPreview ? (deviceMode === "mobile" ? "my-8 min-h-[800px] max-w-[400px] overflow-hidden rounded-3xl border-x border-border bg-background shadow-2xl" : "max-w-none bg-background") : "max-w-[1200px] space-y-4 p-8"}`}>
-            {activeSite.blocks.length === 0 ? (
+            {activeSite.source === "html" ? (
+              <HtmlTemplateEditor
+                html={activeSite.html ?? ""}
+                onChange={(html) => updateActiveSite((site) => ({ ...site, html }))}
+                preview={isPreview}
+                deviceMode={deviceMode}
+              />
+            ) : activeSite.blocks.length === 0 ? (
               <div className="flex h-[60vh] flex-col items-center justify-center rounded-xl border-2 border-dashed border-border text-muted-foreground">
                 <LayoutTemplate className="mb-4 h-12 w-12 opacity-20" />
                 <p className="text-lg font-medium">Your page is empty</p>
@@ -661,7 +741,7 @@ export default function Home() {
   );
 }
 
-function TemplateDialog({ open, onOpenChange, onSelect }: { open: boolean; onOpenChange: (open: boolean) => void; onSelect: (template: Template) => void }) {
+function TemplateDialog({ open, onOpenChange, onSelect, onSelectHtml }: { open: boolean; onOpenChange: (open: boolean) => void; onSelect: (template: Template) => void; onSelectHtml: (template: HtmlTemplate) => void }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl">
@@ -682,6 +762,19 @@ function TemplateDialog({ open, onOpenChange, onSelect }: { open: boolean; onOpe
               <p className="mt-1 text-sm text-muted-foreground">{template.description}</p>
               <div className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-primary">
                 Use this template
+                <Globe2 className="h-4 w-4 transition group-hover:translate-x-1" />
+              </div>
+            </button>
+          ))}
+          {HTML_TEMPLATES.map((template) => (
+            <button key={template.id} onClick={() => onSelectHtml(template)} className="group rounded-3xl border border-border bg-card p-4 text-left transition hover:-translate-y-1 hover:shadow-xl">
+              <div className="mb-4 h-40 overflow-hidden rounded-2xl bg-muted">
+                <iframe title={`${template.name} preview`} srcDoc={template.html} className="h-[520px] w-full origin-top scale-[0.28] border-0" />
+              </div>
+              <h3 className="text-lg font-extrabold tracking-tight">{template.name}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{template.description}</p>
+              <div className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-primary">
+                Use full HTML template
                 <Globe2 className="h-4 w-4 transition group-hover:translate-x-1" />
               </div>
             </button>
