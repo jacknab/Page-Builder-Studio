@@ -8,6 +8,8 @@ The primary user-facing app is **Webpage Editor**, a standalone React/Vite web a
 
 The public root route `/` is a marketing homepage for LaunchSite. The authenticated editor/studio experience lives at `/app`, and admin/template management lives at `/admin`.
 
+The marketing homepage includes a public template gallery section. Each template card shows a preview and an "Edit this template" call-to-action that routes visitors to `/signup`.
+
 ## Stack
 
 - **Monorepo tool**: pnpm workspaces

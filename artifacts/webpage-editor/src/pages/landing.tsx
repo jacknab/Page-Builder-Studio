@@ -2,6 +2,8 @@ import { useLocation } from "wouter";
 import { ArrowRight, CheckCircle2, Code2, Download, LayoutTemplate, MousePointer2, Palette, ShieldCheck, Sparkles, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { isLoggedIn } from "@/lib/auth";
+import { HTML_TEMPLATES } from "@/lib/htmlTemplates";
+import { TEMPLATES } from "@/lib/templates";
 
 const features = [
   {
@@ -25,6 +27,25 @@ const steps = [
   "Pick a template that fits your business",
   "Customize the copy, images, colors, and sections",
   "Preview on desktop and mobile, then export the final page",
+];
+
+const templateGallery = [
+  ...TEMPLATES.map((template) => ({
+    id: template.id,
+    name: template.name,
+    description: template.description,
+    type: "Block template",
+    html: null,
+    imageUrl: String(template.blocks.find((block) => block.type === "hero" || block.type === "image")?.props.imageUrl ?? template.blocks.find((block) => block.type === "image")?.props.url ?? ""),
+  })),
+  ...HTML_TEMPLATES.map((template) => ({
+    id: template.id,
+    name: template.name,
+    description: template.description,
+    type: "Full-page HTML",
+    html: template.html,
+    imageUrl: "",
+  })),
 ];
 
 export default function Landing() {
@@ -188,20 +209,60 @@ export default function Landing() {
         </section>
 
         <section id="templates" className="mx-auto max-w-7xl px-6 py-14 pb-24">
-          <div className="rounded-[2rem] border border-blue-100 bg-white p-8 shadow-sm md:p-12">
-            <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
-              <div>
-                <p className="text-sm font-extrabold uppercase tracking-[0.2em] text-blue-600">Launch faster</p>
-                <h2 className="mt-3 text-4xl font-black tracking-tight">Start with a template and make it yours.</h2>
-                <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-600">
-                  Create pages for salons, restaurants, consultants, agencies, events, and more without waiting on a full custom build.
-                </p>
-              </div>
-              <Button size="lg" onClick={() => navigate(loggedIn ? "/app" : "/signup")} className="h-14 gap-2 rounded-2xl bg-blue-600 px-7 text-base font-extrabold hover:bg-blue-700">
-                Open the studio
-                <ArrowRight className="h-5 w-5" />
-              </Button>
+          <div className="mb-10 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-sm font-extrabold uppercase tracking-[0.2em] text-blue-600">Template gallery</p>
+              <h2 className="mt-3 max-w-3xl text-4xl font-black tracking-tight md:text-5xl">Choose a starting point, then edit it for your business.</h2>
+              <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-600">
+                Preview the templates available in LaunchSite. Pick one you like and create an account to customize the copy, sections, and images.
+              </p>
             </div>
+            <Button size="lg" onClick={() => navigate("/signup")} className="h-14 gap-2 rounded-2xl bg-blue-600 px-7 text-base font-extrabold hover:bg-blue-700">
+              See all in the editor
+              <ArrowRight className="h-5 w-5" />
+            </Button>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {templateGallery.map((template) => (
+              <article key={template.id} className="group overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+                <div className="h-56 overflow-hidden bg-slate-100">
+                  {template.html ? (
+                    <iframe
+                      title={`${template.name} preview`}
+                      srcDoc={template.html}
+                      className="h-[720px] w-full origin-top scale-[0.31] border-0 pointer-events-none"
+                      style={{ width: "323%" }}
+                    />
+                  ) : template.imageUrl ? (
+                    <div className="relative h-full">
+                      <img src={template.imageUrl} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-slate-950/65 via-slate-950/25 to-blue-700/40" />
+                      <div className="absolute bottom-5 left-5 right-5 text-white">
+                        <div className="mb-3 h-2 w-24 rounded-full bg-white/40" />
+                        <p className="text-3xl font-black leading-tight">{template.name}</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex h-full items-center justify-center bg-gradient-to-br from-blue-600 to-slate-950 p-8 text-center text-white">
+                      <p className="text-3xl font-black">{template.name}</p>
+                    </div>
+                  )}
+                </div>
+                <div className="p-6">
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-extrabold text-blue-700">{template.type}</span>
+                    <span className="text-xs font-semibold text-slate-400">Ready to customize</span>
+                  </div>
+                  <h3 className="text-xl font-extrabold tracking-tight text-slate-950">{template.name}</h3>
+                  <p className="mt-2 min-h-[3.5rem] text-sm leading-6 text-slate-600">{template.description}</p>
+                  <Button onClick={() => navigate("/signup")} className="mt-5 w-full gap-2 rounded-2xl bg-slate-950 font-extrabold hover:bg-blue-600">
+                    Edit this template
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </article>
+            ))}
           </div>
         </section>
       </main>
