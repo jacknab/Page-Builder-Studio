@@ -16,8 +16,13 @@ export interface CustomHtmlTemplate {
 
 const CATEGORIES_KEY = "launchsite-admin-categories";
 const TEMPLATES_KEY = "launchsite-admin-templates";
+export const ADMIN_STORAGE_EVENT = "launchsite-admin-storage-change";
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
+
+function notifyAdminStorageChange(): void {
+  window.dispatchEvent(new CustomEvent(ADMIN_STORAGE_EVENT));
+}
 
 export function getCategories(): Category[] {
   try {
@@ -30,6 +35,7 @@ export function getCategories(): Category[] {
 
 export function saveCategories(categories: Category[]): void {
   localStorage.setItem(CATEGORIES_KEY, JSON.stringify(categories));
+  notifyAdminStorageChange();
 }
 
 export function addCategory(name: string, color: string): Category {
@@ -64,6 +70,7 @@ export function getCustomTemplates(): CustomHtmlTemplate[] {
 
 export function saveCustomTemplates(templates: CustomHtmlTemplate[]): void {
   localStorage.setItem(TEMPLATES_KEY, JSON.stringify(templates));
+  notifyAdminStorageChange();
 }
 
 export function addCustomTemplate(

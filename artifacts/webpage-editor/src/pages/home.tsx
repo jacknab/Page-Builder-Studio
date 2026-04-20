@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { Block, TEMPLATES, Template, generateId, GOOGLE_FONTS } from "@/lib/templates";
 import { HTML_TEMPLATES, HtmlTemplate } from "@/lib/htmlTemplates";
-import { getCustomTemplates, getCategories, type CustomHtmlTemplate, type Category } from "@/lib/adminStorage";
+import { ADMIN_STORAGE_EVENT, getCustomTemplates, getCategories, type CustomHtmlTemplate, type Category } from "@/lib/adminStorage";
 import { logout, getUser } from "@/lib/auth";
 import { BlockRenderer } from "@/components/editor/blocks";
 import { HtmlTemplateEditor } from "@/components/editor/HtmlTemplateEditor";
@@ -234,7 +234,23 @@ export default function Home() {
   const [isPreview, setIsPreview] = useState(false);
   const [deviceMode, setDeviceMode] = useState<DeviceMode>("desktop");
   const [showCodeDialog, setShowCodeDialog] = useState(false);
+  const [sidebarCustomTemplates, setSidebarCustomTemplates] = useState<CustomHtmlTemplate[]>(() => getCustomTemplates());
   const { toast } = useToast();
+
+  useEffect(() => {
+    const update = () => setSidebarCustomTemplates(getCustomTemplates());
+    update();
+    window.addEventListener("focus", update);
+    window.addEventListener("storage", update);
+    window.addEventListener("visibilitychange", update);
+    window.addEventListener(ADMIN_STORAGE_EVENT, update);
+    return () => {
+      window.removeEventListener("focus", update);
+      window.removeEventListener("storage", update);
+      window.removeEventListener("visibilitychange", update);
+      window.removeEventListener(ADMIN_STORAGE_EVENT, update);
+    };
+  }, []);
 
   const activeSite = useMemo(
     () => sites.find((site) => site.id === activeSiteId) ?? sites[0],
@@ -634,7 +650,7 @@ export default function Home() {
                         <span className="block whitespace-normal text-xs font-normal opacity-75">{template.description}</span>
                       </Button>
                     ))}
-                    {getCustomTemplates().map((template) => (
+                    {sidebarCustomTemplates.map((template) => (
                       <Button
                         key={template.id}
                         variant={activeSite.templateId === template.id ? "default" : "outline"}
@@ -885,8 +901,17 @@ function TemplateCounter() {
   const [count, setCount] = useState(TEMPLATES.length + HTML_TEMPLATES.length + getCustomTemplates().length);
   useEffect(() => {
     const update = () => setCount(TEMPLATES.length + HTML_TEMPLATES.length + getCustomTemplates().length);
+    update();
     window.addEventListener("focus", update);
-    return () => window.removeEventListener("focus", update);
+    window.addEventListener("storage", update);
+    window.addEventListener("visibilitychange", update);
+    window.addEventListener(ADMIN_STORAGE_EVENT, update);
+    return () => {
+      window.removeEventListener("focus", update);
+      window.removeEventListener("storage", update);
+      window.removeEventListener("visibilitychange", update);
+      window.removeEventListener(ADMIN_STORAGE_EVENT, update);
+    };
   }, []);
   return (
     <div className="rounded-full bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700">
@@ -905,8 +930,17 @@ function TemplateLibrary({ onSelect, onSelectHtml }: { onSelect: (template: Temp
       setCustomTemplates(getCustomTemplates());
       setCategories(getCategories());
     };
+    update();
     window.addEventListener("focus", update);
-    return () => window.removeEventListener("focus", update);
+    window.addEventListener("storage", update);
+    window.addEventListener("visibilitychange", update);
+    window.addEventListener(ADMIN_STORAGE_EVENT, update);
+    return () => {
+      window.removeEventListener("focus", update);
+      window.removeEventListener("storage", update);
+      window.removeEventListener("visibilitychange", update);
+      window.removeEventListener(ADMIN_STORAGE_EVENT, update);
+    };
   }, []);
 
   const allHtmlTemplates: Array<{ id: string; name: string; description: string; html: string; categoryId?: string | null; isCustom?: boolean }> = [
