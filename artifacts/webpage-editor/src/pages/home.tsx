@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
-import { Block, TEMPLATES, Template, generateId } from "@/lib/templates";
+import { Block, TEMPLATES, Template, generateId, GOOGLE_FONTS } from "@/lib/templates";
 import { HTML_TEMPLATES, HtmlTemplate } from "@/lib/htmlTemplates";
 import { getCustomTemplates, getCategories, type CustomHtmlTemplate, type Category } from "@/lib/adminStorage";
 import { logout, getUser } from "@/lib/auth";
@@ -50,6 +50,7 @@ interface WebsiteSite {
   templateId: string;
   blocks: Block[];
   html?: string;
+  font?: string;
   createdAt: string;
   lastEdited: string;
   publishedAt?: string;
@@ -124,6 +125,8 @@ const blockLabels: Record<Block["type"], string> = {
   text: "Text",
   image: "Image",
   footer: "Footer",
+  widget: "Widget / Embed",
+  buttons: "Buttons Showcase",
 };
 
 const createBlock = (type: Block["type"]): Block => {
@@ -175,6 +178,37 @@ const createBlock = (type: Block["type"]): Block => {
         id: generateId(),
         type: "footer",
         props: { text: "© 2026 Your Company. Built with LaunchSite." },
+      };
+    case "widget":
+      return {
+        id: generateId(),
+        type: "widget",
+        props: { html: "", label: "Embedded Widget", height: 420 },
+      };
+    case "buttons":
+      return {
+        id: generateId(),
+        type: "buttons",
+        props: {
+          title: "Our Buttons",
+          subtitle: "Mix and match to find what fits your brand.",
+          bg: "white",
+          buttons: [
+            { id: "solid-blue",      text: "Get Started" },
+            { id: "solid-green",     text: "Sign Up Free" },
+            { id: "solid-purple",    text: "Learn More" },
+            { id: "solid-dark",      text: "Contact Us" },
+            { id: "outline-blue",    text: "View Plans" },
+            { id: "outline-purple",  text: "Upgrade" },
+            { id: "pill-blue",       text: "Follow Us" },
+            { id: "gradient-purple", text: "Get Premium" },
+            { id: "gradient-sunset", text: "Start Free Trial" },
+            { id: "shadow-blue",     text: "Press Me" },
+            { id: "soft-blue",       text: "View More" },
+            { id: "soft-green",      text: "Download" },
+            { id: "ghost-blue",      text: "Read More →" },
+          ],
+        },
       };
   }
 };
@@ -364,7 +398,7 @@ export default function Home() {
   const exportHtml = () => {
     if (!activeSite) return;
 
-    const html = activeSite.source === "html" ? activeSite.html ?? "" : generateHtml(activeSite.blocks, activeSite.name);
+    const html = activeSite.source === "html" ? activeSite.html ?? "" : generateHtml(activeSite.blocks, activeSite.name, activeSite.font);
     const blob = new Blob([html], { type: "text/html" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -378,13 +412,15 @@ export default function Home() {
   const copyHtml = async () => {
     if (!activeSite) return;
 
-    await navigator.clipboard.writeText(activeSite.source === "html" ? activeSite.html ?? "" : generateHtml(activeSite.blocks, activeSite.name));
+    await navigator.clipboard.writeText(activeSite.source === "html" ? activeSite.html ?? "" : generateHtml(activeSite.blocks, activeSite.name, activeSite.font));
     toast({ title: "HTML copied", description: "The full page code is now on your clipboard." });
   };
 
   if (!activeSite) return null;
 
-  const generatedHtml = activeSite.source === "html" ? activeSite.html ?? "" : generateHtml(activeSite.blocks, activeSite.name);
+  const activeFontFamily = GOOGLE_FONTS.find((f) => f.name === activeSite.font)?.family ?? "'Plus Jakarta Sans', sans-serif";
+
+  const generatedHtml = activeSite.source === "html" ? activeSite.html ?? "" : generateHtml(activeSite.blocks, activeSite.name, activeSite.font);
   const liveUrl = `${activeSite.slug}.launchsite.local`;
 
   if (viewMode === "dashboard") {
@@ -639,21 +675,46 @@ export default function Home() {
                 </div>
               </TabsContent>
 
-              <TabsContent value="add" className="mt-5 space-y-4">
+              <TabsContent value="add" className="mt-5 space-y-5">
                 <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  <Plus className="h-4 w-4" /> Add a section
+                  <Plus className="h-4 w-4" /> Content Sections
                 </h3>
                 {activeSite.source === "html" ? (
                   <div className="rounded-2xl border border-dashed border-border bg-muted/40 p-4 text-sm text-muted-foreground">
                     Complete HTML templates keep their original structure. Use the in-page editor for text, image, and delete changes.
                   </div>
-                ) : <div className="grid grid-cols-2 gap-2">
-                  {(Object.keys(blockLabels) as Block["type"][]).map((type) => (
-                    <Button key={type} variant="secondary" onClick={() => addBlock(type)} className="h-12 bg-muted text-sm shadow-none hover:bg-accent">
-                      {blockLabels[type]}
-                    </Button>
-                  ))}
-                </div>}
+                ) : (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      {(["hero", "features", "text", "image", "footer"] as Block["type"][]).map((type) => (
+                        <Button key={type} variant="secondary" onClick={() => addBlock(type)} className="h-12 bg-muted text-sm shadow-none hover:bg-accent">
+                          {blockLabels[type]}
+                        </Button>
+                      ))}
+                    </div>
+                    <div className="pt-1">
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Widgets & Components</p>
+                      <div className="grid gap-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => addBlock("widget")}
+                          className="h-14 flex-col gap-1 text-left items-start px-4 border-blue-200 bg-blue-50/50 hover:bg-blue-50 text-blue-700"
+                        >
+                          <span className="font-semibold text-sm">Widget / Embed</span>
+                          <span className="text-xs font-normal text-blue-500">YouTube, Maps, Calendly, any HTML</span>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => addBlock("buttons")}
+                          className="h-14 flex-col gap-1 text-left items-start px-4 border-violet-200 bg-violet-50/50 hover:bg-violet-50 text-violet-700"
+                        >
+                          <span className="font-semibold text-sm">Buttons Showcase</span>
+                          <span className="text-xs font-normal text-violet-500">24 styles — solid, outline, gradient, 3D</span>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div className="rounded-2xl border border-dashed border-border bg-muted/40 p-4 text-sm text-muted-foreground">
                   Click text directly on the page to edit it. Hover images to replace them. Hover sections to delete them.
                 </div>
@@ -673,6 +734,36 @@ export default function Home() {
                       }))
                     }
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Site font</Label>
+                  <div className="max-h-64 overflow-y-auto rounded-xl border border-border bg-background p-1 space-y-0.5">
+                    {GOOGLE_FONTS.map((font) => {
+                      const isActive = (activeSite.font ?? "Plus Jakarta Sans") === font.name;
+                      return (
+                        <button
+                          key={font.name}
+                          onClick={() => {
+                            updateActiveSite((s) => ({ ...s, font: font.name }));
+                            const id = `gf-${font.name.replace(/\s+/g, "-")}`;
+                            if (!document.getElementById(id)) {
+                              const link = document.createElement("link");
+                              link.id = id;
+                              link.rel = "stylesheet";
+                              link.href = `https://fonts.googleapis.com/css2?family=${font.url}&display=swap`;
+                              document.head.appendChild(link);
+                            }
+                          }}
+                          style={{ fontFamily: font.family }}
+                          className={`w-full rounded-lg px-3 py-2.5 text-left text-sm transition ${isActive ? "bg-blue-600 text-white font-semibold" : "hover:bg-muted text-foreground"}`}
+                        >
+                          {font.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Applies to all text on the page and the exported HTML.</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="site-slug">Site address</Label>
@@ -742,7 +833,10 @@ export default function Home() {
         </header>
 
         <ScrollArea className="flex-1">
-          <div className={`mx-auto transition-all duration-300 ${isPreview ? (deviceMode === "mobile" ? "my-8 min-h-[800px] max-w-[400px] overflow-hidden rounded-3xl border-x border-border bg-background shadow-2xl" : "max-w-none bg-background") : "max-w-[1200px] space-y-4 p-8"}`}>
+          <div
+            style={{ fontFamily: activeFontFamily }}
+            className={`mx-auto transition-all duration-300 ${isPreview ? (deviceMode === "mobile" ? "my-8 min-h-[800px] max-w-[400px] overflow-hidden rounded-3xl border-x border-border bg-background shadow-2xl" : "max-w-none bg-background") : "max-w-[1200px] space-y-4 p-8"}`}
+          >
             {activeSite.source === "html" ? (
               <HtmlTemplateEditor
                 html={activeSite.html ?? ""}
