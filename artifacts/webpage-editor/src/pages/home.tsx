@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { Block, TEMPLATES, Template, generateId } from "@/lib/templates";
 import { HTML_TEMPLATES, HtmlTemplate } from "@/lib/htmlTemplates";
 import { getCustomTemplates, getCategories, type CustomHtmlTemplate, type Category } from "@/lib/adminStorage";
-import { logout, getSession } from "@/lib/auth";
+import { logout, getUser } from "@/lib/auth";
 import { BlockRenderer } from "@/components/editor/blocks";
 import { HtmlTemplateEditor } from "@/components/editor/HtmlTemplateEditor";
 import { Button } from "@/components/ui/button";
@@ -402,7 +402,7 @@ export default function Home() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="hidden text-sm text-slate-400 sm:block">{getSession()?.email}</span>
+              <span className="hidden text-sm text-slate-400 sm:block">{getUser()?.email}</span>
               <Button variant="outline" onClick={() => navigate("/admin")} className="gap-2">
                 <Settings className="h-4 w-4" />
                 Admin

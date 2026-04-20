@@ -1,100 +1,131 @@
-const USERS_KEY = "launchsite-users";
-const SESSION_KEY = "launchsite-session";
+const TOKEN_KEY = "launchsite-token";
+const USER_KEY = "launchsite-user";
 
-export interface User {
-  email: string;
-  passwordHash: string;
-  createdAt: string;
-}
-
-export interface Session {
+export interface AuthUser {
+  id: number;
   email: string;
 }
 
-function hashPassword(password: string): string {
-  let hash = 0;
-  for (let i = 0; i < password.length; i++) {
-    const char = password.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash;
-  }
-  return hash.toString(36) + password.length.toString(36);
+export function getToken(): string | null {
+  return localStorage.getItem(TOKEN_KEY);
 }
 
-function getUsers(): User[] {
+function setToken(token: string): void {
+  localStorage.setItem(TOKEN_KEY, token);
+}
+
+function setUser(user: AuthUser): void {
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+}
+
+export function getUser(): AuthUser | null {
   try {
-    const raw = localStorage.getItem(USERS_KEY);
-    return raw ? (JSON.parse(raw) as User[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveUsers(users: User[]): void {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
-
-export function signup(email: string, password: string): { success: boolean; error?: string } {
-  const users = getUsers();
-  const normalizedEmail = email.trim().toLowerCase();
-
-  if (!normalizedEmail || !password) {
-    return { success: false, error: "Email and password are required." };
-  }
-
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
-    return { success: false, error: "Please enter a valid email address." };
-  }
-
-  if (password.length < 6) {
-    return { success: false, error: "Password must be at least 6 characters." };
-  }
-
-  if (users.some((u) => u.email === normalizedEmail)) {
-    return { success: false, error: "An account with this email already exists." };
-  }
-
-  const user: User = {
-    email: normalizedEmail,
-    passwordHash: hashPassword(password),
-    createdAt: new Date().toISOString(),
-  };
-
-  saveUsers([...users, user]);
-  setSession({ email: normalizedEmail });
-  return { success: true };
-}
-
-export function login(email: string, password: string): { success: boolean; error?: string } {
-  const normalizedEmail = email.trim().toLowerCase();
-  const users = getUsers();
-  const user = users.find((u) => u.email === normalizedEmail);
-
-  if (!user || user.passwordHash !== hashPassword(password)) {
-    return { success: false, error: "Invalid email or password." };
-  }
-
-  setSession({ email: normalizedEmail });
-  return { success: true };
-}
-
-export function logout(): void {
-  localStorage.removeItem(SESSION_KEY);
-}
-
-export function getSession(): Session | null {
-  try {
-    const raw = localStorage.getItem(SESSION_KEY);
-    return raw ? (JSON.parse(raw) as Session) : null;
+    const raw = localStorage.getItem(USER_KEY);
+    return raw ? (JSON.parse(raw) as AuthUser) : null;
   } catch {
     return null;
   }
 }
 
-function setSession(session: Session): void {
-  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+export function isLoggedIn(): boolean {
+  return getToken() !== null;
 }
 
-export function isLoggedIn(): boolean {
-  return getSession() !== null;
+export function logout(): void {
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(USER_KEY);
+}
+
+function authHeaders(): Record<string, string> {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+export async function signup(
+  email: string,
+  password: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) return { success: false, error: data.error ?? "Signup failed." };
+    setToken(data.token);
+    setUser(data.user);
+    return { success: true };
+  } catch {
+    return { success: false, error: "Network error. Please try again." };
+  }
+}
+
+export async function login(
+  email: string,
+  password: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) return { success: false, error: data.error ?? "Login failed." };
+    setToken(data.token);
+    setUser(data.user);
+    return { success: true };
+  } catch {
+    return { success: false, error: "Network error. Please try again." };
+  }
+}
+
+export async function forgotPassword(
+  email: string
+): Promise<{ success: boolean; error?: string; resetToken?: string; expiresAt?: string }> {
+  try {
+    const res = await fetch("/api/auth/forgot-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json();
+    if (!res.ok) return { success: false, error: data.error ?? "Request failed." };
+    return { success: true, resetToken: data.resetToken, expiresAt: data.expiresAt };
+  } catch {
+    return { success: false, error: "Network error. Please try again." };
+  }
+}
+
+export async function resetPassword(
+  token: string,
+  password: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const res = await fetch("/api/auth/reset-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) return { success: false, error: data.error ?? "Reset failed." };
+    return { success: true };
+  } catch {
+    return { success: false, error: "Network error. Please try again." };
+  }
+}
+
+export async function fetchMe(): Promise<AuthUser | null> {
+  try {
+    const res = await fetch("/api/auth/me", {
+      headers: authHeaders(),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    setUser(data.user);
+    return data.user;
+  } catch {
+    return null;
+  }
 }

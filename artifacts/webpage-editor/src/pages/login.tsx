@@ -13,12 +13,12 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    const result = login(email, password);
+    const result = await login(email, password);
 
     if (result.success) {
       navigate("/");
@@ -87,7 +87,16 @@ export default function Login() {
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-slate-500">
+          <div className="mt-4 text-center">
+            <button
+              onClick={() => navigate("/forgot-password")}
+              className="text-sm text-slate-400 hover:text-blue-600 hover:underline"
+            >
+              Forgot your password?
+            </button>
+          </div>
+
+          <div className="mt-4 text-center text-sm text-slate-500">
             Don't have an account?{" "}
             <button
               onClick={() => navigate("/signup")}
