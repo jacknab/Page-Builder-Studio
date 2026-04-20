@@ -1,203 +1,693 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Block, TEMPLATES, Template, generateId } from "@/lib/templates";
 import { BlockRenderer } from "@/components/editor/blocks";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  Monitor, 
-  Smartphone, 
-  Download, 
-  Code, 
-  Eye, 
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import { generateHtml } from "@/lib/export";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  Clock3,
+  Code,
+  Download,
+  Eye,
+  FileText,
+  Globe2,
+  Grid3X3,
+  LayoutTemplate,
+  Monitor,
   PenTool,
   Plus,
-  LayoutTemplate
+  Rocket,
+  Settings,
+  Smartphone,
+  Sparkles,
+  Wand2,
 } from "lucide-react";
-import { 
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/hooks/use-toast";
 
-import { generateHtml } from "@/lib/export";
+type DeviceMode = "desktop" | "mobile";
+type ViewMode = "dashboard" | "builder";
+type SiteStatus = "draft" | "live";
+
+interface WebsiteSite {
+  id: string;
+  name: string;
+  slug: string;
+  status: SiteStatus;
+  templateId: string;
+  blocks: Block[];
+  createdAt: string;
+  lastEdited: string;
+  publishedAt?: string;
+}
+
+const STORAGE_KEY = "webpage-editor-sites-v2";
+
+const cloneBlocks = (blocks: Block[]) =>
+  blocks.map((block) => ({
+    ...block,
+    id: generateId(),
+    props: JSON.parse(JSON.stringify(block.props)),
+  }));
+
+const toSlug = (value: string) =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)+/g, "") || "my-site";
+
+const starterSite = (): WebsiteSite => ({
+  id: generateId(),
+  name: "New Startup Site",
+  slug: "new-startup-site",
+  status: "draft",
+  templateId: TEMPLATES[0].id,
+  blocks: cloneBlocks(TEMPLATES[0].blocks),
+  createdAt: new Date().toISOString(),
+  lastEdited: new Date().toISOString(),
+});
+
+const createSiteFromTemplate = (template: Template, name?: string): WebsiteSite => {
+  const siteName = name?.trim() || `${template.name} Website`;
+
+  return {
+    id: generateId(),
+    name: siteName,
+    slug: toSlug(siteName),
+    status: "draft",
+    templateId: template.id,
+    blocks: cloneBlocks(template.blocks),
+    createdAt: new Date().toISOString(),
+    lastEdited: new Date().toISOString(),
+  };
+};
+
+const blockLabels: Record<Block["type"], string> = {
+  hero: "Hero",
+  features: "Features",
+  text: "Text",
+  image: "Image",
+  footer: "Footer",
+};
+
+const createBlock = (type: Block["type"]): Block => {
+  switch (type) {
+    case "hero":
+      return {
+        id: generateId(),
+        type: "hero",
+        props: {
+          title: "A clearer promise for your business",
+          subtitle: "Write a short line that tells visitors exactly what you do and why it matters.",
+          buttonText: "Start now",
+          imageUrl: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?q=80&w=2000&auto=format&fit=crop",
+        },
+      };
+    case "features":
+      return {
+        id: generateId(),
+        type: "features",
+        props: {
+          title: "Why customers choose you",
+          features: [
+            { title: "Simple setup", description: "Explain one benefit in plain language." },
+            { title: "Fast delivery", description: "Show people what makes you reliable." },
+            { title: "Human support", description: "Add proof that you care after the sale." },
+          ],
+        },
+      };
+    case "text":
+      return {
+        id: generateId(),
+        type: "text",
+        props: {
+          content: "<h2>Tell your story</h2><p>Use this section for a founder note, service details, pricing explanation, or anything your audience needs before they take action.</p>",
+          align: "left",
+        },
+      };
+    case "image":
+      return {
+        id: generateId(),
+        type: "image",
+        props: {
+          url: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=2000&auto=format&fit=crop",
+          alt: "Website image",
+        },
+      };
+    case "footer":
+      return {
+        id: generateId(),
+        type: "footer",
+        props: { text: "© 2026 Your Company. Built with LaunchSite." },
+      };
+  }
+};
 
 export default function Home() {
-  const [blocks, setBlocks] = useState<Block[]>(TEMPLATES[0].blocks);
+  const [sites, setSites] = useState<WebsiteSite[]>(() => {
+    const saved = window.localStorage.getItem(STORAGE_KEY);
+
+    if (!saved) {
+      return [starterSite()];
+    }
+
+    try {
+      const parsed = JSON.parse(saved) as WebsiteSite[];
+      return parsed.length ? parsed : [starterSite()];
+    } catch {
+      return [starterSite()];
+    }
+  });
+  const [activeSiteId, setActiveSiteId] = useState(sites[0]?.id ?? "");
+  const [viewMode, setViewMode] = useState<ViewMode>("dashboard");
   const [isPreview, setIsPreview] = useState(false);
-  const [deviceMode, setDeviceMode] = useState<'desktop' | 'mobile'>('desktop');
+  const [deviceMode, setDeviceMode] = useState<DeviceMode>("desktop");
+  const [showTemplateDialog, setShowTemplateDialog] = useState(false);
+  const [showCodeDialog, setShowCodeDialog] = useState(false);
   const { toast } = useToast();
 
-  const updateBlock = (id: string, updated: Block) => {
-    setBlocks(blocks.map(b => b.id === id ? updated : b));
-  };
+  const activeSite = useMemo(
+    () => sites.find((site) => site.id === activeSiteId) ?? sites[0],
+    [sites, activeSiteId],
+  );
 
-  const deleteBlock = (id: string) => {
-    setBlocks(blocks.filter(b => b.id !== id));
-  };
+  useEffect(() => {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(sites));
+  }, [sites]);
 
-  const loadTemplate = (template: Template) => {
-    // Clone blocks to get new IDs
-    const newBlocks = template.blocks.map(b => ({ ...b, id: generateId() }));
-    setBlocks(newBlocks);
-  };
-
-  const addBlock = (type: Block['type']) => {
-    let newBlock: Block;
-    switch(type) {
-      case 'hero': 
-        newBlock = { id: generateId(), type: 'hero', props: { title: 'New Hero', subtitle: 'Subtitle text goes here', buttonText: 'Click Me', imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2000&auto=format&fit=crop' }};
-        break;
-      case 'features':
-        newBlock = { id: generateId(), type: 'features', props: { title: 'New Features', features: [{title: 'Feature 1', description: 'Desc 1'}, {title: 'Feature 2', description: 'Desc 2'}, {title: 'Feature 3', description: 'Desc 3'}] }};
-        break;
-      case 'text':
-        newBlock = { id: generateId(), type: 'text', props: { content: 'New text block content...', align: 'left' }};
-        break;
-      case 'image':
-        newBlock = { id: generateId(), type: 'image', props: { url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2000&auto=format&fit=crop', alt: 'Image' }};
-        break;
-      case 'footer':
-        newBlock = { id: generateId(), type: 'footer', props: { text: 'New footer text' }};
-        break;
-      default: return;
+  useEffect(() => {
+    if (!activeSite && sites.length) {
+      setActiveSiteId(sites[0].id);
     }
-    setBlocks([...blocks, newBlock]);
+  }, [activeSite, sites]);
+
+  const updateActiveSite = (updater: (site: WebsiteSite) => WebsiteSite) => {
+    if (!activeSite) return;
+
+    setSites((current) =>
+      current.map((site) =>
+        site.id === activeSite.id
+          ? updater({ ...site, lastEdited: new Date().toISOString(), status: site.status === "live" ? "draft" : site.status })
+          : site,
+      ),
+    );
   };
 
-  const exportHtml = () => {
-    const html = generateHtml(blocks);
-    const blob = new Blob([html], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'website.html';
-    a.click();
-    URL.revokeObjectURL(url);
-    toast({
-      title: "Exported successfully",
-      description: "Your webpage HTML has been downloaded.",
+  const openSite = (siteId: string) => {
+    setActiveSiteId(siteId);
+    setViewMode("builder");
+    setIsPreview(false);
+  };
+
+  const addSite = (template: Template) => {
+    const site = createSiteFromTemplate(template);
+    setSites((current) => [site, ...current]);
+    setActiveSiteId(site.id);
+    setShowTemplateDialog(false);
+    setViewMode("builder");
+    toast({ title: "Site created", description: `${site.name} is ready to edit.` });
+  };
+
+  const duplicateSite = (site: WebsiteSite) => {
+    const copy: WebsiteSite = {
+      ...site,
+      id: generateId(),
+      name: `${site.name} Copy`,
+      slug: `${site.slug}-copy`,
+      status: "draft",
+      blocks: cloneBlocks(site.blocks),
+      createdAt: new Date().toISOString(),
+      lastEdited: new Date().toISOString(),
+      publishedAt: undefined,
+    };
+
+    setSites((current) => [copy, ...current]);
+    toast({ title: "Site duplicated", description: `${copy.name} has been added to your workspace.` });
+  };
+
+  const deleteSite = (siteId: string) => {
+    setSites((current) => {
+      if (current.length === 1) {
+        toast({ title: "Keep one site", description: "Your workspace needs at least one site." });
+        return current;
+      }
+
+      const next = current.filter((site) => site.id !== siteId);
+      if (activeSiteId === siteId) {
+        setActiveSiteId(next[0].id);
+      }
+      return next;
     });
   };
 
-  return (
-    <div className="flex h-screen w-full bg-background overflow-hidden">
-      {/* Sidebar */}
-      {!isPreview && (
-        <div className="w-80 border-r border-border bg-card flex flex-col z-20 shadow-sm shrink-0">
-          <div className="p-6 border-b border-border">
-            <div className="flex items-center gap-2 text-primary font-bold text-xl tracking-tight mb-1">
-              <div className="w-6 h-6 rounded-sm bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground text-xs leading-none">W</span>
+  const updateBlock = (id: string, updated: Block) => {
+    updateActiveSite((site) => ({
+      ...site,
+      blocks: site.blocks.map((block) => (block.id === id ? updated : block)),
+    }));
+  };
+
+  const deleteBlock = (id: string) => {
+    updateActiveSite((site) => ({
+      ...site,
+      blocks: site.blocks.filter((block) => block.id !== id),
+    }));
+  };
+
+  const moveBlock = (id: string, direction: "up" | "down") => {
+    updateActiveSite((site) => {
+      const index = site.blocks.findIndex((block) => block.id === id);
+      const target = direction === "up" ? index - 1 : index + 1;
+
+      if (index < 0 || target < 0 || target >= site.blocks.length) {
+        return site;
+      }
+
+      const blocks = [...site.blocks];
+      const [item] = blocks.splice(index, 1);
+      blocks.splice(target, 0, item);
+      return { ...site, blocks };
+    });
+  };
+
+  const addBlock = (type: Block["type"]) => {
+    updateActiveSite((site) => ({ ...site, blocks: [...site.blocks, createBlock(type)] }));
+  };
+
+  const applyTemplateToActiveSite = (template: Template) => {
+    updateActiveSite((site) => ({
+      ...site,
+      templateId: template.id,
+      blocks: cloneBlocks(template.blocks),
+    }));
+    toast({ title: "Template loaded", description: "The builder canvas has been replaced with the selected template." });
+  };
+
+  const publishSite = () => {
+    if (!activeSite) return;
+
+    setSites((current) =>
+      current.map((site) =>
+        site.id === activeSite.id
+          ? { ...site, status: "live", publishedAt: new Date().toISOString(), lastEdited: new Date().toISOString() }
+          : site,
+      ),
+    );
+    toast({
+      title: "Site marked live",
+      description: `${activeSite.slug}.launchsite.local is ready for client preview in this demo.`,
+    });
+  };
+
+  const exportHtml = () => {
+    if (!activeSite) return;
+
+    const html = generateHtml(activeSite.blocks, activeSite.name);
+    const blob = new Blob([html], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${activeSite.slug || "website"}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: "HTML downloaded", description: "Your current site has been exported as a single HTML file." });
+  };
+
+  const copyHtml = async () => {
+    if (!activeSite) return;
+
+    await navigator.clipboard.writeText(generateHtml(activeSite.blocks, activeSite.name));
+    toast({ title: "HTML copied", description: "The full page code is now on your clipboard." });
+  };
+
+  if (!activeSite) return null;
+
+  const generatedHtml = generateHtml(activeSite.blocks, activeSite.name);
+  const liveUrl = `${activeSite.slug}.launchsite.local`;
+
+  if (viewMode === "dashboard") {
+    return (
+      <div className="min-h-screen bg-[#f5f1e8] text-slate-950">
+        <header className="border-b border-slate-200/80 bg-white/80 backdrop-blur-xl sticky top-0 z-30">
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
+                <Wand2 className="h-5 w-5" />
               </div>
-              Webpage Editor
+              <div>
+                <h1 className="text-xl font-extrabold tracking-tight">LaunchSite Studio</h1>
+                <p className="text-sm text-slate-500">Website builder service workspace</p>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground">Studio creator tool</p>
-          </div>
-
-          <ScrollArea className="flex-1">
-            <div className="p-6 space-y-8">
-              {/* Templates */}
-              <div className="space-y-3">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                  <LayoutTemplate className="w-4 h-4" /> Templates
-                </h3>
-                <div className="grid gap-2">
-                  {TEMPLATES.map(t => (
-                    <Button 
-                      key={t.id} 
-                      variant="outline" 
-                      className="justify-start h-auto py-3 px-4 text-left block w-full bg-background hover:bg-accent/50 hover:border-primary/30 transition-all"
-                      onClick={() => loadTemplate(t)}
-                    >
-                      <span className="block font-medium mb-1">{t.name}</span>
-                      <span className="block text-xs text-muted-foreground font-normal whitespace-normal">{t.description}</span>
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              <Separator />
-
-              {/* Add Blocks */}
-              <div className="space-y-3">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                  <Plus className="w-4 h-4" /> Add Block
-                </h3>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button variant="secondary" size="sm" onClick={() => addBlock('hero')} className="bg-muted hover:bg-accent hover:text-accent-foreground text-xs shadow-none">Hero</Button>
-                  <Button variant="secondary" size="sm" onClick={() => addBlock('features')} className="bg-muted hover:bg-accent hover:text-accent-foreground text-xs shadow-none">Features</Button>
-                  <Button variant="secondary" size="sm" onClick={() => addBlock('text')} className="bg-muted hover:bg-accent hover:text-accent-foreground text-xs shadow-none">Text</Button>
-                  <Button variant="secondary" size="sm" onClick={() => addBlock('image')} className="bg-muted hover:bg-accent hover:text-accent-foreground text-xs shadow-none">Image</Button>
-                  <Button variant="secondary" size="sm" onClick={() => addBlock('footer')} className="bg-muted hover:bg-accent hover:text-accent-foreground text-xs shadow-none col-span-2">Footer</Button>
-                </div>
-              </div>
-            </div>
-          </ScrollArea>
-        </div>
-      )}
-
-      {/* Main Workspace */}
-      <div className="flex-1 flex flex-col bg-muted/20 relative">
-        {/* Topbar */}
-        <header className="h-16 border-b border-border bg-background/80 backdrop-blur-md flex items-center justify-between px-4 shrink-0 z-10">
-          <div className="flex items-center gap-2">
-            {isPreview && (
-              <div className="flex bg-muted p-1 rounded-md">
-                <Button variant={deviceMode === 'desktop' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setDeviceMode('desktop')}>
-                  <Monitor className="w-4 h-4" />
-                </Button>
-                <Button variant={deviceMode === 'mobile' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setDeviceMode('mobile')}>
-                  <Smartphone className="w-4 h-4" />
-                </Button>
-              </div>
-            )}
-          </div>
-          <div className="flex items-center gap-3">
-            <Button 
-              variant={isPreview ? "secondary" : "default"} 
-              onClick={() => setIsPreview(!isPreview)}
-              className="gap-2"
-            >
-              {isPreview ? <PenTool className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              {isPreview ? 'Back to Edit' : 'Preview'}
-            </Button>
-            
-            <Button variant="outline" onClick={exportHtml} className="gap-2">
-              <Download className="w-4 h-4" />
-              Export
+            <Button onClick={() => setShowTemplateDialog(true)} className="gap-2 bg-blue-600 hover:bg-blue-700">
+              <Plus className="h-4 w-4" />
+              Create new site
             </Button>
           </div>
         </header>
 
-        {/* Editor Area */}
-        <ScrollArea className="flex-1">
-          <div className={`mx-auto transition-all duration-300 ${isPreview ? (deviceMode === 'mobile' ? 'max-w-[400px] border-x border-border bg-background my-8 shadow-2xl rounded-3xl overflow-hidden min-h-[800px]' : 'max-w-none bg-background') : 'max-w-[1200px] p-8 space-y-4'}`}>
-            {blocks.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-[60vh] text-muted-foreground border-2 border-dashed border-border rounded-xl">
-                <LayoutTemplate className="w-12 h-12 mb-4 opacity-20" />
-                <p className="text-lg font-medium">Your page is empty</p>
-                <p className="text-sm">Select a template or add a block from the sidebar to begin.</p>
+        <main className="mx-auto max-w-7xl px-6 py-8">
+          <section className="mb-8 overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-950 p-8 text-white shadow-xl">
+            <div className="grid gap-8 lg:grid-cols-[1fr_420px] lg:items-center">
+              <div className="space-y-5">
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm text-blue-100">
+                  <Sparkles className="h-4 w-4" />
+                  Build client-ready single page sites
+                </div>
+                <div className="space-y-3">
+                  <h2 className="max-w-3xl text-4xl font-extrabold tracking-tight md:text-6xl">A Wix-style service for launching simple websites fast.</h2>
+                  <p className="max-w-2xl text-lg leading-8 text-slate-300">
+                    Pick a template, edit every section visually, manage multiple customer sites, preview mobile layouts, then export the finished page.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <Button onClick={() => setShowTemplateDialog(true)} size="lg" className="gap-2 bg-white text-slate-950 hover:bg-blue-50">
+                    <LayoutTemplate className="h-4 w-4" />
+                    Browse templates
+                  </Button>
+                  <Button onClick={() => openSite(activeSite.id)} size="lg" variant="outline" className="gap-2 border-white/20 bg-white/10 text-white hover:bg-white/20">
+                    <PenTool className="h-4 w-4" />
+                    Continue editing
+                  </Button>
+                </div>
+              </div>
+              <div className="rounded-3xl border border-white/10 bg-white/10 p-4 shadow-2xl">
+                <div className="rounded-2xl bg-white p-4 text-slate-950">
+                  <div className="mb-3 flex items-center justify-between text-xs text-slate-500">
+                    <span>Live workspace</span>
+                    <span>{sites.length} site{sites.length === 1 ? "" : "s"}</span>
+                  </div>
+                  <div className="space-y-3">
+                    {sites.slice(0, 3).map((site) => (
+                      <div key={site.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <p className="font-bold">{site.name}</p>
+                            <p className="text-xs text-slate-500">{site.slug}.launchsite.local</p>
+                          </div>
+                          <span className={`rounded-full px-2 py-1 text-xs font-semibold ${site.status === "live" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
+                            {site.status}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div className="mb-4 flex items-end justify-between">
+            <div>
+              <h2 className="text-2xl font-extrabold tracking-tight">Your sites</h2>
+              <p className="text-sm text-slate-500">Create, edit, duplicate, and export customer-ready pages.</p>
+            </div>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {sites.map((site) => (
+              <article key={site.id} className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+                <button onClick={() => openSite(site.id)} className="block w-full bg-slate-100 p-4 text-left">
+                  <div className="h-44 overflow-hidden rounded-2xl bg-white shadow-inner">
+                    <div className="origin-top scale-[0.34] w-[300%] pointer-events-none">
+                      {site.blocks.slice(0, 3).map((block) => (
+                        <BlockRenderer key={block.id} block={block} onChange={() => undefined} onDelete={() => undefined} preview />
+                      ))}
+                    </div>
+                  </div>
+                </button>
+                <div className="space-y-4 p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className="text-lg font-extrabold tracking-tight">{site.name}</h3>
+                      <p className="mt-1 text-sm text-slate-500">{site.slug}.launchsite.local</p>
+                    </div>
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${site.status === "live" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
+                      {site.status === "live" ? <CheckCircle2 className="h-3 w-3" /> : <Clock3 className="h-3 w-3" />}
+                      {site.status === "live" ? "Live" : "Draft"}
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button onClick={() => openSite(site.id)} className="flex-1 gap-2 bg-blue-600 hover:bg-blue-700">
+                      <PenTool className="h-4 w-4" />
+                      Edit
+                    </Button>
+                    <Button onClick={() => duplicateSite(site)} variant="outline">Duplicate</Button>
+                    <Button onClick={() => deleteSite(site.id)} variant="outline">Delete</Button>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </main>
+
+        <TemplateDialog open={showTemplateDialog} onOpenChange={setShowTemplateDialog} onSelect={addSite} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-screen w-full overflow-hidden bg-background">
+      {!isPreview && (
+        <aside className="z-20 flex w-80 shrink-0 flex-col border-r border-border bg-card shadow-sm">
+          <div className="border-b border-border p-5">
+            <Button variant="ghost" className="mb-4 h-8 gap-2 px-2 text-muted-foreground" onClick={() => setViewMode("dashboard")}>
+              <ArrowLeft className="h-4 w-4" />
+              Dashboard
+            </Button>
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+                <Wand2 className="h-4 w-4" />
+              </div>
+              <div className="min-w-0">
+                <h1 className="truncate text-lg font-extrabold tracking-tight">{activeSite.name}</h1>
+                <p className="truncate text-xs text-muted-foreground">{liveUrl}</p>
+              </div>
+            </div>
+          </div>
+
+          <ScrollArea className="flex-1">
+            <Tabs defaultValue="site" className="p-5">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="site">Site</TabsTrigger>
+                <TabsTrigger value="add">Add</TabsTrigger>
+                <TabsTrigger value="settings">Setup</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="site" className="mt-5 space-y-6">
+                <div className="space-y-3">
+                  <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <LayoutTemplate className="h-4 w-4" /> Templates
+                  </h3>
+                  <div className="grid gap-2">
+                    {TEMPLATES.map((template) => (
+                      <Button
+                        key={template.id}
+                        variant={activeSite.templateId === template.id ? "default" : "outline"}
+                        className="block h-auto w-full justify-start px-4 py-3 text-left"
+                        onClick={() => applyTemplateToActiveSite(template)}
+                      >
+                        <span className="block font-semibold">{template.name}</span>
+                        <span className="block whitespace-normal text-xs font-normal opacity-75">{template.description}</span>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-3">
+                  <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <Grid3X3 className="h-4 w-4" /> Page sections
+                  </h3>
+                  <div className="space-y-2">
+                    {activeSite.blocks.map((block, index) => (
+                      <div key={block.id} className="flex items-center justify-between rounded-xl border border-border bg-background p-3 text-sm">
+                        <div>
+                          <p className="font-semibold">{index + 1}. {blockLabels[block.type]}</p>
+                          <p className="text-xs text-muted-foreground">Editable section</p>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button size="sm" variant="ghost" disabled={index === 0} onClick={() => moveBlock(block.id, "up")}>Up</Button>
+                          <Button size="sm" variant="ghost" disabled={index === activeSite.blocks.length - 1} onClick={() => moveBlock(block.id, "down")}>Down</Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="add" className="mt-5 space-y-4">
+                <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <Plus className="h-4 w-4" /> Add a section
+                </h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {(Object.keys(blockLabels) as Block["type"][]).map((type) => (
+                    <Button key={type} variant="secondary" onClick={() => addBlock(type)} className="h-12 bg-muted text-sm shadow-none hover:bg-accent">
+                      {blockLabels[type]}
+                    </Button>
+                  ))}
+                </div>
+                <div className="rounded-2xl border border-dashed border-border bg-muted/40 p-4 text-sm text-muted-foreground">
+                  Click text directly on the page to edit it. Hover images to replace them. Hover sections to delete them.
+                </div>
+              </TabsContent>
+
+              <TabsContent value="settings" className="mt-5 space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor="site-name">Site name</Label>
+                  <Input
+                    id="site-name"
+                    value={activeSite.name}
+                    onChange={(event) =>
+                      updateActiveSite((site) => ({
+                        ...site,
+                        name: event.target.value,
+                        slug: toSlug(event.target.value),
+                      }))
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="site-slug">Site address</Label>
+                  <div className="flex rounded-md border border-input bg-background focus-within:ring-2 focus-within:ring-ring">
+                    <Input
+                      id="site-slug"
+                      value={activeSite.slug}
+                      onChange={(event) => updateActiveSite((site) => ({ ...site, slug: toSlug(event.target.value) }))}
+                      className="border-0 focus-visible:ring-0"
+                    />
+                    <span className="flex items-center pr-3 text-xs text-muted-foreground">.launchsite.local</span>
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-border bg-background p-4">
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text-sm font-semibold">Status</span>
+                    <span className={`rounded-full px-2 py-1 text-xs font-bold ${activeSite.status === "live" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
+                      {activeSite.status === "live" ? "Live" : "Draft"}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Publishing in this demo creates a client-preview status and address. Export downloads the actual HTML file.</p>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </ScrollArea>
+        </aside>
+      )}
+
+      <div className="relative flex flex-1 flex-col bg-muted/20">
+        <header className="z-10 flex h-16 shrink-0 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md">
+          <div className="flex items-center gap-2">
+            {isPreview ? (
+              <div className="flex rounded-md bg-muted p-1">
+                <Button variant={deviceMode === "desktop" ? "secondary" : "ghost"} size="icon" className="h-8 w-8" onClick={() => setDeviceMode("desktop")}>
+                  <Monitor className="h-4 w-4" />
+                </Button>
+                <Button variant={deviceMode === "mobile" ? "secondary" : "ghost"} size="icon" className="h-8 w-8" onClick={() => setDeviceMode("mobile")}>
+                  <Smartphone className="h-4 w-4" />
+                </Button>
               </div>
             ) : (
-              blocks.map((block) => (
-                <div key={block.id} className={isPreview ? "" : "bg-background rounded-xl shadow-sm border border-border/40 overflow-hidden"}>
-                  <BlockRenderer
-                    block={block}
-                    onChange={(updated) => updateBlock(block.id, updated)}
-                    onDelete={() => deleteBlock(block.id)}
-                    preview={isPreview}
-                  />
+              <div className="hidden items-center gap-2 text-sm text-muted-foreground md:flex">
+                <FileText className="h-4 w-4" />
+                Home page
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button variant={isPreview ? "secondary" : "default"} onClick={() => setIsPreview(!isPreview)} className="gap-2">
+              {isPreview ? <PenTool className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {isPreview ? "Back to edit" : "Preview"}
+            </Button>
+            <Button variant="outline" onClick={() => setShowCodeDialog(true)} className="gap-2">
+              <Code className="h-4 w-4" />
+              Code
+            </Button>
+            <Button variant="outline" onClick={exportHtml} className="gap-2">
+              <Download className="h-4 w-4" />
+              Export
+            </Button>
+            <Button onClick={publishSite} className="gap-2 bg-blue-600 hover:bg-blue-700">
+              <Rocket className="h-4 w-4" />
+              Publish
+            </Button>
+          </div>
+        </header>
+
+        <ScrollArea className="flex-1">
+          <div className={`mx-auto transition-all duration-300 ${isPreview ? (deviceMode === "mobile" ? "my-8 min-h-[800px] max-w-[400px] overflow-hidden rounded-3xl border-x border-border bg-background shadow-2xl" : "max-w-none bg-background") : "max-w-[1200px] space-y-4 p-8"}`}>
+            {activeSite.blocks.length === 0 ? (
+              <div className="flex h-[60vh] flex-col items-center justify-center rounded-xl border-2 border-dashed border-border text-muted-foreground">
+                <LayoutTemplate className="mb-4 h-12 w-12 opacity-20" />
+                <p className="text-lg font-medium">Your page is empty</p>
+                <p className="text-sm">Choose a template or add a section from the left panel.</p>
+              </div>
+            ) : (
+              activeSite.blocks.map((block) => (
+                <div key={block.id} className={isPreview ? "" : "overflow-hidden rounded-xl border border-border/40 bg-background shadow-sm"}>
+                  <BlockRenderer block={block} onChange={(updated) => updateBlock(block.id, updated)} onDelete={() => deleteBlock(block.id)} preview={isPreview} />
                 </div>
               ))
             )}
           </div>
         </ScrollArea>
       </div>
+
+      <Dialog open={showCodeDialog} onOpenChange={setShowCodeDialog}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Generated HTML</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              <Button onClick={copyHtml} className="gap-2"><Code className="h-4 w-4" />Copy code</Button>
+              <Button onClick={exportHtml} variant="outline" className="gap-2"><Download className="h-4 w-4" />Download HTML</Button>
+            </div>
+            <pre className="max-h-[520px] overflow-auto rounded-2xl bg-slate-950 p-4 text-xs leading-relaxed text-slate-100">
+              <code>{generatedHtml}</code>
+            </pre>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
+  );
+}
+
+function TemplateDialog({ open, onOpenChange, onSelect }: { open: boolean; onOpenChange: (open: boolean) => void; onSelect: (template: Template) => void }) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-5xl">
+        <DialogHeader>
+          <DialogTitle>Start from a template</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {TEMPLATES.map((template) => (
+            <button key={template.id} onClick={() => onSelect(template)} className="group rounded-3xl border border-border bg-card p-4 text-left transition hover:-translate-y-1 hover:shadow-xl">
+              <div className="mb-4 h-40 overflow-hidden rounded-2xl bg-muted">
+                <div className="origin-top scale-[0.28] w-[360%] pointer-events-none">
+                  {template.blocks.slice(0, 3).map((block) => (
+                    <BlockRenderer key={block.id} block={block} onChange={() => undefined} onDelete={() => undefined} preview />
+                  ))}
+                </div>
+              </div>
+              <h3 className="text-lg font-extrabold tracking-tight">{template.name}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{template.description}</p>
+              <div className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-primary">
+                Use this template
+                <Globe2 className="h-4 w-4 transition group-hover:translate-x-1" />
+              </div>
+            </button>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
