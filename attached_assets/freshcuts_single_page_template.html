@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FreshCuts Multi-Location</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;background:#f5f7fa;color:#222}
+
+nav{position:fixed;top:0;width:100%;background:#fff;padding:14px 8%;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 10px rgba(0,0,0,.08);z-index:1000}
+nav a{text-decoration:none;color:#333;margin:0 12px;font-weight:500}
+.logo{font-weight:700;font-size:1.3rem;color:#1976d2}
+
+header{height:100vh;background:url('https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=1400&q=80') center/cover no-repeat;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff}
+.hero-box{background:rgba(0,0,0,.65);padding:30px 40px;border-radius:12px;max-width:600px}
+.hero-box h1{font-size:2.5rem;margin-bottom:15px}
+.hero-box p{margin-bottom:20px}
+
+button{padding:12px 28px;border:none;background:#1976d2;color:#fff;border-radius:30px;cursor:pointer;font-size:16px;font-weight:600}
+button:hover{background:#125bb5}
+
+section{padding:80px 8%}
+h2{margin-bottom:25px}
+
+.checkin-bar{background:#1976d2;color:#fff;padding:25px;border-radius:12px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:15px;margin-top:-60px;position:relative;z-index:10}
+.wait-time{font-size:2rem;font-weight:700}
+
+.location-select{padding:10px;border-radius:8px;border:none}
+
+.locations{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
+.loc-card{background:#fff;padding:20px;border-radius:12px;box-shadow:0 5px 20px rgba(0,0,0,.08)}
+.loc-card h3{margin-bottom:10px}
+
+.services{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
+.card{background:#fff;border-radius:15px;overflow:hidden;box-shadow:0 5px 20px rgba(0,0,0,.08)}
+.card img{width:100%;height:200px;object-fit:cover}
+.card h3{padding:15px}
+
+footer{background:#111;color:#fff;text-align:center;padding:20px}
+</style>
+</head>
+<body>
+
+<nav>
+<div class="logo">FreshCuts</div>
+<div>
+<a href="#locations">Locations</a>
+<a href="#services">Services</a>
+</div>
+</nav>
+
+<header>
+<div class="hero-box">
+<h1>Find a Location Near You</h1>
+<p>Check wait times and join the line before you arrive.</p>
+<select id="locationSelect" class="location-select"></select>
+<br><br>
+<button onclick="checkIn()">Check In Now</button>
+</div>
+</header>
+
+<section>
+<div class="checkin-bar">
+<div>
+<strong>Selected Location Wait Time</strong>
+</div>
+<div class="wait-time" id="waitTime">--</div>
+<button onclick="checkIn()">Join Now</button>
+</div>
+</section>
+
+<section id="locations">
+<h2>Our Locations</h2>
+<div class="locations" id="locationList"></div>
+</section>
+
+<section id="services">
+<h2>Services</h2>
+<div class="services">
+<div class="card">
+<img src="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=800&q=80">
+<h3>Men's Haircut</h3>
+</div>
+<div class="card">
+<img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80">
+<h3>Women's Haircut</h3>
+</div>
+<div class="card">
+<img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&w=800&q=80">
+<h3>Kids Cuts</h3>
+</div>
+</div>
+</section>
+
+<footer>
+<p>&copy; 2026 FreshCuts Multi-Location</p>
+</footer>
+
+<script>
+const locations = [
+  {name:"Downtown", wait:10},
+  {name:"North Side", wait:18},
+  {name:"West End", wait:7},
+  {name:"East Mall", wait:14}
+];
+
+const select = document.getElementById('locationSelect');
+const list = document.getElementById('locationList');
+
+locations.forEach((loc,i)=>{
+  // dropdown
+  const opt = document.createElement('option');
+  opt.value=i;
+  opt.textContent=loc.name;
+  select.appendChild(opt);
+
+  // cards
+  const card=document.createElement('div');
+  card.className='loc-card';
+  card.innerHTML=`<h3>${loc.name}</h3><p>Wait: <strong id="loc-${i}">${loc.wait} min</strong></p><button onclick="selectLocation(${i})">Select</button>`;
+  list.appendChild(card);
+});
+
+function updateWait(){
+  const idx = select.value;
+  document.getElementById('waitTime').innerText = locations[idx].wait + ' min';
+}
+
+function selectLocation(i){
+  select.value=i;
+  updateWait();
+}
+
+function checkIn(){
+  const idx = select.value;
+  alert("Checked in at " + locations[idx].name + "\nWait time: " + locations[idx].wait + " min");
+}
+
+// simulate updates
+setInterval(()=>{
+  locations.forEach((l,i)=>{
+    l.wait = Math.floor(Math.random()*20)+5;
+    document.getElementById(`loc-${i}`).innerText = l.wait + ' min';
+  });
+  updateWait();
+},5000);
+
+select.addEventListener('change', updateWait);
+updateWait();
+</script>
+
+</body>
+</html>

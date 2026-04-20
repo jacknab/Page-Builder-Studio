@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luxury Nail Salon</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family: 'Poppins', sans-serif; background:#fafafa; color:#333; }
+    header { height:100vh; background:url('https://images.unsplash.com/photo-1604654894610-df63bc536371') center/cover no-repeat; display:flex; align-items:center; justify-content:center; text-align:center; color:white; }
+    header h1 { font-size:3rem; background:rgba(0,0,0,0.5); padding:20px 40px; border-radius:10px; }
+    nav { position:fixed; top:0; width:100%; background:white; padding:15px; display:flex; justify-content:space-between; box-shadow:0 2px 10px rgba(0,0,0,0.1); z-index:1000; }
+    nav a { text-decoration:none; color:#333; margin:0 15px; font-weight:500; }
+    section { padding:80px 10%; }
+    .services { display:grid; grid-template-columns:repeat(auto-fit, minmax(250px,1fr)); gap:20px; }
+    .card { background:white; border-radius:15px; overflow:hidden; box-shadow:0 5px 20px rgba(0,0,0,0.1); }
+    .card img { width:100%; height:200px; object-fit:cover; }
+    .card h3 { padding:15px; }
+    .about { display:flex; flex-wrap:wrap; align-items:center; gap:30px; }
+    .about img { width:100%; max-width:500px; border-radius:15px; }
+    .about div { flex:1; }
+    .gallery { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:15px; }
+    .gallery img { width:100%; border-radius:10px; }
+    .contact { text-align:center; }
+    footer { background:#111; color:white; text-align:center; padding:20px; }
+    button { padding:12px 25px; border:none; background:#e91e63; color:white; border-radius:25px; cursor:pointer; font-size:16px; }
+    button:hover { background:#d81b60; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div><strong>Glam Nails</strong></div>
+  <div>
+    <a href="#services">Services</a>
+    <a href="#about">About</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<header>
+  <h1>Luxury Nail Experience</h1>
+</header>
+
+<section id="services">
+  <h2>Our Services</h2>
+  <div class="services">
+    <div class="card">
+      <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9">
+      <h3>Manicure</h3>
+    </div>
+    <div class="card">
+      <img src="https://images.unsplash.com/photo-1519014816548-bf5fe059798b">
+      <h3>Pedicure</h3>
+    </div>
+    <div class="card">
+      <img src="https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=800&q=80">
+      <h3>Nail Art</h3>
+    </div>
+  </div>
+</section>
+
+<section id="about" class="about">
+  <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e">
+  <div>
+    <h2>About Us</h2>
+    <p>We provide top-quality nail services in a relaxing, luxurious environment. Our professional technicians are dedicated to making you look and feel your best.</p>
+    <br>
+    <button>Book Appointment</button>
+  </div>
+</section>
+
+<section id="gallery">
+  <h2>Gallery</h2>
+  <div class="gallery">
+    <img src="https://images.unsplash.com/photo-1604654894610-df63bc536371">
+    <img src="https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=800&q=80">
+    <img src="https://images.unsplash.com/photo-1519014816548-bf5fe059798b">
+    <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9">
+  </div>
+</section>
+
+<section id="contact" class="contact">
+  <h2>Contact Us</h2>
+  <p>123 Beauty Street, Your City</p>
+  <p>(123) 456-7890</p>
+  <br>
+  <button>Call Now</button>
+</section>
+
+<footer>
+  <p>&copy; 2026 Glam Nails. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
