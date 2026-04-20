@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
+import { useLocation } from "wouter";
 import { Block, TEMPLATES, Template, generateId } from "@/lib/templates";
 import { HTML_TEMPLATES, HtmlTemplate } from "@/lib/htmlTemplates";
+import { getCustomTemplates, getCategories, type CustomHtmlTemplate, type Category } from "@/lib/adminStorage";
 import { BlockRenderer } from "@/components/editor/blocks";
 import { HtmlTemplateEditor } from "@/components/editor/HtmlTemplateEditor";
 import { Button } from "@/components/ui/button";
@@ -177,6 +179,7 @@ const createBlock = (type: Block["type"]): Block => {
 };
 
 export default function Home() {
+  const [, navigate] = useLocation();
   const [sites, setSites] = useState<WebsiteSite[]>(() => {
     const saved = window.localStorage.getItem(STORAGE_KEY);
 
@@ -397,10 +400,16 @@ export default function Home() {
                 <p className="text-sm text-slate-500">Website builder service workspace</p>
               </div>
             </div>
-            <Button onClick={scrollToTemplates} className="gap-2 bg-blue-600 hover:bg-blue-700">
-              <Plus className="h-4 w-4" />
-              Create new site
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" onClick={() => navigate("/admin")} className="gap-2">
+                <Settings className="h-4 w-4" />
+                Admin
+              </Button>
+              <Button onClick={scrollToTemplates} className="gap-2 bg-blue-600 hover:bg-blue-700">
+                <Plus className="h-4 w-4" />
+                Create new site
+              </Button>
+            </div>
           </div>
         </header>
 
@@ -461,8 +470,12 @@ export default function Home() {
                 <h2 className="text-2xl font-extrabold tracking-tight">Template library</h2>
                 <p className="text-sm text-slate-500">Choose a starter page below. No popup needed — browse and launch directly from here.</p>
               </div>
-              <div className="rounded-full bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700">
-                {TEMPLATES.length + HTML_TEMPLATES.length} templates available
+              <div className="flex items-center gap-2">
+                <TemplateCounter />
+                <Button variant="outline" size="sm" onClick={() => navigate("/admin")} className="gap-2">
+                  <Settings className="h-3.5 w-3.5" />
+                  Manage
+                </Button>
               </div>
             </div>
             <TemplateLibrary onSelect={addSite} onSelectHtml={addHtmlSite} />
@@ -573,6 +586,17 @@ export default function Home() {
                         onClick={() => applyHtmlTemplateToActiveSite(template)}
                       >
                         <span className="block font-semibold">{template.name}</span>
+                        <span className="block whitespace-normal text-xs font-normal opacity-75">{template.description}</span>
+                      </Button>
+                    ))}
+                    {getCustomTemplates().map((template) => (
+                      <Button
+                        key={template.id}
+                        variant={activeSite.templateId === template.id ? "default" : "outline"}
+                        className="block h-auto w-full justify-start px-4 py-3 text-left"
+                        onClick={() => applyHtmlTemplateToActiveSite({ id: template.id, name: template.name, description: template.description, html: template.html })}
+                      >
+                        <span className="block font-semibold">{template.name} <span className="text-blue-500 text-xs">(custom)</span></span>
                         <span className="block whitespace-normal text-xs font-normal opacity-75">{template.description}</span>
                       </Button>
                     ))}
@@ -754,39 +778,150 @@ export default function Home() {
   );
 }
 
-function TemplateLibrary({ onSelect, onSelectHtml }: { onSelect: (template: Template) => void; onSelectHtml: (template: HtmlTemplate) => void }) {
+function TemplateCounter() {
+  const [count, setCount] = useState(TEMPLATES.length + HTML_TEMPLATES.length + getCustomTemplates().length);
+  useEffect(() => {
+    const update = () => setCount(TEMPLATES.length + HTML_TEMPLATES.length + getCustomTemplates().length);
+    window.addEventListener("focus", update);
+    return () => window.removeEventListener("focus", update);
+  }, []);
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {TEMPLATES.map((template) => (
-        <button key={template.id} onClick={() => onSelect(template)} className="group rounded-3xl border border-border bg-card p-4 text-left transition hover:-translate-y-1 hover:shadow-xl">
-          <div className="mb-4 h-40 overflow-hidden rounded-2xl bg-muted">
-            <div className="origin-top scale-[0.28] w-[360%] pointer-events-none">
-              {template.blocks.slice(0, 3).map((block) => (
-                <BlockRenderer key={block.id} block={block} onChange={() => undefined} onDelete={() => undefined} preview />
-              ))}
+    <div className="rounded-full bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700">
+      {count} templates available
+    </div>
+  );
+}
+
+function TemplateLibrary({ onSelect, onSelectHtml }: { onSelect: (template: Template) => void; onSelectHtml: (template: HtmlTemplate) => void }) {
+  const [customTemplates, setCustomTemplates] = useState<CustomHtmlTemplate[]>(() => getCustomTemplates());
+  const [categories, setCategories] = useState<Category[]>(() => getCategories());
+  const [activeCategory, setActiveCategory] = useState<string>("all");
+
+  useEffect(() => {
+    const update = () => {
+      setCustomTemplates(getCustomTemplates());
+      setCategories(getCategories());
+    };
+    window.addEventListener("focus", update);
+    return () => window.removeEventListener("focus", update);
+  }, []);
+
+  const allHtmlTemplates: Array<{ id: string; name: string; description: string; html: string; categoryId?: string | null; isCustom?: boolean }> = [
+    ...HTML_TEMPLATES.map((t) => ({ ...t, categoryId: null, isCustom: false })),
+    ...customTemplates.map((t) => ({ ...t, isCustom: true })),
+  ];
+
+  const filteredBlockTemplates = activeCategory === "all" || activeCategory === "built-in"
+    ? TEMPLATES
+    : [];
+
+  const filteredHtmlTemplates = allHtmlTemplates.filter((t) => {
+    if (activeCategory === "all") return true;
+    if (activeCategory === "built-in") return !t.isCustom;
+    if (activeCategory === "custom") return t.isCustom;
+    return t.categoryId === activeCategory;
+  });
+
+  const categoryTabs = [
+    { id: "all", label: "All templates" },
+    { id: "built-in", label: "Built-in" },
+    ...(customTemplates.length > 0 ? [{ id: "custom", label: "Custom" }] : []),
+    ...categories.map((c) => ({ id: c.id, label: c.name, color: c.color })),
+  ];
+
+  const getCategoryById = (id: string | null | undefined) =>
+    id ? categories.find((c) => c.id === id) : null;
+
+  return (
+    <div>
+      {(categories.length > 0 || customTemplates.length > 0) && (
+        <div className="mb-5 flex flex-wrap gap-2">
+          {categoryTabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveCategory(tab.id)}
+              className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold transition ${
+                activeCategory === tab.id
+                  ? "bg-slate-900 text-white"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+              }`}
+            >
+              {"color" in tab && tab.color && (
+                <span
+                  className="inline-block h-2 w-2 rounded-full"
+                  style={{ backgroundColor: tab.color }}
+                />
+              )}
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {filteredBlockTemplates.map((template) => (
+          <button key={template.id} onClick={() => onSelect(template)} className="group rounded-3xl border border-border bg-card p-4 text-left transition hover:-translate-y-1 hover:shadow-xl">
+            <div className="mb-4 h-40 overflow-hidden rounded-2xl bg-muted">
+              <div className="origin-top scale-[0.28] w-[360%] pointer-events-none">
+                {template.blocks.slice(0, 3).map((block) => (
+                  <BlockRenderer key={block.id} block={block} onChange={() => undefined} onDelete={() => undefined} preview />
+                ))}
+              </div>
             </div>
-          </div>
-          <h3 className="text-lg font-extrabold tracking-tight">{template.name}</h3>
-          <p className="mt-1 text-sm text-muted-foreground">{template.description}</p>
-          <div className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-primary">
-            Use this template
-            <Globe2 className="h-4 w-4 transition group-hover:translate-x-1" />
-          </div>
-        </button>
-      ))}
-      {HTML_TEMPLATES.map((template) => (
-        <button key={template.id} onClick={() => onSelectHtml(template)} className="group rounded-3xl border border-border bg-card p-4 text-left transition hover:-translate-y-1 hover:shadow-xl">
-          <div className="mb-4 h-40 overflow-hidden rounded-2xl bg-muted">
-            <iframe title={`${template.name} preview`} srcDoc={template.html} className="h-[520px] w-full origin-top scale-[0.28] border-0" />
-          </div>
-          <h3 className="text-lg font-extrabold tracking-tight">{template.name}</h3>
-          <p className="mt-1 text-sm text-muted-foreground">{template.description}</p>
-          <div className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-primary">
-            Use full HTML template
-            <Globe2 className="h-4 w-4 transition group-hover:translate-x-1" />
-          </div>
-        </button>
-      ))}
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <h3 className="text-lg font-extrabold tracking-tight">{template.name}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">{template.description}</p>
+              </div>
+              <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-500">Built-in</span>
+            </div>
+            <div className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-primary">
+              Use this template
+              <Globe2 className="h-4 w-4 transition group-hover:translate-x-1" />
+            </div>
+          </button>
+        ))}
+
+        {filteredHtmlTemplates.map((template) => {
+          const category = getCategoryById(template.categoryId);
+          const isCustom = template.isCustom;
+          const handleClick = () => {
+            if (isCustom) {
+              onSelectHtml({ id: template.id, name: template.name, description: template.description, html: template.html });
+            } else {
+              onSelectHtml({ id: template.id, name: template.name, description: template.description, html: template.html });
+            }
+          };
+          return (
+            <button key={template.id} onClick={handleClick} className="group rounded-3xl border border-border bg-card p-4 text-left transition hover:-translate-y-1 hover:shadow-xl">
+              <div className="mb-4 h-40 overflow-hidden rounded-2xl bg-muted">
+                <iframe title={`${template.name} preview`} srcDoc={template.html} className="h-[520px] w-full origin-top scale-[0.28] border-0 pointer-events-none" />
+              </div>
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <h3 className="text-lg font-extrabold tracking-tight truncate">{template.name}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{template.description}</p>
+                  {category && (
+                    <span
+                      className="mt-1.5 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold text-white"
+                      style={{ backgroundColor: category.color }}
+                    >
+                      {category.name}
+                    </span>
+                  )}
+                </div>
+                {isCustom && (
+                  <span className="shrink-0 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-600">Custom</span>
+                )}
+              </div>
+              <div className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-primary">
+                {isCustom ? "Use custom template" : "Use full HTML template"}
+                <Globe2 className="h-4 w-4 transition group-hover:translate-x-1" />
+              </div>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
