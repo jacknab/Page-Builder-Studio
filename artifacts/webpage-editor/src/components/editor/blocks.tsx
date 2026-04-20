@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Block, BUTTON_PRESETS } from '@/lib/templates';
 import { EditableText } from './EditableText';
 import { Button } from '@/components/ui/button';
@@ -218,12 +218,53 @@ export function FooterBlock({ block, onChange, onDelete, preview }: BlockProps) 
   );
 }
 
+function buildWidgetSrcdoc(snippet: string, editable: boolean) {
+  const editorStyles = editable
+    ? `*, *::before, *::after { pointer-events: auto !important; }
+       [contenteditable="true"] { user-select: text !important; outline: none; }
+       [data-launchsite-selected="true"] { outline: 3px solid #2563eb !important; outline-offset: 4px !important; }
+       a[href], button { cursor: text !important; }`
+    : '';
+
+  const editorScript = editable
+    ? `<script data-launchsite-editor="true">
+(function(){
+  document.body.setAttribute('contenteditable','true');
+  function postUpdate(){
+    var p; try { p = parent; } catch(e){}
+    if (p) p.postMessage({ type: 'launchsite-widget-updated', html: document.body.innerHTML }, '*');
+  }
+  document.addEventListener('focusout', function(){ setTimeout(postUpdate, 80); }, true);
+  document.addEventListener('input', function(){ setTimeout(postUpdate, 300); }, true);
+})();
+</script>`
+    : '';
+
+  return `<!DOCTYPE html><html><head><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:sans-serif;padding:8px}
+${editorStyles}
+</style></head><body>${snippet}${editorScript}</body></html>`;
+}
+
 export function WidgetBlock({ block, onChange, onDelete, preview }: BlockProps) {
   const { html = '', label = 'Embedded Widget', height = 400 } = block.props;
-  const [showEditor, setShowEditor] = useState(!html);
+  const [showCodeEditor, setShowCodeEditor] = useState(!html);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const updateProp = (key: string, value: any) =>
     onChange({ ...block, props: { ...block.props, [key]: value } });
+
+  // Listen for inline edits made inside the iframe
+  useEffect(() => {
+    const handler = (event: MessageEvent) => {
+      if (event.data?.type === 'launchsite-widget-updated' && typeof event.data.html === 'string') {
+        onChange({ ...block, props: { ...block.props, html: event.data.html } });
+      }
+    };
+    window.addEventListener('message', handler);
+    return () => window.removeEventListener('message', handler);
+  }, [block, onChange]);
 
   const QUICK_PRESETS = [
     {
@@ -244,7 +285,9 @@ export function WidgetBlock({ block, onChange, onDelete, preview }: BlockProps) 
     },
   ];
 
-  const srcdoc = `<!DOCTYPE html><html><head><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:sans-serif}</style></head><body>${html}</body></html>`;
+  // In edit mode: make the iframe content editable inline (like HtmlTemplateEditor).
+  // In preview mode: render as plain sandbox.
+  const srcdoc = buildWidgetSrcdoc(html, !preview && !showCodeEditor && !!html);
 
   return (
     <BlockWrapper onDelete={onDelete} preview={preview}>
@@ -259,20 +302,20 @@ export function WidgetBlock({ block, onChange, onDelete, preview }: BlockProps) 
                 className="h-7 w-48 text-sm font-semibold border-dashed"
               />
             </div>
-            <Button size="sm" variant="outline" onClick={() => setShowEditor(!showEditor)} className="gap-1 text-xs">
-              {showEditor ? <X className="h-3 w-3" /> : <Code2 className="h-3 w-3" />}
-              {showEditor ? 'Hide editor' : 'Edit code'}
+            <Button size="sm" variant="outline" onClick={() => setShowCodeEditor(!showCodeEditor)} className="gap-1 text-xs">
+              {showCodeEditor ? <X className="h-3 w-3" /> : <Code2 className="h-3 w-3" />}
+              {showCodeEditor ? 'Hide code' : 'Edit source'}
             </Button>
           </div>
         )}
 
-        {!preview && showEditor && (
+        {!preview && showCodeEditor && (
           <div className="mb-4 space-y-3 rounded-xl border border-dashed border-border bg-muted/30 p-4">
             <div className="flex flex-wrap gap-2">
               {QUICK_PRESETS.map((p) => (
                 <button
                   key={p.name}
-                  onClick={() => { updateProp('html', p.html); setShowEditor(false); }}
+                  onClick={() => { updateProp('html', p.html); setShowCodeEditor(false); }}
                   className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-100 transition"
                 >
                   {p.name}
@@ -301,7 +344,14 @@ export function WidgetBlock({ block, onChange, onDelete, preview }: BlockProps) 
 
         {html ? (
           <div className="w-full overflow-hidden rounded-2xl border border-border/50 shadow-sm">
+            {!preview && !showCodeEditor && (
+              <p className="px-3 py-1.5 text-[11px] text-muted-foreground bg-muted/40 border-b border-border/40">
+                Click text to edit • Use "Edit source" to change the HTML code
+              </p>
+            )}
             <iframe
+              ref={iframeRef}
+              key={`${showCodeEditor}-${preview}`}
               srcDoc={srcdoc}
               title={label}
               style={{ width: '100%', height: `${height}px`, border: 'none', display: 'block' }}
