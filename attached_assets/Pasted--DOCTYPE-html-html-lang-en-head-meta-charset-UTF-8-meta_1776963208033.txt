@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Glamour Nails — Walk-Ins Welcome</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=Barlow+Condensed:wght@500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#d0021b;
+  --red-dark:#a80016;
+  --red-light:#f5e6e8;
+  --blue:#003087;
+  --blue-mid:#0052cc;
+  --gray:#f4f4f4;
+  --gray2:#e8e8e8;
+  --gray3:#999;
+  --text:#1a1a1a;
+  --white:#ffffff;
+  --green:#2e7d32;
+  --green-light:#e8f5e9;
+  --orange:#e65100;
+  --font:'Barlow',sans-serif;
+  --cond:'Barlow Condensed',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);color:var(--text);background:#fff;font-size:16px}
+
+/* ── UTILITY BAR ── */
+.utility-bar{
+  background:var(--blue);
+  color:#fff;
+  font-size:0.78rem;
+  padding:0.45rem 1.5rem;
+  display:flex;justify-content:space-between;align-items:center;
+  letter-spacing:0.01em;
+}
+.utility-bar a{color:#fff;text-decoration:none;margin-left:1.5rem;opacity:0.85;transition:opacity 0.2s}
+.utility-bar a:hover{opacity:1;text-decoration:underline}
+.util-left{display:flex;align-items:center;gap:0.5rem}
+.util-dot{width:7px;height:7px;background:#4caf50;border-radius:50%;display:inline-block}
+
+/* ── MAIN NAV ── */
+header{
+  background:#fff;
+  border-bottom:3px solid var(--red);
+  position:sticky;top:0;z-index:200;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+.nav-inner{
+  max-width:1200px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.5rem;height:68px;
+}
+.logo{
+  display:flex;align-items:center;gap:0;text-decoration:none;
+}
+.logo-box{
+  background:var(--red);
+  color:#fff;
+  font-family:var(--cond);
+  font-weight:800;
+  font-size:1.55rem;
+  letter-spacing:0.04em;
+  padding:0.35rem 1rem;
+  line-height:1;
+  text-transform:uppercase;
+}
+.logo-box span{color:#ffd700}
+.logo-sub{
+  font-family:var(--cond);
+  font-size:0.72rem;
+  font-weight:600;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--red);
+  padding-left:0.6rem;
+  line-height:1.2;
+  border-left:2px solid var(--red);
+  margin-left:0.6rem;
+}
+.main-nav{display:flex;align-items:center;gap:0;list-style:none}
+.main-nav a{
+  text-decoration:none;color:var(--text);
+  font-size:0.88rem;font-weight:600;
+  padding:0 1.1rem;height:68px;display:flex;align-items:center;
+  text-transform:uppercase;letter-spacing:0.03em;
+  border-bottom:3px solid transparent;
+  margin-bottom:-3px;
+  transition:color 0.2s,border-color 0.2s;
+  white-space:nowrap;
+}
+.main-nav a:hover{color:var(--red);border-color:var(--red)}
+.nav-checkin-btn{
+  background:var(--red);
+  color:#fff!important;
+  padding:0 1.4rem!important;
+  border-bottom:none!important;
+  margin-bottom:0!important;
+  font-weight:700!important;
+  font-size:0.88rem!important;
+  letter-spacing:0.04em!important;
+  transition:background 0.2s!important;
+}
+.nav-checkin-btn:hover{background:var(--red-dark)!important;color:#fff!important}
+
+/* ── HERO BANNER ── */
+.hero{
+  background:linear-gradient(135deg,var(--red) 0%,#8b0000 100%);
+  position:relative;overflow:hidden;
+}
+.hero-inner{
+  max-width:1200px;margin:0 auto;
+  display:grid;grid-template-columns:1fr 440px;
+  align-items:center;gap:0;
+  padding:3.5rem 1.5rem;
+}
+.hero::before{
+  content:'';position:absolute;right:-60px;top:-60px;
+  width:500px;height:500px;border-radius:50%;
+  background:rgba(255,255,255,0.04);pointer-events:none;
+}
+.hero::after{
+  content:'';position:absolute;right:150px;bottom:-80px;
+  width:300px;height:300px;border-radius:50%;
+  background:rgba(255,255,255,0.03);pointer-events:none;
+}
+.hero-eyebrow{
+  display:inline-block;
+  background:rgba(255,255,255,0.15);
+  color:#fff;
+  font-size:0.72rem;font-weight:700;
+  letter-spacing:0.14em;text-transform:uppercase;
+  padding:0.3rem 0.8rem;
+  border-radius:2px;margin-bottom:1.2rem;
+}
+.hero-title{
+  font-family:var(--cond);font-weight:800;
+  font-size:clamp(2.8rem,5vw,4.2rem);
+  line-height:1.0;color:#fff;
+  text-transform:uppercase;letter-spacing:0.02em;
+  margin-bottom:1rem;
+}
+.hero-title em{color:#ffd700;font-style:italic}
+.hero-sub{
+  font-size:1.05rem;color:rgba(255,255,255,0.88);
+  line-height:1.6;margin-bottom:2rem;max-width:420px;
+}
+.hero-actions{display:flex;gap:1rem;flex-wrap:wrap;align-items:center}
+.btn-white{
+  background:#fff;color:var(--red);
+  font-family:var(--font);font-weight:700;
+  font-size:1rem;letter-spacing:0.03em;
+  padding:0.85rem 2rem;
+  border:none;cursor:pointer;
+  text-decoration:none;display:inline-block;
+  border-radius:3px;
+  transition:background 0.2s,transform 0.15s,box-shadow 0.2s;
+  box-shadow:0 4px 14px rgba(0,0,0,0.2);
+}
+.btn-white:hover{background:#ffe8e8;transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,0.25)}
+.btn-outline-white{
+  background:transparent;color:#fff;
+  font-family:var(--font);font-weight:600;
+  font-size:1rem;
+  padding:0.85rem 2rem;
+  border:2px solid rgba(255,255,255,0.6);
+  cursor:pointer;text-decoration:none;display:inline-block;
+  border-radius:3px;
+  transition:border-color 0.2s,background 0.2s;
+}
+.btn-outline-white:hover{border-color:#fff;background:rgba(255,255,255,0.1)}
+
+/* hero wait card */
+.hero-right{position:relative;z-index:2}
+.wait-card{
+  background:#fff;
+  border-radius:6px;
+  box-shadow:0 8px 40px rgba(0,0,0,0.25);
+  overflow:hidden;
+}
+.wait-card-header{
+  background:var(--blue);
+  color:#fff;
+  padding:1rem 1.4rem;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.wait-card-title{
+  font-family:var(--cond);font-weight:700;
+  font-size:1rem;text-transform:uppercase;letter-spacing:0.08em;
+}
+.wait-live{
+  display:flex;align-items:center;gap:0.4rem;
+  font-size:0.7rem;font-weight:600;letter-spacing:0.1em;
+  text-transform:uppercase;
+}
+.live-dot{
+  width:8px;height:8px;background:#4caf50;
+  border-radius:50%;
+  animation:pulse 1.5s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(1.3)}}
+.wait-card-body{padding:1.5rem 1.4rem}
+.location-select-wrap{
+  display:flex;gap:0.5rem;margin-bottom:1.2rem;
+}
+.location-select{
+  flex:1;
+  font-family:var(--font);font-size:0.88rem;font-weight:500;
+  padding:0.6rem 0.9rem;
+  border:2px solid var(--gray2);border-radius:3px;
+  background:#fff;color:var(--text);
+  outline:none;cursor:pointer;
+  transition:border-color 0.2s;
+}
+.location-select:focus{border-color:var(--blue)}
+.zip-btn{
+  background:var(--blue);color:#fff;
+  border:none;border-radius:3px;
+  padding:0 1rem;font-weight:700;font-size:0.82rem;
+  cursor:pointer;letter-spacing:0.05em;
+  transition:background 0.2s;white-space:nowrap;
+}
+.zip-btn:hover{background:var(--blue-mid)}
+
+.wait-info{
+  background:var(--gray);border-radius:4px;
+  padding:1rem 1.2rem;
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:0.8rem;margin-bottom:1.2rem;
+}
+.wait-stat{}
+.wait-stat-num{
+  font-family:var(--cond);font-size:2rem;font-weight:800;
+  color:var(--red);line-height:1;
+}
+.wait-stat-num.green{color:var(--green)}
+.wait-stat-label{
+  font-size:0.7rem;font-weight:600;
+  text-transform:uppercase;letter-spacing:0.08em;
+  color:var(--gray3);margin-top:0.15rem;
+}
+.wait-location-name{
+  font-size:0.8rem;color:var(--gray3);
+  margin-bottom:1rem;display:flex;align-items:center;gap:0.4rem;
+}
+.wait-location-name svg{flex-shrink:0}
+.checkin-now-btn{
+  width:100%;background:var(--red);color:#fff;
+  font-family:var(--cond);font-size:1.25rem;font-weight:800;
+  letter-spacing:0.06em;text-transform:uppercase;
+  padding:1rem;border:none;border-radius:3px;
+  cursor:pointer;
+  transition:background 0.2s,transform 0.15s;
+  display:flex;align-items:center;justify-content:center;gap:0.6rem;
+}
+.checkin-now-btn:hover{background:var(--red-dark);transform:translateY(-1px)}
+.checkin-now-btn svg{width:20px;height:20px}
+.wait-disclaimer{
+  font-size:0.68rem;color:var(--gray3);text-align:center;
+  margin-top:0.8rem;line-height:1.5;
+}
+
+/* ── QUICK STRIP ── */
+.quick-strip{
+  background:var(--gray);
+  border-bottom:1px solid var(--gray2);
+}
+.strip-inner{
+  max-width:1200px;margin:0 auto;
+  display:grid;grid-template-columns:repeat(4,1fr);
+}
+.strip-item{
+  padding:1.4rem 1.5rem;
+  display:flex;align-items:center;gap:0.9rem;
+  border-right:1px solid var(--gray2);
+  transition:background 0.2s;cursor:default;
+}
+.strip-item:last-child{border-right:none}
+.strip-item:hover{background:#efefef}
+.strip-icon{
+  width:38px;height:38px;flex-shrink:0;
+  background:var(--red);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:1.1rem;
+}
+.strip-text-main{font-weight:700;font-size:0.9rem;color:var(--text)}
+.strip-text-sub{font-size:0.75rem;color:var(--gray3);margin-top:0.1rem}
+
+/* ── SECTION COMMONS ── */
+section{padding:4rem 1.5rem}
+.section-inner{max-width:1200px;margin:0 auto}
+.section-label{
+  font-size:0.72rem;font-weight:700;letter-spacing:0.14em;
+  text-transform:uppercase;color:var(--red);margin-bottom:0.5rem;
+}
+.section-heading{
+  font-family:var(--cond);font-weight:800;
+  font-size:clamp(1.8rem,3.5vw,2.8rem);
+  text-transform:uppercase;letter-spacing:0.02em;
+  color:var(--text);line-height:1.05;margin-bottom:1rem;
+}
+.section-subhead{
+  font-size:1rem;color:#555;line-height:1.65;
+  max-width:560px;
+}
+.section-divider{
+  width:50px;height:4px;background:var(--red);
+  margin:1rem 0 2rem;
+}
+
+/* ── SERVICES ── */
+.services-section{background:#fff}
+.services-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1.5rem;margin-top:2.5rem;
+}
+.service-card{
+  border:1px solid var(--gray2);
+  border-top:4px solid var(--red);
+  border-radius:3px;
+  padding:1.8rem 1.6rem;
+  transition:box-shadow 0.25s,transform 0.2s;
+  background:#fff;
+}
+.service-card:hover{box-shadow:0 6px 24px rgba(0,0,0,0.1);transform:translateY(-3px)}
+.svc-icon{font-size:2rem;margin-bottom:1rem}
+.svc-name{
+  font-family:var(--cond);font-weight:700;font-size:1.25rem;
+  text-transform:uppercase;letter-spacing:0.04em;
+  color:var(--text);margin-bottom:0.5rem;
+}
+.svc-desc{font-size:0.85rem;color:#666;line-height:1.65;margin-bottom:1.2rem}
+.svc-price{
+  font-family:var(--cond);font-weight:800;font-size:1.5rem;
+  color:var(--red);
+}
+.svc-price span{font-size:0.8rem;font-weight:500;color:var(--gray3);font-family:var(--font)}
+
+/* ── CHECK IN MODAL / FLOW ── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,30,0.6);backdrop-filter:blur(4px);
+  z-index:1000;align-items:center;justify-content:center;
+  padding:1rem;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:#fff;border-radius:6px;
+  width:100%;max-width:520px;
+  max-height:90vh;overflow-y:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,0.3);
+  animation:modalIn 0.3s ease;
+}
+@keyframes modalIn{from{opacity:0;transform:translateY(20px) scale(0.97)}to{opacity:1;transform:none}}
+.modal-header{
+  background:var(--red);color:#fff;
+  padding:1.2rem 1.5rem;
+  display:flex;justify-content:space-between;align-items:center;
+  border-radius:6px 6px 0 0;
+}
+.modal-title{
+  font-family:var(--cond);font-weight:800;
+  font-size:1.3rem;text-transform:uppercase;letter-spacing:0.06em;
+}
+.modal-close{
+  background:none;border:none;color:#fff;
+  font-size:1.5rem;cursor:pointer;line-height:1;
+  opacity:0.8;transition:opacity 0.2s;padding:0;
+}
+.modal-close:hover{opacity:1}
+.modal-body{padding:1.8rem 1.5rem}
+
+/* step indicator */
+.steps-indicator{
+  display:flex;align-items:center;
+  margin-bottom:1.8rem;
+}
+.step-dot{
+  width:28px;height:28px;border-radius:50%;
+  background:var(--gray2);color:var(--gray3);
+  font-weight:700;font-size:0.8rem;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:background 0.3s,color 0.3s;
+}
+.step-dot.active{background:var(--red);color:#fff}
+.step-dot.done{background:var(--green);color:#fff}
+.step-line{flex:1;height:2px;background:var(--gray2);margin:0 0.4rem;transition:background 0.3s}
+.step-line.done{background:var(--green)}
+
+/* form fields */
+.form-group{margin-bottom:1.2rem}
+.form-label{
+  display:block;font-weight:600;font-size:0.82rem;
+  text-transform:uppercase;letter-spacing:0.06em;
+  color:#444;margin-bottom:0.4rem;
+}
+.form-input,.form-select{
+  width:100%;font-family:var(--font);font-size:0.95rem;
+  padding:0.7rem 0.9rem;
+  border:2px solid var(--gray2);border-radius:3px;
+  color:var(--text);background:#fff;outline:none;
+  transition:border-color 0.2s;
+}
+.form-input:focus,.form-select:focus{border-color:var(--blue)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+
+/* service checkboxes */
+.service-checks{display:flex;flex-direction:column;gap:0.6rem}
+.svc-check-item{
+  display:flex;align-items:center;gap:0.75rem;
+  padding:0.7rem 0.9rem;
+  border:2px solid var(--gray2);border-radius:3px;
+  cursor:pointer;transition:border-color 0.2s,background 0.2s;
+}
+.svc-check-item:hover{border-color:var(--blue);background:#f5f8ff}
+.svc-check-item.selected{border-color:var(--red);background:#fff5f5}
+.svc-check-item input[type=checkbox]{accent-color:var(--red);width:16px;height:16px}
+.svc-check-name{font-weight:600;font-size:0.9rem;flex:1}
+.svc-check-price{font-family:var(--cond);font-weight:700;color:var(--red);font-size:1rem}
+
+/* confirmation */
+.confirm-box{
+  background:var(--green-light);border:2px solid var(--green);
+  border-radius:4px;padding:1.4rem;text-align:center;
+  margin-bottom:1.2rem;
+}
+.confirm-icon{font-size:2.5rem;margin-bottom:0.5rem}
+.confirm-title{
+  font-family:var(--cond);font-weight:800;font-size:1.4rem;
+  text-transform:uppercase;color:var(--green);
+}
+.confirm-sub{font-size:0.88rem;color:#444;margin-top:0.4rem;line-height:1.5}
+.confirm-details{
+  background:var(--gray);border-radius:4px;
+  padding:1.2rem;
+}
+.confirm-row{
+  display:flex;justify-content:space-between;
+  font-size:0.88rem;padding:0.4rem 0;
+  border-bottom:1px solid var(--gray2);
+}
+.confirm-row:last-child{border-bottom:none;font-weight:700}
+.confirm-row-label{color:var(--gray3);font-weight:600;text-transform:uppercase;font-size:0.78rem;letter-spacing:0.06em}
+.confirm-row-val{color:var(--text);font-weight:600}
+.wait-badge{
+  display:inline-flex;align-items:center;gap:0.4rem;
+  background:var(--red);color:#fff;
+  font-family:var(--cond);font-weight:700;font-size:0.85rem;
+  letter-spacing:0.06em;text-transform:uppercase;
+  padding:0.3rem 0.7rem;border-radius:2px;
+  margin-top:0.5rem;
+}
+
+/* modal buttons */
+.modal-actions{display:flex;gap:0.8rem;margin-top:1.5rem}
+.btn-primary{
+  flex:1;background:var(--red);color:#fff;
+  font-family:var(--cond);font-size:1.1rem;font-weight:800;
+  text-transform:uppercase;letter-spacing:0.06em;
+  padding:0.85rem;border:none;border-radius:3px;cursor:pointer;
+  transition:background 0.2s;
+}
+.btn-primary:hover{background:var(--red-dark)}
+.btn-secondary{
+  background:var(--gray);color:var(--text);
+  font-family:var(--font);font-size:0.9rem;font-weight:600;
+  padding:0.85rem 1.2rem;border:none;border-radius:3px;cursor:pointer;
+  transition:background 0.2s;
+}
+.btn-secondary:hover{background:var(--gray2)}
+
+/* ── LOCATIONS ── */
+.locations-section{background:var(--gray)}
+.locations-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1.2rem;margin-top:2rem;
+}
+.loc-card{
+  background:#fff;border-radius:4px;
+  border:1px solid var(--gray2);
+  overflow:hidden;
+  transition:box-shadow 0.2s;
+}
+.loc-card:hover{box-shadow:0 4px 18px rgba(0,0,0,0.1)}
+.loc-card-header{
+  background:var(--blue);color:#fff;
+  padding:0.9rem 1.2rem;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.loc-name{font-family:var(--cond);font-weight:700;font-size:1rem;text-transform:uppercase;letter-spacing:0.05em}
+.loc-status{
+  font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+  padding:0.2rem 0.5rem;border-radius:2px;
+}
+.status-open{background:#4caf50;color:#fff}
+.status-busy{background:#ff9800;color:#fff}
+.loc-card-body{padding:1.1rem 1.2rem}
+.loc-address{font-size:0.85rem;color:#555;margin-bottom:0.8rem;line-height:1.5}
+.loc-meta{display:flex;gap:1.5rem;margin-bottom:1rem}
+.loc-meta-item{font-size:0.8rem;color:#444}
+.loc-meta-item strong{color:var(--red);font-family:var(--cond);font-size:1rem}
+.loc-actions{display:flex;gap:0.6rem}
+.loc-btn{
+  flex:1;text-align:center;
+  font-size:0.78rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;
+  padding:0.55rem 0.5rem;border-radius:2px;cursor:pointer;
+  text-decoration:none;display:inline-block;border:none;font-family:var(--font);
+  transition:background 0.2s,color 0.2s;
+}
+.loc-btn-red{background:var(--red);color:#fff}
+.loc-btn-red:hover{background:var(--red-dark)}
+.loc-btn-outline{background:#fff;color:var(--blue);border:2px solid var(--blue)}
+.loc-btn-outline:hover{background:var(--blue);color:#fff}
+
+/* ── WHY US ── */
+.why-section{background:#fff}
+.why-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1.5rem;margin-top:2.5rem;
+}
+.why-card{text-align:center;padding:1.5rem 1rem}
+.why-icon{font-size:2.4rem;margin-bottom:1rem}
+.why-title{
+  font-family:var(--cond);font-weight:700;font-size:1.1rem;
+  text-transform:uppercase;letter-spacing:0.04em;
+  color:var(--text);margin-bottom:0.5rem;
+}
+.why-desc{font-size:0.83rem;color:#666;line-height:1.65}
+
+/* ── PROMO BANNER ── */
+.promo-banner{
+  background:linear-gradient(90deg,var(--blue) 0%,#0041a8 100%);
+  color:#fff;padding:2.5rem 1.5rem;text-align:center;
+}
+.promo-label{
+  font-size:0.72rem;font-weight:700;letter-spacing:0.18em;
+  text-transform:uppercase;color:#ffd700;margin-bottom:0.5rem;
+}
+.promo-title{
+  font-family:var(--cond);font-weight:800;
+  font-size:clamp(1.6rem,3vw,2.4rem);
+  text-transform:uppercase;letter-spacing:0.03em;margin-bottom:0.6rem;
+}
+.promo-sub{font-size:0.92rem;color:rgba(255,255,255,0.8);margin-bottom:1.5rem}
+.promo-code{
+  display:inline-block;
+  background:#ffd700;color:var(--blue);
+  font-family:var(--cond);font-weight:800;font-size:1.5rem;
+  letter-spacing:0.12em;padding:0.4rem 1.4rem;border-radius:3px;
+  margin-bottom:1.5rem;
+}
+
+/* ── REVIEWS ── */
+.reviews-section{background:var(--gray)}
+.reviews-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1.2rem;margin-top:2rem;
+}
+.review-card{
+  background:#fff;border-radius:4px;
+  border:1px solid var(--gray2);
+  padding:1.4rem;
+}
+.review-stars{color:#f5a623;font-size:1rem;margin-bottom:0.7rem;letter-spacing:0.05em}
+.review-text{font-size:0.88rem;color:#444;line-height:1.7;margin-bottom:1rem;font-style:italic}
+.review-author{font-size:0.78rem;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:0.06em}
+.review-date{font-size:0.72rem;color:var(--gray3);margin-top:0.15rem}
+
+/* ── FAQ ── */
+.faq-section{background:#fff}
+.faq-list{margin-top:2rem;max-width:780px}
+.faq-item{border-bottom:1px solid var(--gray2)}
+.faq-q{
+  width:100%;background:none;border:none;text-align:left;
+  font-family:var(--font);font-size:0.95rem;font-weight:700;color:var(--text);
+  padding:1.1rem 0;cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;
+  transition:color 0.2s;
+}
+.faq-q:hover{color:var(--red)}
+.faq-chevron{font-size:1.1rem;transition:transform 0.25s;color:var(--red)}
+.faq-a{
+  font-size:0.88rem;color:#555;line-height:1.7;
+  max-height:0;overflow:hidden;transition:max-height 0.3s ease,padding 0.3s;
+  padding:0;
+}
+.faq-item.open .faq-a{max-height:200px;padding-bottom:1rem}
+.faq-item.open .faq-chevron{transform:rotate(180deg)}
+
+/* ── FOOTER ── */
+footer{background:var(--text);color:#fff}
+.footer-top{
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr;
+  gap:2.5rem;
+  max-width:1200px;margin:0 auto;
+  padding:3rem 1.5rem 2rem;
+}
+.foot-logo{
+  font-family:var(--cond);font-weight:800;font-size:1.4rem;
+  letter-spacing:0.06em;margin-bottom:1rem;
+}
+.foot-logo span{color:var(--red)}
+.foot-about{font-size:0.82rem;color:#aaa;line-height:1.75;margin-bottom:1.2rem}
+.foot-social{display:flex;gap:0.6rem}
+.foot-social a{
+  width:34px;height:34px;border-radius:3px;
+  background:#2d2d2d;color:#aaa;
+  display:flex;align-items:center;justify-content:center;
+  text-decoration:none;font-size:0.75rem;font-weight:700;
+  transition:background 0.2s,color 0.2s;
+}
+.foot-social a:hover{background:var(--red);color:#fff}
+.foot-col-head{
+  font-size:0.7rem;font-weight:700;letter-spacing:0.16em;
+  text-transform:uppercase;color:var(--red);margin-bottom:1.2rem;
+}
+.foot-links{list-style:none;display:flex;flex-direction:column;gap:0.6rem}
+.foot-links a{
+  font-size:0.82rem;color:#aaa;text-decoration:none;transition:color 0.2s;
+}
+.foot-links a:hover{color:#fff}
+.footer-bottom{
+  background:#111;
+  max-width:100%;
+  border-top:1px solid #2d2d2d;
+}
+.footer-bottom-inner{
+  max-width:1200px;margin:0 auto;
+  padding:1.2rem 1.5rem;
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:0.75rem;color:#666;
+}
+.footer-bottom-inner a{color:#888;text-decoration:none}
+.footer-bottom-inner a:hover{color:#fff}
+</style>
+</head>
+<body>
+
+<!-- UTILITY BAR -->
+<div class="utility-bar">
+  <div class="util-left">
+    <span class="util-dot"></span>
+    <span>All 3 Colorado Springs locations are currently <strong>OPEN</strong></span>
+  </div>
+  <div>
+    <span>📞 (719) 555-0182</span>
+    <a href="#">Find a Location</a>
+    <a href="#">Gift Cards</a>
+    <a href="#">Sign In</a>
+  </div>
+</div>
+
+<!-- MAIN NAV -->
+<header>
+  <div class="nav-inner">
+    <a href="#" class="logo">
+      <div class="logo-box">Glamour<span>✦</span>Nails</div>
+      <div class="logo-sub">Walk-Ins<br>Welcome</div>
+    </a>
+    <ul class="main-nav">
+      <li><a href="#services">Services</a></li>
+      <li><a href="#locations">Locations</a></li>
+      <li><a href="#specials">Specials</a></li>
+      <li><a href="#reviews">Reviews</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#" class="nav-checkin-btn" onclick="openModal();return false;">✓ Check In Now</a></li>
+    </ul>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-eyebrow">Walk-Ins Always Welcome · No Appointment Needed</div>
+      <h1 class="hero-title">Great Nails.<br>No Wait.<br><em>Check In Online.</em></h1>
+      <p class="hero-sub">Skip the line — add yourself to our digital waitlist and we'll text you when your nail tech is ready. 3 locations across Colorado Springs.</p>
+      <div class="hero-actions">
+        <button class="btn-white" onclick="openModal()">✓ Check In Now — It's Free</button>
+        <a href="#services" class="btn-outline-white">See Services & Pricing</a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <!-- LIVE WAIT CARD -->
+      <div class="wait-card">
+        <div class="wait-card-header">
+          <div class="wait-card-title">📍 Live Wait Times</div>
+          <div class="wait-live"><span class="live-dot"></span> Live</div>
+        </div>
+        <div class="wait-card-body">
+          <div class="location-select-wrap">
+            <select class="location-select" id="heroLocationSelect" onchange="updateWaitCard()">
+              <option value="cascade">Cascade Ave — Downtown</option>
+              <option value="powers">Powers Blvd — East Side</option>
+              <option value="academy">Academy Blvd — North</option>
+            </select>
+            <button class="zip-btn">Find Mine</button>
+          </div>
+          <div class="wait-info">
+            <div class="wait-stat">
+              <div class="wait-stat-num" id="heroWaitTime">12</div>
+              <div class="wait-stat-label">Min Wait</div>
+            </div>
+            <div class="wait-stat">
+              <div class="wait-stat-num green" id="heroTechsAvail">3</div>
+              <div class="wait-stat-label">Techs Available</div>
+            </div>
+            <div class="wait-stat">
+              <div class="wait-stat-num" id="heroAhead">2</div>
+              <div class="wait-stat-label">Ahead of You</div>
+            </div>
+            <div class="wait-stat">
+              <div class="wait-stat-num green">Open</div>
+              <div class="wait-stat-label">Status</div>
+            </div>
+          </div>
+          <div class="wait-location-name">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+            <span id="heroLocAddress">142 Cascade Ave · Colorado Springs, CO 80903</span>
+          </div>
+          <button class="checkin-now-btn" onclick="openModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Check In Now
+          </button>
+          <div class="wait-disclaimer">You'll receive a text when your tech is ready. No credit card required.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUICK STRIP -->
+<div class="quick-strip">
+  <div class="strip-inner">
+    <div class="strip-item">
+      <div class="strip-icon">💅</div>
+      <div>
+        <div class="strip-text-main">Walk-Ins Welcome</div>
+        <div class="strip-text-sub">No appointment needed ever</div>
+      </div>
+    </div>
+    <div class="strip-item">
+      <div class="strip-icon">📱</div>
+      <div>
+        <div class="strip-text-main">Online Check-In</div>
+        <div class="strip-text-sub">Save your spot from anywhere</div>
+      </div>
+    </div>
+    <div class="strip-item">
+      <div class="strip-icon">⏱️</div>
+      <div>
+        <div class="strip-text-main">Live Wait Times</div>
+        <div class="strip-text-sub">See wait before you leave home</div>
+      </div>
+    </div>
+    <div class="strip-item">
+      <div class="strip-icon">✅</div>
+      <div>
+        <div class="strip-text-main">Satisfaction Guarantee</div>
+        <div class="strip-text-sub">Love it or we'll fix it, free</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section class="services-section" id="services">
+  <div class="section-inner">
+    <div class="section-label">What We Offer</div>
+    <h2 class="section-heading">Services & Pricing</h2>
+    <div class="section-divider"></div>
+    <p class="section-subhead">Straightforward pricing, no hidden fees. All services include cuticle care and a relaxing hand massage.</p>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="svc-icon">💅</div>
+        <div class="svc-name">Classic Manicure</div>
+        <p class="svc-desc">Shaping, cuticle cleanup, hand massage, and your choice of regular polish. Quick and perfect every time.</p>
+        <div class="svc-price">$22 <span>· 30 min</span></div>
+      </div>
+      <div class="service-card">
+        <div class="svc-icon">✨</div>
+        <div class="svc-name">Gel Manicure</div>
+        <p class="svc-desc">Long-lasting gel polish that stays chip-free for up to 3 weeks. UV-cured finish for a glossy, durable look.</p>
+        <div class="svc-price">$38 <span>· 45 min</span></div>
+      </div>
+      <div class="service-card">
+        <div class="svc-icon">💎</div>
+        <div class="svc-name">Acrylic Full Set</div>
+        <p class="svc-desc">Full acrylic nail extensions in your choice of length and shape, finished with gel or regular polish.</p>
+        <div class="svc-price">$55 <span>· 75 min</span></div>
+      </div>
+      <div class="service-card">
+        <div class="svc-icon">🦶</div>
+        <div class="svc-name">Classic Pedicure</div>
+        <p class="svc-desc">Foot soak, callus removal, nail shaping, cuticle care, lower leg massage, and polish of your choice.</p>
+        <div class="svc-price">$35 <span>· 45 min</span></div>
+      </div>
+      <div class="service-card">
+        <div class="svc-icon">🌿</div>
+        <div class="svc-name">Spa Pedicure</div>
+        <p class="svc-desc">Everything in Classic plus a sugar scrub, paraffin mask, and extended massage. Pure relaxation.</p>
+        <div class="svc-price">$55 <span>· 65 min</span></div>
+      </div>
+      <div class="service-card">
+        <div class="svc-icon">🎨</div>
+        <div class="svc-name">Nail Art Add-On</div>
+        <p class="svc-desc">Hand-painted designs, French tips, ombre, chrome powder, or rhinestone accents. Ask to see our lookbook!</p>
+        <div class="svc-price">$8+ <span>· per nail or set</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LOCATIONS -->
+<section class="locations-section" id="locations">
+  <div class="section-inner">
+    <div class="section-label">Find Us Near You</div>
+    <h2 class="section-heading">3 Colorado Springs Locations</h2>
+    <div class="section-divider"></div>
+    <div class="locations-grid">
+      <div class="loc-card">
+        <div class="loc-card-header">
+          <div class="loc-name">📍 Cascade Ave — Downtown</div>
+          <span class="loc-status status-open">Open</span>
+        </div>
+        <div class="loc-card-body">
+          <div class="loc-address">142 Cascade Ave<br>Colorado Springs, CO 80903<br><em style="font-size:0.78rem;color:#999">Near Acacia Park · Free street parking</em></div>
+          <div class="loc-meta">
+            <div class="loc-meta-item">Wait: <strong>12 min</strong></div>
+            <div class="loc-meta-item">Techs: <strong>3 avail</strong></div>
+          </div>
+          <div class="loc-meta" style="margin-top:-0.5rem;margin-bottom:1rem">
+            <div class="loc-meta-item" style="font-size:0.78rem;color:#555">Mon–Sat 9am–7pm · Sun 10am–5pm</div>
+          </div>
+          <div class="loc-actions">
+            <button class="loc-btn loc-btn-red" onclick="openModal('cascade')">Check In</button>
+            <a href="tel:7195550182" class="loc-btn loc-btn-outline">Call</a>
+            <a href="#" class="loc-btn loc-btn-outline">Directions</a>
+          </div>
+        </div>
+      </div>
+      <div class="loc-card">
+        <div class="loc-card-header">
+          <div class="loc-name">📍 Powers Blvd — East</div>
+          <span class="loc-status status-busy">Busy</span>
+        </div>
+        <div class="loc-card-body">
+          <div class="loc-address">5830 Powers Blvd, Suite 104<br>Colorado Springs, CO 80920<br><em style="font-size:0.78rem;color:#999">Powers & Woodmen · Ample parking</em></div>
+          <div class="loc-meta">
+            <div class="loc-meta-item">Wait: <strong>28 min</strong></div>
+            <div class="loc-meta-item">Techs: <strong>1 avail</strong></div>
+          </div>
+          <div class="loc-meta" style="margin-top:-0.5rem;margin-bottom:1rem">
+            <div class="loc-meta-item" style="font-size:0.78rem;color:#555">Mon–Sat 9am–7pm · Sun 10am–5pm</div>
+          </div>
+          <div class="loc-actions">
+            <button class="loc-btn loc-btn-red" onclick="openModal('powers')">Check In</button>
+            <a href="tel:7195550193" class="loc-btn loc-btn-outline">Call</a>
+            <a href="#" class="loc-btn loc-btn-outline">Directions</a>
+          </div>
+        </div>
+      </div>
+      <div class="loc-card">
+        <div class="loc-card-header">
+          <div class="loc-name">📍 Academy Blvd — North</div>
+          <span class="loc-status status-open">Open</span>
+        </div>
+        <div class="loc-card-body">
+          <div class="loc-address">3210 N Academy Blvd<br>Colorado Springs, CO 80917<br><em style="font-size:0.78rem;color:#999">Academy & Galley · Strip mall parking</em></div>
+          <div class="loc-meta">
+            <div class="loc-meta-item">Wait: <strong>5 min</strong></div>
+            <div class="loc-meta-item">Techs: <strong>4 avail</strong></div>
+          </div>
+          <div class="loc-meta" style="margin-top:-0.5rem;margin-bottom:1rem">
+            <div class="loc-meta-item" style="font-size:0.78rem;color:#555">Mon–Sat 9am–7pm · Sun 10am–5pm</div>
+          </div>
+          <div class="loc-actions">
+            <button class="loc-btn loc-btn-red" onclick="openModal('academy')">Check In</button>
+            <a href="tel:7195550201" class="loc-btn loc-btn-outline">Call</a>
+            <a href="#" class="loc-btn loc-btn-outline">Directions</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section class="why-section">
+  <div class="section-inner">
+    <div style="text-align:center">
+      <div class="section-label" style="text-align:center">Why Glamour Nails</div>
+      <h2 class="section-heading">The Glamour Difference</h2>
+      <div class="section-divider" style="margin:1rem auto 0"></div>
+    </div>
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="why-icon">🚫⏳</div>
+        <div class="why-title">No Appointment</div>
+        <p class="why-desc">Walk in whenever it's convenient for you. Check in online to save your spot before you even leave the house.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon">💰</div>
+        <div class="why-title">Honest Pricing</div>
+        <p class="why-desc">What you see is what you pay. No surprise fees, no upselling pressure. Our prices are posted at every station.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon">🏅</div>
+        <div class="why-title">Certified Techs</div>
+        <p class="why-desc">Every nail technician is Colorado state-licensed and trained to Glamour Nails' quality standards.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon">🔄</div>
+        <div class="why-title">Satisfaction Guarantee</div>
+        <p class="why-desc">Not happy? Come back within 7 days and we'll fix it at no charge. Your satisfaction is our reputation.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROMO BANNER -->
+<div class="promo-banner" id="specials">
+  <div class="promo-label">🌟 Limited Time Offer</div>
+  <h2 class="promo-title">$10 Off Your First Visit</h2>
+  <p class="promo-sub">New clients only. Valid at all 3 Colorado Springs locations. Show this page at check-in.</p>
+  <div class="promo-code">GLAM10</div>
+  <br>
+  <button class="btn-white" onclick="openModal()">Check In &amp; Redeem Now</button>
+</div>
+
+<!-- REVIEWS -->
+<section class="reviews-section" id="reviews">
+  <div class="section-inner">
+    <div class="section-label">What Clients Are Saying</div>
+    <h2 class="section-heading">★★★★★ Rated in Colorado Springs</h2>
+    <div class="section-divider"></div>
+    <div class="reviews-grid">
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"Checked in online and by the time I drove there and parked, my tech was almost ready for me. Game changer. My gel set looks amazing — zero chips after 3 weeks."</p>
+        <div class="review-author">Emma K.</div>
+        <div class="review-date">Google Review · 2 weeks ago</div>
+      </div>
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"I love that I can see the wait time before I leave my house. Went to the Academy location — only a 5 minute wait. Walked out with the best pedicure I've ever had."</p>
+        <div class="review-author">Priya M.</div>
+        <div class="review-date">Yelp Review · 1 month ago</div>
+      </div>
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"Prices are super fair and they never try to upsell you on stuff you don't need. The check-in system is exactly like Great Clips — why don't all nail salons do this?!"</p>
+        <div class="review-author">Rachel T.</div>
+        <div class="review-date">Google Review · 3 weeks ago</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section" id="faq">
+  <div class="section-inner">
+    <div class="section-label">Got Questions?</div>
+    <h2 class="section-heading">Frequently Asked Questions</h2>
+    <div class="section-divider"></div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">How does online check-in work? <span class="faq-chevron">▾</span></button>
+        <div class="faq-a">Click "Check In Now," enter your name, phone number, and select your service. We'll add you to the digital waitlist at your chosen location. When your nail tech is ready, we'll send you a text — so you can relax at home or grab a coffee nearby instead of waiting in a chair.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Do I need an appointment? <span class="faq-chevron">▾</span></button>
+        <div class="faq-a">Never! Walk-ins are always welcome at all three locations. Online check-in is simply a convenience tool to help you save your spot and reduce time spent waiting in the salon.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">How accurate are the wait times? <span class="faq-chevron">▾</span></button>
+        <div class="faq-a">Wait times are updated in real time as clients check in, get seated, and complete services. They are estimates based on current queue length and average service times, and are typically accurate to within 5 minutes.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">What if I'm running late after checking in? <span class="faq-chevron">▾</span></button>
+        <div class="faq-a">No problem — just give us a call at your location and we'll hold your spot for up to 15 minutes past your estimated ready time. After that, we may need to move to the next client, but you're welcome to re-check-in.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">What forms of payment do you accept? <span class="faq-chevron">▾</span></button>
+        <div class="faq-a">We accept all major credit and debit cards, cash, Apple Pay, and Google Pay. We do not accept personal checks. Tips can be added to card payments.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Do you offer gift cards? <span class="faq-chevron">▾</span></button>
+        <div class="faq-a">Yes! Gift cards are available in any denomination at all three locations and can be used at any Glamour Nails salon. They make the perfect gift for any occasion.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="foot-logo">Glamour<span>✦</span>Nails</div>
+      <p class="foot-about">Colorado Springs' go-to nail salon. Walk-ins always welcome. Three convenient locations with real-time online check-in.</p>
+      <div class="foot-social">
+        <a href="#">IG</a>
+        <a href="#">FB</a>
+        <a href="#">TK</a>
+        <a href="#">YP</a>
+      </div>
+    </div>
+    <div>
+      <div class="foot-col-head">Services</div>
+      <ul class="foot-links">
+        <li><a href="#">Classic Manicure</a></li>
+        <li><a href="#">Gel Manicure</a></li>
+        <li><a href="#">Acrylic Sets</a></li>
+        <li><a href="#">Pedicures</a></li>
+        <li><a href="#">Nail Art</a></li>
+        <li><a href="#">Pricing</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="foot-col-head">Locations</div>
+      <ul class="foot-links">
+        <li><a href="#">Cascade Ave</a></li>
+        <li><a href="#">Powers Blvd</a></li>
+        <li><a href="#">Academy Blvd</a></li>
+        <li><a href="#">Hours & Info</a></li>
+        <li><a href="#">Directions</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="foot-col-head">Company</div>
+      <ul class="foot-links">
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Gift Cards</a></li>
+        <li><a href="#">Franchise Info</a></li>
+        <li><a href="#">Contact Us</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-bottom-inner">
+      <span>© 2026 Glamour Nails · Colorado Springs, CO · All Rights Reserved</span>
+      <div style="display:flex;gap:1.5rem">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Use</a>
+        <a href="#">Accessibility</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- CHECK IN MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-title">✓ Online Check-In</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody">
+      <!-- injected by JS -->
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Wait card data ──
+const locationData = {
+  cascade: { wait:12, techs:3, ahead:2, address:'142 Cascade Ave · Colorado Springs, CO 80903' },
+  powers:  { wait:28, techs:1, ahead:5, address:'5830 Powers Blvd Suite 104 · Colorado Springs, CO 80920' },
+  academy: { wait:5,  techs:4, ahead:1, address:'3210 N Academy Blvd · Colorado Springs, CO 80917' },
+};
+
+function updateWaitCard(){
+  const sel = document.getElementById('heroLocationSelect').value;
+  const d = locationData[sel];
+  document.getElementById('heroWaitTime').textContent = d.wait;
+  document.getElementById('heroTechsAvail').textContent = d.techs;
+  document.getElementById('heroAhead').textContent = d.ahead;
+  document.getElementById('heroLocAddress').textContent = d.address;
+}
+
+// ── FAQ ──
+function toggleFaq(btn){
+  const item = btn.parentElement;
+  const wasOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+  if(!wasOpen) item.classList.add('open');
+}
+
+// ── Modal ──
+let currentStep = 1;
+let formData = {};
+let selectedLoc = 'cascade';
+
+function openModal(loc){
+  if(loc) selectedLoc = loc;
+  currentStep = 1;
+  formData = {};
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderStep();
+}
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function handleOverlayClick(e){
+  if(e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+function stepsHTML(active){
+  const labels = ['Info','Service','Confirm'];
+  let s = '<div class="steps-indicator">';
+  labels.forEach((l,i)=>{
+    const n = i+1;
+    let cls = n < active ? 'done' : n === active ? 'active' : '';
+    s += `<div class="step-dot ${cls}">${n < active ? '✓' : n}</div>`;
+    if(i < labels.length-1){
+      s += `<div class="step-line ${n < active ? 'done':''}"></div>`;
+    }
+  });
+  s += '</div>';
+  return s;
+}
+
+const locNames = {cascade:'Cascade Ave — Downtown',powers:'Powers Blvd — East Side',academy:'Academy Blvd — North'};
+const locWaits = {cascade:12,powers:28,academy:5};
+
+function renderStep(){
+  const body = document.getElementById('modalBody');
+  if(currentStep === 1) body.innerHTML = renderStep1();
+  if(currentStep === 2) body.innerHTML = renderStep2();
+  if(currentStep === 3) body.innerHTML = renderStep3();
+}
+
+function renderStep1(){
+  return `
+    ${stepsHTML(1)}
+    <div class="form-group">
+      <label class="form-label">Choose Your Location</label>
+      <select class="form-select" id="modalLoc" onchange="selectedLoc=this.value">
+        <option value="cascade" ${selectedLoc==='cascade'?'selected':''}>📍 Cascade Ave — Downtown (Est. wait: 12 min)</option>
+        <option value="powers"  ${selectedLoc==='powers' ?'selected':''}>📍 Powers Blvd — East Side (Est. wait: 28 min)</option>
+        <option value="academy" ${selectedLoc==='academy'?'selected':''}>📍 Academy Blvd — North (Est. wait: 5 min)</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">First Name</label>
+        <input class="form-input" type="text" id="fName" placeholder="Sarah" value="${formData.firstName||''}"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Last Name</label>
+        <input class="form-input" type="text" id="lName" placeholder="Johnson" value="${formData.lastName||''}"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Mobile Number <span style="color:#999;font-size:0.75rem;font-weight:400;text-transform:none">(for text notifications)</span></label>
+      <input class="form-input" type="tel" id="phone" placeholder="(719) 555-0000" value="${formData.phone||''}"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Party Size</label>
+      <select class="form-select" id="partySize">
+        <option value="1" ${(formData.party||'1')==='1'?'selected':''}>Just me (1 person)</option>
+        <option value="2" ${(formData.party||'')==='2'?'selected':''}>2 people</option>
+        <option value="3" ${(formData.party||'')==='3'?'selected':''}>3 people</option>
+        <option value="4" ${(formData.party||'')==='4'?'selected':''}>4+ people (call to confirm)</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="goStep2()">Next: Choose Service →</button>
+    </div>`;
+}
+
+function goStep2(){
+  const fn = document.getElementById('fName').value.trim();
+  const ln = document.getElementById('lName').value.trim();
+  const ph = document.getElementById('phone').value.trim();
+  if(!fn||!ln){alert('Please enter your first and last name.');return;}
+  if(!ph){alert('Please enter a mobile number so we can text you when ready.');return;}
+  formData.firstName = fn; formData.lastName = ln;
+  formData.phone = ph;
+  formData.party = document.getElementById('partySize').value;
+  selectedLoc = document.getElementById('modalLoc').value;
+  currentStep = 2; renderStep();
+}
+
+function renderStep2(){
+  const services = [
+    {id:'classic-mani', name:'Classic Manicure', price:'$22', time:'30 min'},
+    {id:'gel-mani',     name:'Gel Manicure',     price:'$38', time:'45 min'},
+    {id:'acrylic',      name:'Acrylic Full Set',  price:'$55', time:'75 min'},
+    {id:'classic-pedi', name:'Classic Pedicure',  price:'$35', time:'45 min'},
+    {id:'spa-pedi',     name:'Spa Pedicure',      price:'$55', time:'65 min'},
+    {id:'nail-art',     name:'Nail Art Add-On',   price:'$8+', time:'varies'},
+  ];
+  const selected = formData.services || [];
+  let checks = services.map(s=>`
+    <label class="svc-check-item ${selected.includes(s.id)?'selected':''}" id="svc-${s.id}" onclick="toggleSvc('${s.id}',this)">
+      <input type="checkbox" ${selected.includes(s.id)?'checked':''} onclick="event.stopPropagation()"/>
+      <div class="svc-check-name">${s.name} <span style="font-size:0.75rem;color:#999;font-weight:400">${s.time}</span></div>
+      <div class="svc-check-price">${s.price}</div>
+    </label>`).join('');
+  return `
+    ${stepsHTML(2)}
+    <p style="font-size:0.85rem;color:#666;margin-bottom:1.2rem">Select the service(s) you'd like today. This helps us pair you with the right technician.</p>
+    <div class="service-checks">${checks}</div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="currentStep=1;renderStep()">← Back</button>
+      <button class="btn-primary" onclick="goStep3()">Review Check-In →</button>
+    </div>`;
+}
+
+function toggleSvc(id, el){
+  formData.services = formData.services||[];
+  const idx = formData.services.indexOf(id);
+  if(idx > -1){ formData.services.splice(idx,1); el.classList.remove('selected'); }
+  else { formData.services.push(id); el.classList.add('selected'); }
+}
+
+function goStep3(){
+  if(!formData.services || formData.services.length===0){
+    alert('Please select at least one service.'); return;
+  }
+  currentStep = 3; renderStep();
+}
+
+function renderStep3(){
+  const svcLabels = {
+    'classic-mani':'Classic Manicure ($22)',
+    'gel-mani':'Gel Manicure ($38)',
+    'acrylic':'Acrylic Full Set ($55)',
+    'classic-pedi':'Classic Pedicure ($35)',
+    'spa-pedi':'Spa Pedicure ($55)',
+    'nail-art':'Nail Art Add-On ($8+)',
+  };
+  const svcs = (formData.services||[]).map(s=>svcLabels[s]||s).join(', ');
+  const wait = locWaits[selectedLoc];
+  const locName = locNames[selectedLoc];
+  return `
+    ${stepsHTML(3)}
+    <div class="confirm-details" style="margin-bottom:1.2rem">
+      <div class="confirm-row">
+        <span class="confirm-row-label">Name</span>
+        <span class="confirm-row-val">${formData.firstName} ${formData.lastName}</span>
+      </div>
+      <div class="confirm-row">
+        <span class="confirm-row-label">Mobile</span>
+        <span class="confirm-row-val">${formData.phone}</span>
+      </div>
+      <div class="confirm-row">
+        <span class="confirm-row-label">Location</span>
+        <span class="confirm-row-val">${locName}</span>
+      </div>
+      <div class="confirm-row">
+        <span class="confirm-row-label">Party</span>
+        <span class="confirm-row-val">${formData.party} ${formData.party==='1'?'person':'people'}</span>
+      </div>
+      <div class="confirm-row">
+        <span class="confirm-row-label">Service(s)</span>
+        <span class="confirm-row-val">${svcs}</span>
+      </div>
+      <div class="confirm-row">
+        <span class="confirm-row-label">Est. Wait</span>
+        <span class="confirm-row-val" style="color:var(--red);font-family:var(--cond);font-size:1.1rem">${wait} minutes</span>
+      </div>
+    </div>
+    <p style="font-size:0.8rem;color:#666;margin-bottom:1.2rem;line-height:1.6">
+      By confirming, you agree to receive a text message at <strong>${formData.phone}</strong> when your technician is ready. Standard messaging rates may apply.
+    </p>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="currentStep=2;renderStep()">← Back</button>
+      <button class="btn-primary" onclick="submitCheckin()">✓ Confirm Check-In</button>
+    </div>`;
+}
+
+function submitCheckin(){
+  const wait = locWaits[selectedLoc];
+  const locName = locNames[selectedLoc];
+  document.getElementById('modalBody').innerHTML = `
+    <div class="confirm-box">
+      <div class="confirm-icon">🎉</div>
+      <div class="confirm-title">You're Checked In!</div>
+      <div class="confirm-sub">
+        Hi <strong>${formData.firstName}</strong>! You're on the waitlist at <strong>${locName}</strong>.<br>
+        We'll text <strong>${formData.phone}</strong> when your tech is ready.
+      </div>
+      <div style="margin-top:0.8rem">
+        <span class="wait-badge">⏱ Est. wait: ${wait} min</span>
+      </div>
+    </div>
+    <div class="confirm-details">
+      <div class="confirm-row">
+        <span class="confirm-row-label">Queue Position</span>
+        <span class="confirm-row-val">#${Math.floor(Math.random()*4)+2} in line</span>
+      </div>
+      <div class="confirm-row">
+        <span class="confirm-row-label">Confirmation #</span>
+        <span class="confirm-row-val" style="font-family:monospace;font-size:1rem;color:var(--red)">GN-${Math.floor(Math.random()*90000)+10000}</span>
+      </div>
+      <div class="confirm-row">
+        <span class="confirm-row-label">Location</span>
+        <span class="confirm-row-val">${locName}</span>
+      </div>
+    </div>
+    <p style="font-size:0.78rem;color:#888;text-align:center;margin-top:1rem;line-height:1.6">
+      Need to cancel? Call your location or simply don't show up — no worries at all.<br>
+      Please arrive within <strong>5 minutes</strong> of receiving your text.
+    </p>
+    <div class="modal-actions" style="margin-top:1rem">
+      <button class="btn-primary" onclick="closeModal()">Done — See You Soon!</button>
+    </div>`;
+}
+</script>
+</body>
+</html>
