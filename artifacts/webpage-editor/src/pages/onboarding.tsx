@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import {
   BARBERSHOP_THEMES,
@@ -33,7 +33,6 @@ import {
   Facebook,
   Globe2,
   Instagram,
-  Loader2,
   MapPin,
   Phone,
   Plus,
@@ -43,6 +42,7 @@ import {
   User,
   X,
 } from "lucide-react";
+import TemplatePreview from "@/components/preview/TemplatePreview";
 
 const DEFAULT_STEP_LABELS = ["Template", "About you", "Services", "Hours", "Locations", "Links"];
 const BARBERSHOP_STEP_LABELS = ["Template", "About you", "Services", "Hours", "Barbers", "Locations", "Links"];
@@ -90,14 +90,6 @@ function StepIndicator({ step, labels }: { step: number; labels: string[] }) {
   );
 }
 
-// ─── TEMPLATE URL HELPER ───────────────────────────────────────────────────
-function getTemplateUrl(port: number, themeId: string): string {
-  const { hostname, protocol } = window.location;
-  // Works for both localhost and Replit — Replit exposes additional ports
-  // via hostname:port (e.g. https://abc.replit.dev:5173/)
-  return `${protocol}//${hostname}:${port}/?theme=${themeId}`;
-}
-
 const THEMES_BY_TYPE: Record<string, LaunchsiteTemplate[]> = {
   "barbershop": BARBERSHOP_THEMES,
   "nail-salon": NAIL_SALON_THEMES,
@@ -118,19 +110,10 @@ function PreviewModal({
   const themes = THEMES_BY_TYPE[category.type] ?? [];
   const startId = initialThemeId ?? themes[0]?.id ?? "";
   const [activeThemeId, setActiveThemeId] = useState(startId);
-  const [iframeLoaded, setIframeLoaded] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-
-  const iframeSrc = getTemplateUrl(category.port, startId);
 
   useEffect(() => {
-    setIframeLoaded(false);
+    setActiveThemeId(initialThemeId ?? themes[0]?.id ?? "");
   }, [category.type]);
-
-  const switchTheme = (themeId: string) => {
-    setActiveThemeId(themeId);
-    iframeRef.current?.contentWindow?.postMessage({ type: "SET_THEME", themeId }, "*");
-  };
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -147,7 +130,6 @@ function PreviewModal({
 
         {/* Row 1 — controls */}
         <div className="flex h-11 items-center gap-2 px-3">
-          {/* Close */}
           <button
             onClick={onClose}
             className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-white/40 transition hover:bg-white/10 hover:text-white"
@@ -155,7 +137,6 @@ function PreviewModal({
             <X className="h-3.5 w-3.5" />
           </button>
 
-          {/* Category label */}
           <div className="flex shrink-0 items-center gap-1.5">
             <span className="text-sm leading-none">{category.emoji}</span>
             <span className="hidden sm:block text-xs font-semibold text-white/70">
@@ -165,7 +146,6 @@ function PreviewModal({
 
           <div className="flex-1" />
 
-          {/* Active theme description — subtle, desktop only */}
           {activeTheme && (
             <div className="hidden lg:flex shrink-0 items-center gap-1.5 max-w-[220px]">
               <div
@@ -178,7 +158,6 @@ function PreviewModal({
             </div>
           )}
 
-          {/* Select CTA */}
           <button
             onClick={() => onSelect(activeThemeId)}
             className="shrink-0 flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-blue-500 active:scale-95"
@@ -188,12 +167,12 @@ function PreviewModal({
           </button>
         </div>
 
-        {/* Row 2 — theme pills (wrapping, no scroll) */}
+        {/* Row 2 — theme pills */}
         <div className="flex flex-wrap gap-1.5 px-3 pb-2.5">
           {themes.map((t) => (
             <button
               key={t.id}
-              onClick={() => switchTheme(t.id)}
+              onClick={() => setActiveThemeId(t.id)}
               className="rounded-md px-2.5 py-1 text-[11px] font-semibold transition-all"
               style={{
                 backgroundColor: activeThemeId === t.id ? t.accentColor : "transparent",
@@ -207,20 +186,11 @@ function PreviewModal({
         </div>
       </div>
 
-      {/* iframe */}
-      <div className="relative flex-1 bg-black">
-        {!iframeLoaded && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-            <p className="text-sm text-slate-400">Loading preview…</p>
-          </div>
-        )}
-        <iframe
-          ref={iframeRef}
-          src={iframeSrc}
-          className="h-full w-full border-none"
-          onLoad={() => setIframeLoaded(true)}
-          title="Template preview"
+      {/* Native preview — no iframe, no separate server needed */}
+      <div className="flex-1 overflow-y-auto">
+        <TemplatePreview
+          businessType={category.type as "barbershop" | "nail-salon"}
+          themeId={activeThemeId}
         />
       </div>
     </div>

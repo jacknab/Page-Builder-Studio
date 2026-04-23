@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { ArrowRight, Rocket, X, Loader2 } from "lucide-react";
+import { ArrowRight, Rocket, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { isLoggedIn } from "@/lib/auth";
 import {
@@ -8,6 +8,7 @@ import {
   NAIL_SALON_THEMES,
   type LaunchsiteTemplate,
 } from "@/lib/launchsiteTemplates";
+import TemplatePreview from "@/components/preview/TemplatePreview";
 
 type FilterId = "all" | "barbershop" | "nail-salon" | "hair-salon" | "haircut-studio";
 
@@ -27,10 +28,6 @@ const CATEGORIES: Category[] = [
   { id: "haircut-studio", label: "Haircut Studio",  emoji: "🪒", port: 5176, themes: [],                available: false },
 ];
 
-function getTemplateUrl(port: number, themeId: string) {
-  return `https://${window.location.hostname}:${port}/?theme=${themeId}`;
-}
-
 function PreviewModal({
   template,
   category,
@@ -43,10 +40,7 @@ function PreviewModal({
   onGetStarted: () => void;
 }) {
   const [activeThemeId, setActiveThemeId] = useState(template.id);
-  const [iframeLoaded, setIframeLoaded] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
   const activeTheme = category.themes.find((t) => t.id === activeThemeId) ?? template;
-  const iframeSrc = getTemplateUrl(category.port, template.id);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -54,13 +48,9 @@ function PreviewModal({
     return () => window.removeEventListener("keydown", handleKey);
   }, [onClose]);
 
-  const switchTheme = (themeId: string) => {
-    setActiveThemeId(themeId);
-    iframeRef.current?.contentWindow?.postMessage({ type: "SET_THEME", themeId }, "*");
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#0a0a0a" }}>
+      {/* Header */}
       <div
         className="flex-shrink-0 border-b"
         style={{ background: "#111", borderColor: "rgba(255,255,255,0.07)" }}
@@ -99,7 +89,7 @@ function PreviewModal({
             return (
               <button
                 key={t.id}
-                onClick={() => switchTheme(t.id)}
+                onClick={() => setActiveThemeId(t.id)}
                 className="rounded-full px-3 py-1 text-xs font-semibold transition"
                 style={
                   active
@@ -114,18 +104,11 @@ function PreviewModal({
         </div>
       </div>
 
-      <div className="relative flex-1">
-        {!iframeLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-white/30" />
-          </div>
-        )}
-        <iframe
-          ref={iframeRef}
-          src={iframeSrc}
-          onLoad={() => setIframeLoaded(true)}
-          className="h-full w-full border-0"
-          title={`Preview: ${activeTheme.name}`}
+      {/* Native preview — no iframe, no separate server needed */}
+      <div className="flex-1 overflow-y-auto">
+        <TemplatePreview
+          businessType={category.id as "barbershop" | "nail-salon"}
+          themeId={activeThemeId}
         />
       </div>
     </div>
