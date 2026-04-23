@@ -303,20 +303,37 @@ export default function TemplatesPage() {
           </p>
         </div>
 
-        {/* Card grid — one card per category */}
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {CATEGORIES.map((cat) =>
-            cat.available ? (
-              <CategoryCard
-                key={cat.id}
-                category={cat}
-                onPreview={() => setPreviewCategory(cat)}
-                onGetStarted={handleGetStarted}
-              />
-            ) : (
-              <ComingSoonCard key={cat.id} category={cat} />
-            )
-          )}
+        {/* Category sections — one section per business type */}
+        <div className="space-y-14">
+          {CATEGORIES.map((cat) => (
+            <section key={cat.id}>
+              {/* Category heading */}
+              <div className="mb-5 flex items-center gap-3">
+                <span className="text-2xl">{cat.emoji}</span>
+                <div>
+                  <h2 className="text-xl font-black tracking-tight">{cat.label}</h2>
+                  <p className="text-sm text-slate-500">
+                    {cat.available
+                      ? `${cat.themes.length} style${cat.themes.length !== 1 ? "s" : ""} available`
+                      : "Coming soon"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Design card */}
+              <div className="max-w-xs">
+                {cat.available ? (
+                  <CategoryCard
+                    category={cat}
+                    onPreview={() => setPreviewCategory(cat)}
+                    onGetStarted={handleGetStarted}
+                  />
+                ) : (
+                  <ComingSoonCard category={cat} />
+                )}
+              </div>
+            </section>
+          ))}
         </div>
 
         {/* CTA band */}
