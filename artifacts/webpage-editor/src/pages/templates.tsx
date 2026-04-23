@@ -157,28 +157,15 @@ function CategoryCard({
   onPreview: () => void;
   onGetStarted: () => void;
 }) {
-  const previews = category.themes.slice(0, 4);
+  const firstTheme = category.themes[0];
 
   return (
     <div className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
-      {/* Thumbnail collage */}
+      {/* Thumbnail */}
       <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
-        {previews.length >= 4 ? (
-          <div className="grid h-full grid-cols-2 grid-rows-2 gap-0.5">
-            {previews.map((t) => (
-              <div key={t.id} className="overflow-hidden">
-                <img
-                  src={t.heroImage}
-                  alt={t.name}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  style={{ filter: "brightness(0.8)" }}
-                />
-              </div>
-            ))}
-          </div>
-        ) : previews.length > 0 ? (
+        {firstTheme ? (
           <img
-            src={previews[0].heroImage}
+            src={firstTheme.heroImage}
             alt={category.label}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             style={{ filter: "brightness(0.8)" }}
