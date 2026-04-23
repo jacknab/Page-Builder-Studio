@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "date-fns": "^4.1.0",
     "lucide-react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:"

@@ -484,6 +484,9 @@ importers:
 
   artifacts/nail-salon-template:
     dependencies:
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
       lucide-react:
         specifier: 'catalog:'
         version: 0.545.0(react@19.1.0)

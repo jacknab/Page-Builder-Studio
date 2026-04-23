@@ -13,6 +13,7 @@ import {
   CalendarCheck,
   Sparkles,
 } from "lucide-react";
+import BookingWidget from "./BookingWidget";
 
 interface Props {
   theme: Theme;
@@ -241,9 +242,6 @@ export function Services({ theme, clientData }: Props) {
 export function Booking({ theme, clientData }: Props) {
   const c = theme.colors;
   const hasBooking = !!(clientData.bookingSlug && clientData.bookingDomain);
-  const bookingUrl = hasBooking
-    ? `https://${clientData.bookingDomain}/widget?slug=${clientData.bookingSlug}`
-    : null;
 
   return (
     <section
@@ -251,7 +249,7 @@ export function Booking({ theme, clientData }: Props) {
       className="py-24 px-4"
       style={{ backgroundColor: c.bgSecondary }}
     >
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-2xl mx-auto">
         <div className="text-center mb-12">
           <p
             className="text-xs font-bold tracking-widest uppercase mb-3"
@@ -276,18 +274,15 @@ export function Booking({ theme, clientData }: Props) {
           </p>
         </div>
 
-        {bookingUrl ? (
+        {hasBooking ? (
           <div
-            className="overflow-hidden rounded-3xl shadow-2xl"
-            style={{ border: `1px solid ${c.border}` }}
+            className="rounded-3xl p-6 md:p-8"
+            style={{ backgroundColor: c.card, border: `1px solid ${c.border}` }}
           >
-            <iframe
-              src={bookingUrl}
-              width="100%"
-              height="700"
-              style={{ border: "none", display: "block" }}
-              title="Book your appointment"
-              loading="lazy"
+            <BookingWidget
+              theme={theme}
+              bookingSlug={clientData.bookingSlug!}
+              bookingDomain={clientData.bookingDomain!}
             />
           </div>
         ) : (
@@ -296,10 +291,7 @@ export function Booking({ theme, clientData }: Props) {
               <a
                 href={`tel:${clientData.phone}`}
                 className="flex flex-col items-center gap-4 p-8 rounded-3xl text-center transition-all hover:scale-[1.02]"
-                style={{
-                  backgroundColor: c.card,
-                  border: `2px solid ${c.border}`,
-                }}
+                style={{ backgroundColor: c.card, border: `2px solid ${c.border}` }}
               >
                 <div
                   className="w-14 h-14 rounded-full flex items-center justify-center"
@@ -322,10 +314,7 @@ export function Booking({ theme, clientData }: Props) {
             )}
             <div
               className="flex flex-col items-center gap-4 p-8 rounded-3xl text-center"
-              style={{
-                backgroundColor: c.card,
-                border: `2px solid ${c.border}`,
-              }}
+              style={{ backgroundColor: c.card, border: `2px solid ${c.border}` }}
             >
               <div
                 className="w-14 h-14 rounded-full flex items-center justify-center"
