@@ -20,6 +20,7 @@ import {
   Plus,
   Trash2,
   ChevronRight,
+  Sliders,
 } from "lucide-react";
 
 import { BARBERSHOP2_THEMES, BARBERSHOP3_THEMES } from "@/lib/launchsiteTemplates";
@@ -756,6 +757,14 @@ export default function Dashboard() {
         </div>
 
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate("/app")}
+            className="flex items-center gap-1.5 rounded-xl border border-slate-200 px-3.5 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition"
+            title="Advanced editor — add photos, maps, new sections"
+          >
+            <Sliders className="h-4 w-4" />
+            Advanced Editor
+          </button>
           <button
             onClick={() => { logout(); navigate("/login"); }}
             className="flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-slate-700 transition"
