@@ -8,15 +8,36 @@
   "address": "123 Main Street, Anytown USA",
   "established": 2018,
   "numberOfBarbers": 4,
+  "bookingUrl": "",
   "services": [
-    { "name": "Classic Haircut", "price": "$25", "category": "Haircut" },
-    { "name": "Fade", "price": "$30", "category": "Haircut" },
-    { "name": "Buzz Cut", "price": "$20", "category": "Haircut" },
-    { "name": "Kids Haircut", "price": "$18", "category": "Haircut" },
-    { "name": "Beard Trim", "price": "$15", "category": "Beard" },
-    { "name": "Beard Line-Up", "price": "$12", "category": "Beard" },
-    { "name": "Hot Towel Shave", "price": "$30", "category": "Shave" },
-    { "name": "Haircut & Beard", "price": "$35", "category": "Combo" }
+    { "name": "Classic Haircut", "price": "$25", "category": "Haircut", "description": "A timeless cut tailored to your style. Scissor or clipper finish.", "popular": true },
+    { "name": "Fade", "price": "$30", "category": "Haircut", "description": "Clean skin fade to any length. Low, mid, or high — precision every time.", "popular": true },
+    { "name": "Buzz Cut", "price": "$20", "category": "Haircut", "description": "Simple, sharp, and effortless. One length all the way around.", "popular": true },
+    { "name": "Kids Haircut", "price": "$18", "category": "Haircut", "description": "Patient and friendly service for the little ones." },
+    { "name": "Beard Trim", "price": "$15", "category": "Beard", "description": "Shape and clean your beard to keep it looking its best." },
+    { "name": "Hot Towel Shave", "price": "$30", "category": "Shave", "description": "Classic straight razor shave with hot towel treatment. The full experience." }
+  ],
+  "barbers": [
+    {
+      "name": "James",
+      "role": "Master Barber",
+      "yearsExp": 12,
+      "bio": "Specialises in fades, beard work, and classic cuts. Known for precision and attention to detail.",
+      "photoUrl": "https://images.pexels.com/photos/1570807/pexels-photo-1570807.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
+    {
+      "name": "Marcus",
+      "role": "Senior Barber",
+      "yearsExp": 7,
+      "bio": "Expert in modern styles and skin fades. Always delivers a clean, sharp finish.",
+      "photoUrl": "https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=600"
+    }
+  ],
+  "galleryImages": [
+    "https://images.pexels.com/photos/3998430/pexels-photo-3998430.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "https://images.pexels.com/photos/1319462/pexels-photo-1319462.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "https://images.pexels.com/photos/4947353/pexels-photo-4947353.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "https://images.pexels.com/photos/3998391/pexels-photo-3998391.jpeg?auto=compress&cs=tinysrgb&w=800"
   ],
   "hours": {
     "monday": "9:00 AM – 7:00 PM",

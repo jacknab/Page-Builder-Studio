@@ -2,12 +2,15 @@ import { useState, useEffect } from "react";
 import { getThemeById } from "./lib/themes";
 import { ClientData } from "./lib/types";
 import {
+  AnnouncementBar,
   Navbar,
   Hero,
+  StatsBar,
+  WhyChoose,
   Services,
-  About,
-  Hours,
-  Contact,
+  Gallery,
+  Barbers,
+  Location,
   Footer,
 } from "./components/Sections";
 import rawClientData from "./client-data.json";
@@ -72,12 +75,15 @@ export default function App() {
         ::-webkit-scrollbar-thumb:hover { background: ${c.accent}; }
         html { scroll-behavior: smooth; }
       `}</style>
+      <AnnouncementBar theme={theme} clientData={clientData} />
       <Navbar theme={theme} clientData={clientData} />
       <Hero theme={theme} clientData={clientData} />
+      <StatsBar theme={theme} clientData={clientData} />
+      <WhyChoose theme={theme} clientData={clientData} />
       <Services theme={theme} clientData={clientData} />
-      <About theme={theme} clientData={clientData} />
-      <Hours theme={theme} clientData={clientData} />
-      <Contact theme={theme} clientData={clientData} />
+      <Gallery theme={theme} clientData={clientData} />
+      <Barbers theme={theme} clientData={clientData} />
+      <Location theme={theme} clientData={clientData} />
       <Footer theme={theme} clientData={clientData} />
     </div>
   );
