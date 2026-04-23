@@ -106,19 +106,22 @@ const THEMES_BY_TYPE: Record<string, LaunchsiteTemplate[]> = {
 // ─── PREVIEW MODAL ─────────────────────────────────────────────────────────
 function PreviewModal({
   category,
+  initialThemeId,
   onClose,
   onSelect,
 }: {
   category: TemplateCategoryConfig;
+  initialThemeId?: string;
   onClose: () => void;
   onSelect: (themeId: string) => void;
 }) {
   const themes = THEMES_BY_TYPE[category.type] ?? [];
-  const [activeThemeId, setActiveThemeId] = useState(themes[0]?.id ?? "");
+  const startId = initialThemeId ?? themes[0]?.id ?? "";
+  const [activeThemeId, setActiveThemeId] = useState(startId);
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  const iframeSrc = getTemplateUrl(category.port, themes[0]?.id ?? "");
+  const iframeSrc = getTemplateUrl(category.port, startId);
 
   useEffect(() => {
     setIframeLoaded(false);
@@ -226,102 +229,163 @@ function PreviewModal({
 
 // ─── STEP 1: TEMPLATE PICKER ───────────────────────────────────────────────
 function TemplatePicker({
-  selected,
+  selectedId,
+  onSelect,
   onPreview,
 }: {
-  selected: { id: string; source: "blocks" | "html" | "launchsite" } | null;
-  onPreview: (category: TemplateCategoryConfig) => void;
+  selectedId: string | null;
+  onSelect: (themeId: string, businessType: BusinessType) => void;
+  onPreview: (category: TemplateCategoryConfig, initialThemeId: string) => void;
 }) {
-  const selectedCategory = selected
-    ? TEMPLATE_CATEGORIES.find((c) => THEMES_BY_TYPE[c.type]?.some((t) => t.id === selected.id))
+  const [filter, setFilter] = useState("all");
+  const availableCategories = TEMPLATE_CATEGORIES.filter((c) => c.available);
+  const visibleCategories =
+    filter === "all" ? availableCategories : availableCategories.filter((c) => c.type === filter);
+
+  const selectedTheme = selectedId
+    ? Object.values(THEMES_BY_TYPE).flat().find((t) => t.id === selectedId)
     : null;
-  const selectedTheme = selected
-    ? Object.values(THEMES_BY_TYPE).flat().find((t) => t.id === selected.id)
+  const selectedCategory = selectedId
+    ? TEMPLATE_CATEGORIES.find((c) => THEMES_BY_TYPE[c.type]?.some((t) => t.id === selectedId))
     : null;
 
   return (
     <div>
-      <h2 className="text-3xl font-black tracking-tight">Pick your template</h2>
+      <h2 className="text-3xl font-black tracking-tight">Pick your design</h2>
       <p className="mt-2 text-base text-slate-500">
-        Choose your business type to browse and preview real designs.
+        Browse every style below. Hit Preview to see the full live site, then Select to use it.
       </p>
 
-      {selected && selectedTheme && (
+      {selectedTheme && selectedCategory && (
         <div className="mt-5 flex items-center gap-3 rounded-2xl border border-blue-200 bg-blue-50 p-4">
-          <div className="h-8 w-8 rounded-full flex-shrink-0" style={{ backgroundColor: selectedTheme.accentColor }} />
+          <div
+            className="h-8 w-8 flex-shrink-0 rounded-full"
+            style={{ backgroundColor: selectedTheme.accentColor }}
+          />
           <div className="min-w-0">
-            <p className="text-sm font-bold text-blue-700">{selectedTheme.name} selected</p>
-            <p className="text-xs text-blue-500">{selectedCategory?.label} — {selectedTheme.description}</p>
+            <p className="text-sm font-bold text-blue-700">{selectedTheme.name} — selected</p>
+            <p className="text-xs text-blue-500">
+              {selectedCategory.label} · {selectedTheme.style}
+            </p>
           </div>
           <button
-            onClick={() => {
-              const cat = TEMPLATE_CATEGORIES.find((c) => c.type === selectedCategory?.type);
-              if (cat) onPreview(cat);
-            }}
-            className="ml-auto flex-shrink-0 rounded-full px-3 py-1 text-xs font-bold text-blue-600 hover:bg-blue-100 transition"
+            onClick={() => onPreview(selectedCategory, selectedTheme.id)}
+            className="ml-auto flex-shrink-0 rounded-full px-3 py-1 text-xs font-bold text-blue-600 transition hover:bg-blue-100"
           >
             Change
           </button>
         </div>
       )}
 
-      <div className="mt-6 grid gap-5 sm:grid-cols-2">
-        {TEMPLATE_CATEGORIES.map((cat) => (
+      <div className="mt-5 flex flex-wrap gap-2">
+        <button
+          onClick={() => setFilter("all")}
+          className={`rounded-full px-3 py-1.5 text-sm font-bold transition ${
+            filter === "all"
+              ? "bg-slate-900 text-white"
+              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+          }`}
+        >
+          All designs
+        </button>
+        {availableCategories.map((cat) => (
           <button
             key={cat.type}
-            disabled={!cat.available}
-            onClick={() => cat.available && onPreview(cat)}
-            className={`group relative overflow-hidden rounded-3xl text-left transition ${
-              cat.available
-                ? "hover:-translate-y-1 hover:shadow-2xl cursor-pointer"
-                : "cursor-not-allowed opacity-60"
-            } ${
-              selectedCategory?.type === cat.type
-                ? "ring-2 ring-blue-600 ring-offset-2"
-                : ""
+            onClick={() => setFilter(cat.type)}
+            className={`rounded-full px-3 py-1.5 text-sm font-bold transition ${
+              filter === cat.type
+                ? "bg-slate-900 text-white"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
             }`}
           >
-            <div className="relative h-52 bg-slate-100">
-              <img
-                src={cat.heroImage}
-                alt={cat.label}
-                className="h-full w-full object-cover transition group-hover:scale-105"
-                style={{ filter: cat.available ? "brightness(0.75)" : "brightness(0.5) grayscale(0.4)" }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-
-              {!cat.available && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="rounded-full bg-white/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-white backdrop-blur-sm">
-                    Coming Soon
-                  </span>
-                </div>
-              )}
-
-              {selectedCategory?.type === cat.type && (
-                <div className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg">
-                  <Check className="h-4 w-4" />
-                </div>
-              )}
-
-              <div className="absolute bottom-0 left-0 right-0 p-5">
-                <div className="flex items-end justify-between">
-                  <div>
-                    <p className="text-xl font-black text-white">
-                      {cat.emoji} {cat.label}
-                    </p>
-                    <p className="mt-0.5 text-sm text-white/70">{cat.description}</p>
-                  </div>
-                  {cat.available && (
-                    <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm">
-                      {(THEMES_BY_TYPE[cat.type]?.length ?? 0)} styles
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
+            {cat.emoji} {cat.label}
           </button>
         ))}
+      </div>
+
+      <div className="mt-6 space-y-10">
+        {visibleCategories.map((cat) => {
+          const themes = THEMES_BY_TYPE[cat.type] ?? [];
+          return (
+            <section key={cat.type}>
+              <div className="mb-4 flex items-center gap-2">
+                <span className="text-xl">{cat.emoji}</span>
+                <h3 className="text-lg font-black">{cat.label}</h3>
+                <span className="text-sm text-slate-400">{themes.length} designs</span>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {themes.map((tpl) => {
+                  const isSelected = selectedId === tpl.id;
+                  return (
+                    <div
+                      key={tpl.id}
+                      className={`group relative overflow-hidden rounded-2xl border bg-white shadow-sm transition-all ${
+                        isSelected
+                          ? "border-blue-500 ring-2 ring-blue-500 ring-offset-1"
+                          : "border-slate-200 hover:-translate-y-0.5 hover:shadow-md"
+                      }`}
+                    >
+                      <div className="relative aspect-video overflow-hidden bg-slate-100">
+                        <img
+                          src={tpl.heroImage}
+                          alt={tpl.name}
+                          className="h-full w-full object-cover transition group-hover:scale-105"
+                          style={{ filter: "brightness(0.75)" }}
+                        />
+                        <div
+                          className="absolute inset-0 opacity-30"
+                          style={{
+                            background: `linear-gradient(140deg, ${tpl.bgColor} 0%, transparent 60%)`,
+                          }}
+                        />
+                        <div
+                          className="absolute bottom-0 left-0 right-0 h-0.5"
+                          style={{ background: tpl.accentColor }}
+                        />
+                        <span
+                          className="absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest shadow"
+                          style={{ background: tpl.accentColor, color: "#fff" }}
+                        >
+                          {tpl.style}
+                        </span>
+                        {isSelected && (
+                          <div className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 shadow">
+                            <Check className="h-3.5 w-3.5 text-white" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-3">
+                        <p className="text-sm font-extrabold text-slate-900">{tpl.name}</p>
+                        <p className="mt-0.5 text-xs leading-relaxed text-slate-400">
+                          {tpl.description}
+                        </p>
+                        <div className="mt-3 flex gap-2">
+                          <button
+                            onClick={() => onPreview(cat, tpl.id)}
+                            className="flex-1 rounded-lg border border-slate-200 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-slate-400 hover:text-slate-900"
+                          >
+                            Preview
+                          </button>
+                          <button
+                            onClick={() => onSelect(tpl.id, cat.type as BusinessType)}
+                            className="flex-1 rounded-lg py-1.5 text-xs font-bold text-white transition"
+                            style={
+                              isSelected
+                                ? { background: "#2563eb" }
+                                : { background: tpl.accentColor }
+                            }
+                          >
+                            {isSelected ? "Selected ✓" : "Select"}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          );
+        })}
       </div>
     </div>
   );
@@ -937,6 +1001,7 @@ export default function Onboarding() {
   const [locations, setLocations] = useState<LocationItem[]>([newLocation()]);
   const [barbers, setBarbers] = useState<BarberItem[]>([]);
   const [previewCategory, setPreviewCategory] = useState<TemplateCategoryConfig | null>(null);
+  const [previewInitialThemeId, setPreviewInitialThemeId] = useState<string>("");
 
   const isBarbershop = businessType === "barbershop";
   const stepLabels = isBarbershop ? BARBERSHOP_STEP_LABELS : DEFAULT_STEP_LABELS;
@@ -968,6 +1033,13 @@ export default function Onboarding() {
     }
     setPreviewCategory(null);
     setStep(2);
+  };
+
+  const handleDirectSelect = (themeId: string, bType: BusinessType) => {
+    handleSelectTemplate(themeId, "launchsite", bType);
+    if (!description.trim()) {
+      setDescription(DEFAULT_DESCRIPTIONS[bType] ?? "");
+    }
   };
 
 
@@ -1056,8 +1128,12 @@ export default function Onboarding() {
         <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm md:p-10">
           {step === 1 && (
             <TemplatePicker
-              selected={templateId ? { id: templateId, source: templateSource } : null}
-              onPreview={setPreviewCategory}
+              selectedId={templateId}
+              onSelect={handleDirectSelect}
+              onPreview={(cat, themeId) => {
+                setPreviewCategory(cat);
+                setPreviewInitialThemeId(themeId);
+              }}
             />
           )}
           {step === 2 && (
@@ -1144,6 +1220,7 @@ export default function Onboarding() {
       {previewCategory && (
         <PreviewModal
           category={previewCategory}
+          initialThemeId={previewInitialThemeId}
           onClose={() => setPreviewCategory(null)}
           onSelect={handlePreviewSelect}
         />
