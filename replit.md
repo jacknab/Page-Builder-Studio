@@ -211,6 +211,95 @@ if (root.hasChildNodes()) {
 
 ---
 
+---
+
+## VPS Deployment
+
+### Files
+
+| File | Purpose |
+|---|---|
+| `setup.sh` | Run once on a fresh Ubuntu 22.04/24.04 VPS. Installs Node.js 24, pnpm, PM2, PostgreSQL 16, Nginx, Certbot, UFW. Prompts for domain, email, DB credentials. |
+| `deploy.sh` | Run after copying code to the server. Installs deps, runs DB migrations, builds all packages, starts/reloads PM2, reloads Nginx. Also used for subsequent updates. |
+| `ecosystem.config.cjs` | PM2 process config. Runs `launchsite-api` (port 8080) and `launchsite-router` (port 3002). |
+
+### Server Setup Order
+
+1. `sudo bash setup.sh` — run on the fresh VPS
+2. Copy project files to the app directory (default `/opt/launchsite`)
+3. `bash deploy.sh` — builds everything and starts PM2
+
+### Nginx Routing (configured by setup.sh)
+
+| Request | Handler |
+|---|---|
+| `launchsite.certxa.com/*` | Nginx serves built frontend; `/api/` → port 8080; `/preview/` → port 3002 |
+| `*.launchsite.certxa.com` | Regex server block → port 3002 (site-router) |
+| Any other domain (custom client domain) | `default_server` catch-all → port 3002 (site-router) |
+
+### DNS records required
+
+```
+A    launchsite.certxa.com      <VPS IP>
+A    *.launchsite.certxa.com    <VPS IP>   ← wildcard for client subdomains
+```
+
+For client custom domains: client adds an `A` record pointing their domain to the VPS IP, and you store it in `client_sites.custom_domain`.
+
+### SSL
+
+- Main domain: `certbot --nginx -d launchsite.certxa.com` (HTTP challenge, automated by setup.sh)
+- Wildcard subdomains: requires DNS challenge — instructions printed by setup.sh
+
+---
+
+## Package 3: Site Router (`artifacts/site-router`)
+
+A lightweight Express server (port 3002) that receives all client-site traffic and serves the correct static HTML files.
+
+**How it resolves which client to serve:**
+1. Reads the `Host` header from the incoming request
+2. If host is `{slug}.launchsite.certxa.com` → looks up `client_sites.subdomain = slug`
+3. Otherwise → looks up `client_sites.custom_domain = host`
+4. Serves static files from `/var/www/clients/{clientId}/`
+
+**Preview by ID (for admin use):**
+- `GET /preview/{clientId}` or `GET /preview/{clientId}/path` → serves that client's site directly by database ID, no domain lookup needed
+
+**Client site storage:** `/var/www/clients/{clientId}/` — one directory per client containing their built static HTML/CSS/JS files.
+
+**Build:** `pnpm --filter @workspace/site-router run build`
+
+---
+
+## Database: `client_sites` Table
+
+Stores everything about a client's website. Created by `lib/db/src/schema/clientSites.ts`.
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | serial PK | |
+| `user_id` | integer FK → users | |
+| `subdomain` | text unique | e.g. `glamournails` → `glamournails.launchsite.certxa.com` |
+| `custom_domain` | text unique | e.g. `glamournails.com` (set when client provides their domain) |
+| `status` | text | `pending` / `building` / `live` |
+| `template_id` | text | Which template they chose |
+| `business_type` | text | nail-salon / hair-salon / haircut-studio / barbershop |
+| `business_name` | text | |
+| `tagline` | text | |
+| `description` | text | |
+| `phone` | text | |
+| `address` | text | |
+| `services_json` | text | JSON string of `{name, price}[]` |
+| `hours_json` | text | JSON string of hours per day |
+| `google_url` | text | |
+| `instagram_url` | text | |
+| `facebook_url` | text | |
+| `tiktok_url` | text | |
+| `yelp_url` | text | |
+
+---
+
 ## Key Commands
 
 ```bash
