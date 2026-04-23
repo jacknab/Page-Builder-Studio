@@ -21,6 +21,13 @@ import {
   Trash2,
   ChevronRight,
   Sliders,
+  Globe,
+  Link2,
+  ShoppingCart,
+  Copy,
+  CheckCircle2,
+  ArrowRight,
+  Server,
 } from "lucide-react";
 
 import { BARBERSHOP2_THEMES, BARBERSHOP3_THEMES } from "@/lib/launchsiteTemplates";
@@ -654,6 +661,309 @@ function TextForm({
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Publish Modal
+// ─────────────────────────────────────────────────────────────────────────────
+
+const VPS_IP = "YOUR_VPS_IP"; // Replace with actual server IP
+const BASE_DOMAIN = "launchsite.certxa.com";
+const PUBLISH_KEY = "launchsite-publish-v1";
+
+type PublishOption = "subdomain" | "custom-domain" | "purchase";
+
+interface PublishData {
+  option: PublishOption;
+  subdomain?: string;
+  customDomain?: string;
+  publishedAt?: string;
+}
+
+function toSlug(name: string): string {
+  return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "my-business";
+}
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = () => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+  return (
+    <button
+      onClick={handleCopy}
+      className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition shrink-0"
+    >
+      {copied ? <CheckCircle2 className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
+      {copied ? "Copied" : "Copy"}
+    </button>
+  );
+}
+
+function PublishModal({
+  businessName,
+  onClose,
+  onPublished,
+}: {
+  businessName: string;
+  onClose: () => void;
+  onPublished: (data: PublishData) => void;
+}) {
+  const [option, setOption] = useState<PublishOption>("subdomain");
+  const [subdomain, setSubdomain] = useState(toSlug(businessName));
+  const [customDomain, setCustomDomain] = useState("");
+  const [launched, setLaunched] = useState(false);
+
+  const subdomainUrl = `https://${subdomain}.${BASE_DOMAIN}`;
+  const cleanDomain = customDomain.trim().replace(/^https?:\/\//, "").replace(/\/$/, "");
+
+  function handleLaunch() {
+    const data: PublishData = {
+      option,
+      subdomain: option === "subdomain" ? subdomain : undefined,
+      customDomain: option === "custom-domain" ? cleanDomain : undefined,
+      publishedAt: new Date().toISOString(),
+    };
+    localStorage.setItem(PUBLISH_KEY, JSON.stringify(data));
+    setLaunched(true);
+    onPublished(data);
+  }
+
+  const canLaunch =
+    (option === "subdomain" && subdomain.length > 0) ||
+    (option === "custom-domain" && cleanDomain.length > 0);
+
+  const OPTIONS: { id: PublishOption; icon: React.ReactNode; label: string; desc: string; soon?: boolean }[] = [
+    {
+      id: "subdomain",
+      icon: <Globe className="h-5 w-5" />,
+      label: "Free subdomain",
+      desc: `Get a free ${BASE_DOMAIN} address`,
+    },
+    {
+      id: "custom-domain",
+      icon: <Link2 className="h-5 w-5" />,
+      label: "Use my domain",
+      desc: "Connect a domain you already own",
+    },
+    {
+      id: "purchase",
+      icon: <ShoppingCart className="h-5 w-5" />,
+      label: "Buy a domain",
+      desc: "Purchase a new domain name",
+      soon: true,
+    },
+  ];
+
+  return (
+    <div
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="relative mx-4 w-full max-w-[520px] rounded-2xl bg-white shadow-2xl">
+
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white">
+              <Rocket className="h-4.5 w-4.5" />
+            </div>
+            <div>
+              <h2 className="text-base font-extrabold text-slate-900">Launch your website</h2>
+              <p className="text-xs text-slate-500">Choose how you want to publish it</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 transition">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {launched ? (
+          /* ── Success state ── */
+          <div className="px-6 py-10 text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-green-100">
+              <CheckCircle2 className="h-7 w-7 text-green-600" />
+            </div>
+            <h3 className="text-xl font-black text-slate-900">You're live!</h3>
+            {option === "subdomain" && (
+              <>
+                <p className="mt-2 text-sm text-slate-500">Your site is being published at:</p>
+                <div className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-slate-50 px-4 py-3">
+                  <span className="font-mono text-sm font-semibold text-blue-700">{subdomainUrl}</span>
+                  <CopyButton text={subdomainUrl} />
+                </div>
+                <p className="mt-4 text-xs text-slate-400">It may take a few minutes to go live. We'll notify you when it's ready.</p>
+              </>
+            )}
+            {option === "custom-domain" && (
+              <>
+                <p className="mt-2 text-sm text-slate-500">
+                  Once your DNS record propagates, your site will be live at:
+                </p>
+                <div className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-slate-50 px-4 py-3">
+                  <span className="font-mono text-sm font-semibold text-blue-700">https://{cleanDomain}</span>
+                  <CopyButton text={`https://${cleanDomain}`} />
+                </div>
+                <p className="mt-4 text-xs text-slate-400">DNS changes can take up to 24–48 hours to fully propagate.</p>
+              </>
+            )}
+            <button
+              onClick={onClose}
+              className="mt-8 rounded-xl bg-blue-600 px-8 py-3 text-sm font-bold text-white hover:bg-blue-700 transition"
+            >
+              Done
+            </button>
+          </div>
+        ) : (
+          <>
+            {/* ── Option cards ── */}
+            <div className="grid grid-cols-3 gap-3 px-6 pt-5">
+              {OPTIONS.map((opt) => (
+                <button
+                  key={opt.id}
+                  disabled={opt.soon}
+                  onClick={() => !opt.soon && setOption(opt.id)}
+                  className={`relative flex flex-col items-center gap-2 rounded-xl border-2 px-3 py-4 text-center transition ${
+                    opt.soon
+                      ? "cursor-not-allowed border-slate-100 bg-slate-50 opacity-50"
+                      : option === opt.id
+                      ? "border-blue-600 bg-blue-50"
+                      : "border-slate-200 bg-white hover:border-slate-300"
+                  }`}
+                >
+                  {opt.soon && (
+                    <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-500">
+                      Soon
+                    </span>
+                  )}
+                  <span className={opt.soon ? "text-slate-400" : option === opt.id ? "text-blue-600" : "text-slate-500"}>
+                    {opt.icon}
+                  </span>
+                  <span className={`text-xs font-bold ${opt.soon ? "text-slate-400" : option === opt.id ? "text-blue-700" : "text-slate-700"}`}>
+                    {opt.label}
+                  </span>
+                  <span className="text-[11px] leading-tight text-slate-400">{opt.desc}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* ── Option content ── */}
+            <div className="px-6 pb-6 pt-5">
+
+              {/* Subdomain */}
+              {option === "subdomain" && (
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-xs font-bold uppercase tracking-wide text-slate-500">Your subdomain</Label>
+                    <div className="mt-1.5 flex items-center gap-0 overflow-hidden rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200">
+                      <input
+                        value={subdomain}
+                        onChange={(e) => setSubdomain(toSlug(e.target.value) || e.target.value.toLowerCase())}
+                        className="flex-1 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 outline-none"
+                        placeholder="your-business"
+                        spellCheck={false}
+                      />
+                      <span className="shrink-0 border-l border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-400 font-medium">
+                        .{BASE_DOMAIN}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 rounded-xl bg-slate-50 px-4 py-3">
+                    <Globe className="h-4 w-4 shrink-0 text-slate-400" />
+                    <span className="flex-1 truncate font-mono text-sm text-blue-700">{subdomainUrl}</span>
+                    <CopyButton text={subdomainUrl} />
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    Free forever. You can connect a custom domain later at any time.
+                  </p>
+                </div>
+              )}
+
+              {/* Custom domain */}
+              {option === "custom-domain" && (
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-xs font-bold uppercase tracking-wide text-slate-500">Your domain name</Label>
+                    <Input
+                      value={customDomain}
+                      onChange={(e) => setCustomDomain(e.target.value)}
+                      className="mt-1.5"
+                      placeholder="yourbusiness.com"
+                      spellCheck={false}
+                    />
+                  </div>
+
+                  {cleanDomain && (
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+                      <p className="text-xs font-black uppercase tracking-widest text-slate-400">DNS Setup Instructions</p>
+                      <p className="text-xs text-slate-600">
+                        Log in to your domain registrar (GoDaddy, Namecheap, Google Domains, etc.) and add the following DNS record:
+                      </p>
+
+                      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white text-xs">
+                        <div className="grid grid-cols-3 border-b border-slate-200 bg-slate-100 px-3 py-1.5 font-bold uppercase tracking-wider text-slate-500">
+                          <span>Type</span>
+                          <span>Host</span>
+                          <span>Value</span>
+                        </div>
+                        <div className="grid grid-cols-3 items-center px-3 py-2.5 font-mono text-slate-800">
+                          <span className="font-bold text-blue-700">A</span>
+                          <span>@</span>
+                          <div className="flex items-center gap-2">
+                            <span className="truncate">{VPS_IP}</span>
+                            <CopyButton text={VPS_IP} />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 pt-1">
+                        {[
+                          { n: 1, text: "Log in to your domain registrar's control panel" },
+                          { n: 2, text: 'Find "DNS Management" or "DNS Records" for your domain' },
+                          { n: 3, text: 'Add an A record with Host "@" pointing to the IP above' },
+                          { n: 4, text: "Save, then click Launch — DNS changes can take up to 48 hours" },
+                        ].map(({ n, text }) => (
+                          <div key={n} className="flex items-start gap-2.5">
+                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[11px] font-bold text-blue-700">
+                              {n}
+                            </span>
+                            <p className="text-xs text-slate-600 leading-relaxed">{text}</p>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2">
+                        <Server className="h-3.5 w-3.5 shrink-0 text-amber-600" />
+                        <p className="text-[11px] text-amber-700">
+                          <span className="font-bold">Server IP: </span>
+                          <span className="font-mono">{VPS_IP}</span>
+                        </p>
+                        <CopyButton text={VPS_IP} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Launch button */}
+              <button
+                onClick={handleLaunch}
+                disabled={!canLaunch}
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-sm font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <Rocket className="h-4 w-4" />
+                {option === "subdomain" ? "Launch with this subdomain" : "I've added the DNS record — Launch"}
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Main dashboard component
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Dashboard() {
@@ -663,6 +973,8 @@ export default function Dashboard() {
   const [content, setContent] = useState<SiteContent | null>(null);
   const [savedContent, setSavedContent] = useState<SiteContent | null>(null);
   const [activeSection, setActiveSection] = useState<EditSection>(null);
+  const [publishOpen, setPublishOpen] = useState(false);
+  const [publishData, setPublishData] = useState<PublishData | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
   function getDefaultContent(d: OnboardingData): SiteContent {
@@ -680,6 +992,10 @@ export default function Dashboard() {
     const c = d.siteContent ?? getDefaultContent(d);
     setContent(c);
     setSavedContent(c);
+    const existing = localStorage.getItem(PUBLISH_KEY);
+    if (existing) {
+      try { setPublishData(JSON.parse(existing)); } catch { /* ignore */ }
+    }
   }, []);
 
   // Load Google Fonts for the active theme
@@ -746,9 +1062,34 @@ export default function Dashboard() {
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-700">
-            Draft
-          </span>
+          {publishData ? (
+            <>
+              <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-bold text-green-700">
+                Published
+              </span>
+              <a
+                href={
+                  publishData.option === "subdomain"
+                    ? `https://${publishData.subdomain}.${BASE_DOMAIN}`
+                    : `https://${publishData.customDomain}`
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 truncate max-w-[200px] rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-600 hover:underline"
+              >
+                <Globe className="h-3 w-3 shrink-0" />
+                <span className="truncate">
+                  {publishData.option === "subdomain"
+                    ? `${publishData.subdomain}.${BASE_DOMAIN}`
+                    : publishData.customDomain}
+                </span>
+              </a>
+            </>
+          ) : (
+            <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-700">
+              Draft
+            </span>
+          )}
           {hasUnsaved && (
             <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-600">
               Unsaved changes
@@ -772,8 +1113,11 @@ export default function Dashboard() {
             <LogOut className="h-4 w-4" />
             Sign out
           </button>
-          <button className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-blue-700 transition">
-            Request Launch
+          <button
+            onClick={() => setPublishOpen(true)}
+            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-blue-700 transition"
+          >
+            {publishData ? "Published ✓" : "Request Launch"}
           </button>
         </div>
       </header>
@@ -946,6 +1290,18 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+
+      {/* ── Publish modal ─────────────────────────────────────────────────────── */}
+      {publishOpen && (
+        <PublishModal
+          businessName={data.businessName || "My Business"}
+          onClose={() => setPublishOpen(false)}
+          onPublished={(pd) => {
+            setPublishData(pd);
+            setPublishOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 }
