@@ -28,7 +28,7 @@ hdr()     { echo -e "\n${BOLD}${CYAN}━━━  $*  ━━━━━━━━━�
 # ─── GLOBAL CONFIGURATION ─────────────────────────────────────────────────────
 APP_PORT=8080
 SITE_ROUTER_PORT=3002
-DB_USER="launchsite_user"
+DB_USER="launchsite"
 DB_NAME="launchsite"
 SERVICE_NAME="launchsite"
 APP_DIR="$(cd "$(dirname "$0")" && pwd)"
