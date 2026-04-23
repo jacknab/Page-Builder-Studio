@@ -903,10 +903,6 @@ export default function Home() {
               <Code className="h-4 w-4" />
               Code
             </Button>
-            <Button variant="outline" onClick={exportHtml} className="gap-2">
-              <Download className="h-4 w-4" />
-              Export
-            </Button>
             <Button onClick={publishSite} className="gap-2 bg-blue-600 hover:bg-blue-700">
               <Rocket className="h-4 w-4" />
               Publish
