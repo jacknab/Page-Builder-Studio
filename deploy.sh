@@ -49,6 +49,10 @@ info "Building site router..."
 pnpm --filter @workspace/site-router run build
 ok "Site router built."
 
+info "Building nail-salon template..."
+pnpm --filter @workspace/nail-salon-template run build
+ok "Nail-salon template built."
+
 info "Building frontend (webpage-editor)..."
 pnpm --filter @workspace/webpage-editor run build
 ok "Frontend built."

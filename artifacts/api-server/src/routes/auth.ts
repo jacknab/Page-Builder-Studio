@@ -3,6 +3,8 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { eq, and, gt, isNull } from "drizzle-orm";
 import crypto from "crypto";
+import FormData from "form-data";
+import Mailgun from "mailgun.js";
 import { db } from "@workspace/db";
 import { usersTable, passwordResetTokensTable } from "@workspace/db";
 
@@ -14,8 +16,36 @@ if (!JWT_SECRET) throw new Error("JWT_SECRET is required");
 const TOKEN_EXPIRY = "7d";
 const RESET_TOKEN_EXPIRY_MS = 60 * 60 * 1000; // 1 hour
 
+const MAILGUN_API_KEY = process.env.MAILGUN_API_KEY || "";
+const MAILGUN_DOMAIN = process.env.MAILGUN_DOMAIN || "";
+const MAILGUN_FROM_EMAIL = process.env.MAILGUN_FROM_EMAIL || `noreply@${MAILGUN_DOMAIN}`;
+const MAIN_DOMAIN = process.env.MAIN_DOMAIN || "launchsite.certxa.com";
+
 function makeToken(userId: number, email: string) {
   return jwt.sign({ userId, email }, JWT_SECRET as string, { expiresIn: TOKEN_EXPIRY });
+}
+
+async function sendPasswordResetEmail(toEmail: string, resetToken: string): Promise<boolean> {
+  if (!MAILGUN_API_KEY || !MAILGUN_DOMAIN) return false;
+
+  const resetLink = `https://${MAIN_DOMAIN}/reset-password?token=${resetToken}`;
+
+  try {
+    const mg = new Mailgun(FormData).client({ username: "api", key: MAILGUN_API_KEY });
+    await mg.messages.create(MAILGUN_DOMAIN, {
+      from: MAILGUN_FROM_EMAIL,
+      to: [toEmail],
+      subject: "Reset your Launchsite password",
+      text: `Click the link below to reset your password. It expires in 1 hour.\n\n${resetLink}\n\nIf you did not request this, ignore this email.`,
+      html: `<p>Click the link below to reset your password. It expires in <strong>1 hour</strong>.</p>
+<p><a href="${resetLink}" style="background:#2563eb;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:bold;">Reset password</a></p>
+<p style="color:#94a3b8;font-size:12px;">If you did not request this, you can safely ignore this email.</p>`,
+    });
+    return true;
+  } catch (err) {
+    console.error("[mailgun] Failed to send reset email:", err);
+    return false;
+  }
 }
 
 // POST /api/auth/signup
@@ -119,8 +149,8 @@ router.post("/forgot-password", async (req, res) => {
     .where(eq(usersTable.email, normalizedEmail))
     .limit(1);
 
+  // Always return success to avoid exposing which emails are registered
   if (!user) {
-    // Always return success to avoid exposing which emails are registered
     return res.json({ message: "If an account exists, a reset link has been sent." });
   }
 
@@ -133,9 +163,15 @@ router.post("/forgot-password", async (req, res) => {
     expiresAt,
   });
 
-  // In production you'd email this link. We return it directly since email is not configured.
+  const emailSent = await sendPasswordResetEmail(user.email, token);
+
+  if (emailSent) {
+    return res.json({ message: "If an account exists, a reset link has been sent." });
+  }
+
+  // Mailgun not configured — return token directly (dev/staging only)
   return res.json({
-    message: "Reset token generated successfully.",
+    message: "Reset token generated. Configure Mailgun to send this via email instead.",
     resetToken: token,
     expiresAt: expiresAt.toISOString(),
   });

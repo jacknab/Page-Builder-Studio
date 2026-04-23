@@ -38,6 +38,18 @@ read -rsp "  Database password (input hidden): "        DB_PASS;  echo ""
 read -rp "  App directory   [/opt/launchsite]: "        APP_DIR;  APP_DIR="${APP_DIR:-/opt/launchsite}"
 read -rp "  Clients dir     [/var/www/clients]: "       CLIENTS_DIR; CLIENTS_DIR="${CLIENTS_DIR:-/var/www/clients}"
 
+echo ""
+echo -e "${YELLOW}Mailgun (for password reset emails)${NC}"
+read -rsp "  Mailgun API key (leave blank to skip): "  MAILGUN_API_KEY; echo ""
+if [[ -n "$MAILGUN_API_KEY" ]]; then
+  read -rp "  Mailgun domain  (e.g. mg.yourdomain.com): " MAILGUN_DOMAIN
+  read -rp "  From email      (e.g. noreply@launchsite.com): " MAILGUN_FROM_EMAIL
+else
+  warn "No Mailgun API key — password reset emails will not be sent until configured."
+  MAILGUN_DOMAIN=""
+  MAILGUN_FROM_EMAIL=""
+fi
+
 ESCAPED_DOMAIN=$(echo "$MAIN_DOMAIN" | sed 's/\./\\\\./g')
 JWT_SECRET=$(openssl rand -hex 32)
 
@@ -46,6 +58,7 @@ info "Domain       : $MAIN_DOMAIN"
 info "App dir      : $APP_DIR"
 info "Clients dir  : $CLIENTS_DIR"
 info "DB           : $DB_NAME @ localhost (user: $DB_USER)"
+[[ -n "$MAILGUN_API_KEY" ]] && info "Mailgun      : $MAILGUN_DOMAIN (from: $MAILGUN_FROM_EMAIL)"
 echo ""
 read -rp "Continue? [y/N]: " CONFIRM
 [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]] && die "Aborted."
@@ -144,6 +157,10 @@ JWT_SECRET=${JWT_SECRET}
 MAIN_DOMAIN=${MAIN_DOMAIN}
 CLIENTS_DIR=${CLIENTS_DIR}
 APP_DIR=${APP_DIR}
+
+MAILGUN_API_KEY=${MAILGUN_API_KEY}
+MAILGUN_DOMAIN=${MAILGUN_DOMAIN}
+MAILGUN_FROM_EMAIL=${MAILGUN_FROM_EMAIL}
 ENV
 chmod 600 "$APP_DIR/.env"
 ok ".env written to $APP_DIR/.env"
@@ -155,7 +172,7 @@ info "Updating PM2 ecosystem config..."
 ECOSYSTEM="$APP_DIR/ecosystem.config.cjs"
 if [[ -f "$ECOSYSTEM" ]]; then
   sed -i "s|launchsite.certxa.com|$MAIN_DOMAIN|g" "$ECOSYSTEM"
-  sed -i "s|/var/www/clients|$CLIENTS_DIR|g" "$ECOSYSTEM"
+  sed -i "s|/var/www/clients|$CLIENTS_DIR|g"       "$ECOSYSTEM"
   ok "ecosystem.config.cjs updated."
 else
   warn "ecosystem.config.cjs not found in $APP_DIR — update MAIN_DOMAIN and CLIENTS_DIR manually after deploying code."
@@ -188,16 +205,6 @@ server {
         proxy_cache_bypass $http_upgrade;
     }
 
-    # Client site preview — /preview/{clientId}
-    location /preview/ {
-        proxy_pass         http://localhost:3002;
-        proxy_http_version 1.1;
-        proxy_set_header   Host $host;
-        proxy_set_header   X-Real-IP $remote_addr;
-        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header   X-Forwarded-Proto $scheme;
-    }
-
     # React SPA fallback
     location / {
         try_files $uri $uri/ /index.html;
@@ -209,6 +216,18 @@ server {
     listen 80;
     server_name ~^(?<subdomain>.+)\.ESCAPED_DOMAIN_PLACEHOLDER$;
 
+    # API calls made by the template JS (relative /api/… URLs)
+    location /api/ {
+        proxy_pass         http://localhost:8080;
+        proxy_http_version 1.1;
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    # Template and static assets via site-router
     location / {
         proxy_pass         http://localhost:3002;
         proxy_http_version 1.1;
@@ -220,11 +239,22 @@ server {
 }
 
 # ─── Custom client domains — catch-all ───────────────────────────────────────
-# Handles any domain the client has pointed to this server.
 server {
     listen 80 default_server;
     server_name _;
 
+    # API calls made by the template JS
+    location /api/ {
+        proxy_pass         http://localhost:8080;
+        proxy_http_version 1.1;
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    # Template via site-router
     location / {
         proxy_pass         http://localhost:3002;
         proxy_http_version 1.1;
@@ -236,9 +266,9 @@ server {
 }
 NGINXEOF
 
-sed -i "s|MAIN_DOMAIN_PLACEHOLDER|${MAIN_DOMAIN}|g"   /etc/nginx/sites-available/launchsite
-sed -i "s|APP_DIR_PLACEHOLDER|${APP_DIR}|g"            /etc/nginx/sites-available/launchsite
-sed -i "s|ESCAPED_DOMAIN_PLACEHOLDER|${ESCAPED_DOMAIN}|g" /etc/nginx/sites-available/launchsite
+sed -i "s|MAIN_DOMAIN_PLACEHOLDER|${MAIN_DOMAIN}|g"           /etc/nginx/sites-available/launchsite
+sed -i "s|APP_DIR_PLACEHOLDER|${APP_DIR}|g"                   /etc/nginx/sites-available/launchsite
+sed -i "s|ESCAPED_DOMAIN_PLACEHOLDER|${ESCAPED_DOMAIN}|g"     /etc/nginx/sites-available/launchsite
 
 ln -sf /etc/nginx/sites-available/launchsite /etc/nginx/sites-enabled/launchsite
 rm -f /etc/nginx/sites-enabled/default
