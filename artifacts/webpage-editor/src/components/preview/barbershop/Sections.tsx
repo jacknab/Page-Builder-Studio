@@ -32,7 +32,7 @@ export function AnnouncementBar({ theme, clientData }: Props) {
       style={{ backgroundColor: c.accent, color: c.badgeText }}
     >
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-x-6 gap-y-1 flex-wrap">
-        <span>Walk-ins Welcome · Easy Online Booking</span>
+        <span>Walk-ins Welcome · Online Check-In Available</span>
         {clientData.address && (
           <>
             <span className="hidden sm:inline opacity-50">·</span>
@@ -124,7 +124,7 @@ export function Navbar({ theme, clientData }: Props) {
                 fontFamily: theme.fonts.heading,
               }}
             >
-              Book Now
+              Check In
             </a>
           </div>
         </div>
@@ -218,7 +218,7 @@ export function Hero({ theme, clientData }: Props) {
                 fontFamily: theme.fonts.heading,
               }}
             >
-              Book Your Haircut
+              Check In Now
             </a>
             {clientData.phone && (
               <a
@@ -240,7 +240,7 @@ export function Hero({ theme, clientData }: Props) {
             className="mt-4 text-xs"
             style={{ color: c.textSecondary, fontFamily: theme.fonts.body, opacity: 0.55 }}
           >
-            ⚡ Book in 30 seconds – instant confirmation
+            ⚡ Join the queue online – skip the wait
           </p>
         </div>
       </div>
@@ -325,7 +325,7 @@ export function WhyChoose({ theme, clientData }: Props) {
     {
       Icon: CalendarCheck,
       title: "In & Out, Looking Sharp",
-      desc: "Book your exact time online. No waiting, no hassle. Just a fresh cut that fits your schedule.",
+      desc: "Join our online queue from anywhere. We'll text you when it's almost your turn — no long waits.",
     },
   ];
 
@@ -493,7 +493,7 @@ export function Services({ theme, clientData }: Props) {
                       fontFamily: theme.fonts.heading,
                     }}
                   >
-                    Book Now
+                    Check In
                   </a>
                 </div>
               </div>
@@ -666,7 +666,7 @@ export function Barbers({ theme, clientData }: Props) {
                     fontFamily: theme.fonts.heading,
                   }}
                 >
-                  Book Now
+                  Check In
                 </a>
               </div>
             </div>

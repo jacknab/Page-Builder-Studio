@@ -30,7 +30,7 @@ export function Navbar({ theme, clientData }: Props) {
           style={{ background: c.accent, color: c.accentText }}
           className="rounded-lg px-5 py-2 text-sm font-bold transition hover:opacity-90"
         >
-          Book Now
+          Check In
         </a>
       </div>
     </nav>
@@ -60,7 +60,7 @@ export function Hero({ theme, clientData }: Props) {
               style={{ background: c.accent, color: c.accentText }}
               className="rounded-xl px-8 py-3.5 font-bold transition hover:opacity-90"
             >
-              Book an Appointment
+              Check In Now
             </a>
             {clientData.phone && (
               <a
@@ -110,7 +110,7 @@ export function Services({ theme, clientData }: Props) {
           </div>
           {clientData.bookingUrl && (
             <a href={clientData.bookingUrl} style={{ color: c.accent }} className="hidden items-center gap-1 text-sm font-bold hover:underline md:flex">
-              Book online <ExternalLink className="h-3.5 w-3.5" />
+              Check in online <ExternalLink className="h-3.5 w-3.5" />
             </a>
           )}
         </div>
@@ -226,17 +226,17 @@ export function BookingCTA({ theme, clientData }: Props) {
     <section style={{ background: c.accent }} className="py-20">
       <div className="mx-auto max-w-3xl px-6 text-center">
         <h2 style={{ color: c.accentText, fontFamily: theme.fonts.heading }} className="text-4xl font-black tracking-tight md:text-5xl">
-          Ready for a fresh cut?
+          Skip the wait. Check in online.
         </h2>
         <p style={{ color: c.accentText, opacity: 0.8 }} className="mt-4 text-lg">
-          Book your appointment online in seconds.
+          Join our queue from anywhere — we'll text you when it's your turn.
         </p>
         <a
           href={clientData.bookingUrl ?? "#"}
           style={{ background: c.bg, color: c.text }}
           className="mt-8 inline-block rounded-xl px-10 py-4 font-black transition hover:opacity-90"
         >
-          Book Now
+          Check In Now
         </a>
       </div>
     </section>
@@ -350,7 +350,7 @@ export function Footer({ theme, clientData }: Props) {
         </p>
         {clientData.bookingUrl && (
           <a href={clientData.bookingUrl} style={{ color: c.accent }} className="text-xs font-bold hover:underline">
-            Book online →
+            Check in online →
           </a>
         )}
       </div>

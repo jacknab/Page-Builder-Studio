@@ -145,23 +145,22 @@ function PreviewModal({
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#0a0a0a" }}>
-      {/* Slim header — no pills */}
+      {/* Slim header — white so it reads as chrome, not part of the site */}
       <div
-        className="flex-shrink-0 border-b"
-        style={{ background: "#111", borderColor: "rgba(255,255,255,0.07)" }}
+        className="flex-shrink-0 border-b border-slate-200 bg-white"
       >
         <div className="flex h-12 items-center gap-3 px-4">
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-white/50 transition hover:bg-white/10 hover:text-white"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
           >
             <X className="h-4 w-4" />
           </button>
           <div className="flex items-center gap-2">
             <span className="text-lg">{categoryEmoji}</span>
-            <span className="text-sm font-bold text-white">{design.name}</span>
-            <span className="text-sm text-white/30">·</span>
-            <span className="text-sm text-white/60">{activeTheme.name}</span>
+            <span className="text-sm font-bold text-slate-800">{design.name}</span>
+            <span className="text-sm text-slate-300">·</span>
+            <span className="text-sm text-slate-500">{activeTheme.name}</span>
           </div>
           <div className="flex-1" />
           <Button
