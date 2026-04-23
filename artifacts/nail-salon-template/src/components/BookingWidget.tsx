@@ -306,15 +306,9 @@ export default function BookingWidget({ theme, bookingSlug, bookingDomain }: Pro
   /* ─── Step: client ─── */
   if (step === "client") {
     return (
-      <div className="flex flex-col items-center justify-center py-12 px-4">
-        <h3
-          className="text-2xl font-bold mb-2 text-center"
-          style={{ color: c.text, fontFamily: theme.fonts.heading }}
-        >
-          Welcome to {store.name}
-        </h3>
+      <div className="flex flex-col items-center justify-center py-8 px-4">
         <p
-          className="mb-10 text-center"
+          className="mb-8 text-center font-semibold"
           style={{ color: c.textSecondary, fontFamily: theme.fonts.body }}
         >
           Are you a new or returning client?
