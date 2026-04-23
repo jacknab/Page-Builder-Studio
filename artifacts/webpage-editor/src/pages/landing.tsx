@@ -1,5 +1,4 @@
 import { useLocation } from "wouter";
-import { useState, useEffect } from "react";
 import {
   ArrowRight,
   CheckCircle2,
@@ -16,23 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { isLoggedIn } from "@/lib/auth";
-import { HTML_TEMPLATES } from "@/lib/htmlTemplates";
-import { TEMPLATES } from "@/lib/templates";
-
-type AiTemplate = {
-  id: number;
-  name: string;
-  description: string;
-  style: string;
-  html: string;
-};
-
-const STYLE_BADGE: Record<string, string> = {
-  luxury: "Luxury",
-  modern: "Modern",
-  minimal: "Minimal",
-  bold: "Bold",
-};
+import { BARBERSHOP_THEMES } from "@/lib/launchsiteTemplates";
 
 const steps = [
   {
@@ -78,54 +61,10 @@ const comparisons = [
   },
 ];
 
-const BASE_GALLERY = [
-  ...TEMPLATES.map((template) => ({
-    id: template.id,
-    name: template.name,
-    description: template.description,
-    type: "Block template",
-    html: null as string | null,
-    imageUrl: String(
-      template.blocks.find((block) => block.type === "hero" || block.type === "image")?.props.imageUrl ??
-        template.blocks.find((block) => block.type === "image")?.props.url ??
-        "",
-    ),
-  })),
-  ...HTML_TEMPLATES.map((template) => ({
-    id: template.id,
-    name: template.name,
-    description: template.description,
-    type: "Full-page template",
-    html: template.html as string | null,
-    imageUrl: "",
-  })),
-];
 
 export default function Landing() {
   const [, navigate] = useLocation();
   const loggedIn = isLoggedIn();
-  const [aiTemplates, setAiTemplates] = useState<AiTemplate[]>([]);
-
-  useEffect(() => {
-    fetch("/api/templates")
-      .then((r) => r.json())
-      .then((data) => {
-        if (Array.isArray(data.templates)) setAiTemplates(data.templates);
-      })
-      .catch(() => {});
-  }, []);
-
-  const templateGallery = [
-    ...BASE_GALLERY,
-    ...aiTemplates.map((t) => ({
-      id: String(t.id),
-      name: t.name,
-      description: t.description,
-      type: STYLE_BADGE[t.style] ?? "Template",
-      html: t.html as string | null,
-      imageUrl: "",
-    })),
-  ];
 
   return (
     <div className="min-h-screen overflow-hidden bg-[#f5f1e8] text-slate-950">
@@ -376,34 +315,35 @@ export default function Landing() {
           </div>
 
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {templateGallery.map((template) => (
+            {BARBERSHOP_THEMES.map((tpl) => (
               <article
-                key={template.id}
+                key={tpl.id}
                 onClick={() => navigate("/signup")}
                 className="group cursor-pointer overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
               >
-                <div className="h-44 overflow-hidden bg-slate-100">
-                  {template.html ? (
-                    <iframe
-                      title={`${template.name} preview`}
-                      srcDoc={template.html}
-                      className="h-[520px] w-full border-0 pointer-events-none"
-                      style={{ transform: "scale(0.28)", transformOrigin: "top left", width: "358%" }}
-                    />
-                  ) : template.imageUrl ? (
-                    <img src={template.imageUrl} alt={template.name} className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="flex h-full items-center justify-center bg-gradient-to-br from-blue-600 to-slate-950 p-8 text-center text-white">
-                      <p className="text-2xl font-black">{template.name}</p>
-                    </div>
-                  )}
+                <div className="relative h-44 overflow-hidden bg-slate-100">
+                  <img
+                    src={tpl.heroImage}
+                    alt={tpl.name}
+                    className="h-full w-full object-cover transition group-hover:scale-105"
+                    style={{ filter: "brightness(0.8)" }}
+                  />
+                  <div
+                    className="absolute inset-0 opacity-35"
+                    style={{ background: `linear-gradient(135deg, ${tpl.bgColor} 0%, transparent 60%)` }}
+                  />
+                  <div className="absolute bottom-0 left-0 right-0 h-1" style={{ background: tpl.accentColor }} />
+                  <span
+                    className="absolute bottom-3 left-3 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest shadow"
+                    style={{ background: tpl.accentColor, color: "#fff" }}
+                  >
+                    {tpl.style}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between gap-2 px-4 py-4">
                   <div className="min-w-0">
-                    <h3 className="text-base font-bold tracking-tight text-slate-900 truncate">{template.name}</h3>
-                    <span className="mt-1.5 inline-flex items-center rounded-full bg-blue-100 px-3 py-0.5 text-xs font-semibold text-blue-700">
-                      {template.type}
-                    </span>
+                    <h3 className="text-base font-bold tracking-tight text-slate-900 truncate">{tpl.name}</h3>
+                    <p className="mt-0.5 text-xs text-slate-500 truncate">{tpl.description}</p>
                   </div>
                   <ArrowRight className="h-4 w-4 shrink-0 text-slate-400 transition group-hover:translate-x-1 group-hover:text-blue-600" />
                 </div>
