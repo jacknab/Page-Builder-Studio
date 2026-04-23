@@ -146,6 +146,14 @@ export function Hero({ theme, clientData }: Props) {
         style={{ backgroundImage: `url(${theme.heroImage})` }}
       />
       <div className="absolute inset-0" style={{ backgroundColor: c.heroOverlay }} />
+      {/* Extra gradient scrim — keeps text legible over any photo */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(to right, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.48) 55%, rgba(0,0,0,0.10) 100%)",
+        }}
+      />
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-10 py-28">
         <div className="max-w-2xl">
