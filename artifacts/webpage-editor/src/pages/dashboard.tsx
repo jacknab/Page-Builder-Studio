@@ -1158,10 +1158,10 @@ export default function Dashboard() {
       </header>
 
       {/* ── Body: preview (left) + editor panel (right) ─────────────────────── */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
 
-        {/* Left: scrollable template preview */}
-        <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
+        {/* Left: template preview — scrolls with the page */}
+        <div className="flex-1">
           <div id="launchsite-preview">
             {previewType === "nail-salon" && (() => {
               const theme = getNailTheme(data.templateId);
@@ -1230,8 +1230,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Right: permanent editor panel */}
-        <div className="z-10 flex w-[360px] shrink-0 flex-col border-l border-slate-200 bg-white shadow-xl overflow-hidden">
+        {/* Right: sticky editor panel — anchored to viewport as page scrolls */}
+        <div className="sticky top-0 z-10 flex w-[360px] shrink-0 self-start flex-col border-l border-slate-200 bg-white shadow-xl overflow-hidden" style={{ height: "calc(100vh - 57px)" }}>
 
           {/* Panel header */}
           <div className="shrink-0 border-b border-slate-100 px-5 py-4">
