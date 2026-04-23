@@ -1099,7 +1099,24 @@ export default function Dashboard() {
 
         <div className="flex items-center gap-3">
           <button
-            onClick={() => { window.location.href = "/app?edit"; }}
+            onClick={() => {
+              const previewEl = document.getElementById("launchsite-preview");
+              if (previewEl) {
+                const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+                  .map((el) => el.outerHTML)
+                  .join("\n");
+                const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${data.businessName}</title>${styles}</head><body>${previewEl.innerHTML}</body></html>`;
+                const EDITOR_KEY = "webpage-editor-sites-v2";
+                try {
+                  const existing = JSON.parse(localStorage.getItem(EDITOR_KEY) || "[]") as { id?: string; name?: string; slug?: string; status?: string; source?: string; html?: string; blocks?: unknown[]; [key: string]: unknown }[];
+                  const base = existing[0] ?? { id: "launchsite-site", name: data.businessName, slug: data.businessName.toLowerCase().replace(/\s+/g, "-"), status: "draft" };
+                  localStorage.setItem(EDITOR_KEY, JSON.stringify([{ ...base, source: "html", html, blocks: [] }]));
+                } catch {
+                  // proceed anyway
+                }
+              }
+              window.location.href = "/app?edit";
+            }}
             className="flex items-center gap-1.5 rounded-xl border border-slate-200 px-3.5 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition"
             title="Advanced editor — add photos, maps, new sections"
           >
@@ -1130,7 +1147,7 @@ export default function Dashboard() {
           className="flex-1 overflow-y-auto"
           style={{ scrollbarWidth: "thin" }}
         >
-          <div className="mx-auto w-full max-w-[1280px]">
+          <div id="launchsite-preview" className="mx-auto w-full max-w-[1280px]">
             {previewType === "nail-salon" && (() => {
               const theme = getNailTheme(data.templateId);
               const c = theme.colors;
