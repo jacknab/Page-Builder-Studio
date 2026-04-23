@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { BARBERSHOP_THEMES, type LaunchsiteTemplate } from "@/lib/launchsiteTemplates";
 import {
-  BUSINESS_TYPES,
   PRESET_SERVICES,
   DEFAULT_HOURS,
   EMPTY_SOCIAL,
@@ -32,11 +31,10 @@ import {
   X,
 } from "lucide-react";
 
-const TOTAL_STEPS = 6;
+const TOTAL_STEPS = 5;
 
 const STEP_LABELS = [
   "Template",
-  "Business type",
   "About you",
   "Services",
   "Hours",
@@ -220,50 +218,6 @@ function TemplatePicker({
   );
 }
 
-// ─── STEP 2: BUSINESS TYPE ─────────────────────────────────────────────────
-function BusinessTypePicker({
-  selected,
-  onSelect,
-}: {
-  selected: BusinessType | null;
-  onSelect: (type: BusinessType) => void;
-}) {
-  return (
-    <div>
-      <h2 className="text-3xl font-black tracking-tight">What type of business is it?</h2>
-      <p className="mt-2 text-base text-slate-500">
-        We'll pre-fill your services list based on your business type so you don't start from scratch.
-      </p>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        {BUSINESS_TYPES.map((bt) => {
-          const isSelected = selected === bt.id;
-          return (
-            <button
-              key={bt.id}
-              onClick={() => onSelect(bt.id)}
-              className={`relative rounded-2xl border-2 p-6 text-left transition hover:shadow-md ${
-                isSelected
-                  ? "border-blue-600 bg-blue-50 shadow-md shadow-blue-600/10"
-                  : "border-slate-200 bg-white hover:border-slate-300"
-              }`}
-            >
-              {isSelected && (
-                <div className="absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white">
-                  <Check className="h-3.5 w-3.5" />
-                </div>
-              )}
-              <span className="text-4xl">{bt.emoji}</span>
-              <h3 className={`mt-3 text-xl font-extrabold ${isSelected ? "text-blue-700" : "text-slate-900"}`}>
-                {bt.label}
-              </h3>
-              <p className="mt-1 text-sm text-slate-500">{bt.description}</p>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
 
 const TEAM_SIZE_LABEL: Record<string, string> = {
   "barbershop": "How many barbers do you have?",
@@ -630,34 +584,10 @@ export default function Onboarding() {
     }
   };
 
-  const handleSelectBusinessType = (type: BusinessType) => {
-    setBusinessType(type);
-    if (services.length === 0) {
-      setServices(
-        PRESET_SERVICES[type].map((s) => ({
-          ...s,
-          id: Math.random().toString(36).slice(2, 9),
-        }))
-      );
-    } else {
-      const confirmed = window.confirm(
-        "Changing your business type will replace your current service list with a new preset. Continue?"
-      );
-      if (confirmed) {
-        setServices(
-          PRESET_SERVICES[type].map((s) => ({
-            ...s,
-            id: Math.random().toString(36).slice(2, 9),
-          }))
-        );
-      }
-    }
-  };
 
   const canAdvance = () => {
     if (step === 1) return templateId !== null;
-    if (step === 2) return businessType !== null;
-    if (step === 3) return businessName.trim().length > 0;
+    if (step === 2) return businessName.trim().length > 0;
     return true;
   };
 
@@ -742,9 +672,6 @@ export default function Onboarding() {
             />
           )}
           {step === 2 && (
-            <BusinessTypePicker selected={businessType} onSelect={handleSelectBusinessType} />
-          )}
-          {step === 3 && (
             <BusinessInfo
               businessType={businessType}
               name={businessName}
@@ -761,9 +688,9 @@ export default function Onboarding() {
               onTeamSizeChange={setTeamSize}
             />
           )}
-          {step === 4 && <ServicesEditor services={services} onChange={setServices} />}
-          {step === 5 && <HoursEditor hours={hours} onChange={setHours} />}
-          {step === 6 && (
+          {step === 3 && <ServicesEditor services={services} onChange={setServices} />}
+          {step === 4 && <HoursEditor hours={hours} onChange={setHours} />}
+          {step === 5 && (
             <LinksEditor
               googleUrl={googleUrl}
               social={social}
