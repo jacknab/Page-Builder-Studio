@@ -139,68 +139,69 @@ function PreviewModal({
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-black">
-      {/* Single-row toolbar */}
-      <div className="flex h-11 flex-shrink-0 items-center gap-2 border-b border-white/[0.07] bg-[#0f0f0f] px-3">
+      {/* Header: two rows */}
+      <div className="flex-shrink-0 bg-[#0f0f0f] border-b border-white/[0.07]">
 
-        {/* Close */}
-        <button
-          onClick={onClose}
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-white/40 transition hover:bg-white/10 hover:text-white"
-        >
-          <X className="h-3.5 w-3.5" />
-        </button>
+        {/* Row 1 — controls */}
+        <div className="flex h-11 items-center gap-2 px-3">
+          {/* Close */}
+          <button
+            onClick={onClose}
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-white/40 transition hover:bg-white/10 hover:text-white"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
 
-        {/* Category label */}
-        <div className="flex shrink-0 items-center gap-1.5 border-r border-white/10 pr-3">
-          <span className="text-sm leading-none">{category.emoji}</span>
-          <span className="hidden sm:block text-xs font-semibold text-white/70">
-            {category.label}
-          </span>
-        </div>
-
-        {/* Scrollable pills with edge fades */}
-        <div className="relative min-w-0 flex-1">
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-5 bg-gradient-to-r from-[#0f0f0f] to-transparent z-10" />
-          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none px-1 py-0.5">
-            {themes.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => switchTheme(t.id)}
-                className="shrink-0 rounded-md px-2.5 py-1 text-[11px] font-semibold transition-all"
-                style={{
-                  backgroundColor: activeThemeId === t.id ? t.accentColor : "transparent",
-                  color: activeThemeId === t.id ? t.bgColor : "rgba(255,255,255,0.5)",
-                  border: `1px solid ${activeThemeId === t.id ? t.accentColor : "rgba(255,255,255,0.1)"}`,
-                }}
-              >
-                {t.name}
-              </button>
-            ))}
-          </div>
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[#0f0f0f] to-transparent z-10" />
-        </div>
-
-        {/* Active theme description — subtle, desktop only */}
-        {activeTheme && (
-          <div className="hidden lg:flex shrink-0 items-center gap-1.5 max-w-[200px] border-l border-white/10 pl-3">
-            <div
-              className="h-1.5 w-1.5 shrink-0 rounded-full"
-              style={{ backgroundColor: activeTheme.accentColor }}
-            />
-            <span className="truncate text-[10px] text-white/35">
-              {activeTheme.description}
+          {/* Category label */}
+          <div className="flex shrink-0 items-center gap-1.5">
+            <span className="text-sm leading-none">{category.emoji}</span>
+            <span className="hidden sm:block text-xs font-semibold text-white/70">
+              {category.label}
             </span>
           </div>
-        )}
 
-        {/* Select CTA */}
-        <button
-          onClick={() => onSelect(activeThemeId)}
-          className="shrink-0 flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-blue-500 active:scale-95"
-        >
-          <Check className="h-3 w-3" />
-          Select
-        </button>
+          <div className="flex-1" />
+
+          {/* Active theme description — subtle, desktop only */}
+          {activeTheme && (
+            <div className="hidden lg:flex shrink-0 items-center gap-1.5 max-w-[220px]">
+              <div
+                className="h-1.5 w-1.5 shrink-0 rounded-full"
+                style={{ backgroundColor: activeTheme.accentColor }}
+              />
+              <span className="truncate text-[10px] text-white/35">
+                {activeTheme.description}
+              </span>
+            </div>
+          )}
+
+          {/* Select CTA */}
+          <button
+            onClick={() => onSelect(activeThemeId)}
+            className="shrink-0 flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-blue-500 active:scale-95"
+          >
+            <Check className="h-3 w-3" />
+            Select
+          </button>
+        </div>
+
+        {/* Row 2 — theme pills (wrapping, no scroll) */}
+        <div className="flex flex-wrap gap-1.5 px-3 pb-2.5">
+          {themes.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => switchTheme(t.id)}
+              className="rounded-md px-2.5 py-1 text-[11px] font-semibold transition-all"
+              style={{
+                backgroundColor: activeThemeId === t.id ? t.accentColor : "transparent",
+                color: activeThemeId === t.id ? t.bgColor : "rgba(255,255,255,0.5)",
+                border: `1px solid ${activeThemeId === t.id ? t.accentColor : "rgba(255,255,255,0.1)"}`,
+              }}
+            >
+              {t.name}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* iframe */}
