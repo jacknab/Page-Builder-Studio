@@ -241,15 +241,16 @@ function DesignCard({
   design,
   categoryEmoji,
   onPreview,
-  onGetStarted,
 }: {
   design: TemplateDesign;
   categoryEmoji: string;
   onPreview: () => void;
-  onGetStarted: () => void;
 }) {
   return (
-    <div className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
+    <button
+      onClick={onPreview}
+      className="group w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-xl text-left cursor-pointer"
+    >
       {/* Thumbnail */}
       <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
         <img
@@ -258,27 +259,10 @@ function DesignCard({
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           style={{ filter: "brightness(0.8)" }}
         />
-
-        {/* Style count badge */}
         <div className="absolute right-3 top-3 rounded-full bg-black/70 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm">
           {design.themes.length} styles
         </div>
-
-        {/* Hover overlay */}
-        <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/30 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-          <button
-            onClick={onPreview}
-            className="rounded-xl bg-white px-4 py-2 text-sm font-bold text-slate-900 shadow-lg transition hover:bg-slate-50 active:scale-95"
-          >
-            Preview
-          </button>
-          <button
-            onClick={onGetStarted}
-            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-lg transition hover:bg-blue-500 active:scale-95"
-          >
-            Get Started
-          </button>
-        </div>
+        <div className="absolute inset-0 bg-black/10 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
       </div>
 
       {/* Card footer */}
@@ -288,22 +272,8 @@ function DesignCard({
           <p className="font-extrabold tracking-tight text-slate-900">{design.name}</p>
         </div>
         <p className="mt-0.5 text-xs leading-relaxed text-slate-500">{design.description}</p>
-        <div className="mt-3 flex items-center gap-2">
-          <button
-            onClick={onPreview}
-            className="flex-1 rounded-lg border border-slate-200 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-slate-400 hover:text-slate-900"
-          >
-            Preview
-          </button>
-          <button
-            onClick={onGetStarted}
-            className="flex-1 rounded-lg bg-blue-600 py-1.5 text-xs font-bold text-white transition hover:bg-blue-500"
-          >
-            Get Started
-          </button>
-        </div>
       </div>
-    </div>
+    </button>
   );
 }
 
@@ -418,7 +388,6 @@ export default function TemplatesPage() {
                   design={design}
                   categoryEmoji={selectedCategory.emoji}
                   onPreview={() => setPreviewDesign({ design, categoryEmoji: selectedCategory.emoji })}
-                  onGetStarted={handleGetStarted}
                 />
               </div>
             ))}
