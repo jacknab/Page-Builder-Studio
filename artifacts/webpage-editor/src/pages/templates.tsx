@@ -255,9 +255,11 @@ function ComingSoonCard({ category }: { category: Category }) {
 export default function TemplatesPage() {
   const [, navigate] = useLocation();
   const loggedIn = isLoggedIn();
+  const [selectedId, setSelectedId] = useState<FilterId | null>(null);
   const [previewCategory, setPreviewCategory] = useState<Category | null>(null);
 
   const handleGetStarted = () => navigate(loggedIn ? "/onboarding" : "/signup");
+  const selectedCategory = CATEGORIES.find((c) => c.id === selectedId) ?? null;
 
   return (
     <div className="min-h-screen bg-[#f5f1e8] text-slate-950">
@@ -290,69 +292,56 @@ export default function TemplatesPage() {
       </header>
 
       <main className="mx-auto max-w-7xl px-6 py-12">
-        {/* Hero text */}
-        <div className="mb-10 max-w-2xl">
-          <p className="text-sm font-extrabold uppercase tracking-[0.2em] text-blue-600">
-            Template gallery
-          </p>
-          <h1 className="mt-3 text-4xl font-black tracking-tight md:text-5xl">
-            One design.<br />Dozens of styles.
-          </h1>
-          <p className="mt-4 text-lg leading-8 text-slate-600">
-            Each template comes with multiple colour and font styles to match your brand. Click Preview to browse all styles — no account needed.
+        <div className="mb-8 max-w-2xl">
+          <h1 className="text-4xl font-black tracking-tight md:text-5xl">Templates</h1>
+          <p className="mt-3 text-base text-slate-600">
+            Select a category to browse designs.
           </p>
         </div>
 
-        {/* Category sections — one section per business type */}
-        <div className="space-y-14">
-          {CATEGORIES.map((cat) => (
-            <section key={cat.id}>
-              {/* Category heading */}
-              <div className="mb-5 flex items-center gap-3">
-                <span className="text-2xl">{cat.emoji}</span>
-                <div>
-                  <h2 className="text-xl font-black tracking-tight">{cat.label}</h2>
-                  <p className="text-sm text-slate-500">
-                    {cat.available
-                      ? `${cat.themes.length} style${cat.themes.length !== 1 ? "s" : ""} available`
-                      : "Coming soon"}
-                  </p>
-                </div>
-              </div>
-
-              {/* Design card */}
-              <div className="max-w-xs">
-                {cat.available ? (
-                  <CategoryCard
-                    category={cat}
-                    onPreview={() => setPreviewCategory(cat)}
-                    onGetStarted={handleGetStarted}
-                  />
-                ) : (
-                  <ComingSoonCard category={cat} />
+        {/* Category buttons */}
+        <div className="mb-10 flex flex-wrap gap-3 border-b border-slate-200 pb-6">
+          {CATEGORIES.map((cat) => {
+            const active = selectedId === cat.id;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedId(active ? null : cat.id)}
+                disabled={!cat.available}
+                className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition ${
+                  active
+                    ? "bg-slate-900 text-white"
+                    : cat.available
+                    ? "bg-white text-slate-700 shadow-sm hover:bg-slate-100"
+                    : "cursor-not-allowed bg-white/50 text-slate-300"
+                }`}
+              >
+                <span>{cat.emoji}</span>
+                {cat.label}
+                {!cat.available && (
+                  <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-amber-600">
+                    Soon
+                  </span>
                 )}
-              </div>
-            </section>
-          ))}
+              </button>
+            );
+          })}
         </div>
 
-        {/* CTA band */}
-        <div className="mt-20 overflow-hidden rounded-[2rem] bg-gradient-to-br from-blue-600 to-slate-950 p-10 text-center text-white md:p-14">
-          <h2 className="mx-auto max-w-2xl text-3xl font-black tracking-tight md:text-4xl">
-            Found your style?
-          </h2>
-          <p className="mx-auto mt-4 max-w-lg text-base text-white/70">
-            Create an account, answer a few questions about your business, and we build and launch your site — fully done for you.
-          </p>
-          <Button
-            size="lg"
-            onClick={handleGetStarted}
-            className="mt-8 h-14 gap-2 rounded-2xl bg-white px-8 text-base font-extrabold text-blue-700 hover:bg-blue-50"
-          >
-            Start my launch
-            <ArrowRight className="h-5 w-5" />
-          </Button>
-        </div>
+        {/* Design area — only shown after selecting a category */}
+        {!selectedCategory && (
+          <p className="text-sm text-slate-400">← Select a category above to see its design.</p>
+        )}
+
+        {selectedCategory && (
+          <div className="max-w-xs">
+            <CategoryCard
+              category={selectedCategory}
+              onPreview={() => setPreviewCategory(selectedCategory)}
+              onGetStarted={handleGetStarted}
+            />
+          </div>
+        )}
       </main>
 
       {/* Preview modal */}
