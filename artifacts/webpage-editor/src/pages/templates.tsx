@@ -313,7 +313,7 @@ export default function TemplatesPage() {
   const [selectedId, setSelectedId] = useState<CategoryId | null>(null);
   const [previewDesign, setPreviewDesign] = useState<{ design: TemplateDesign; categoryEmoji: string } | null>(null);
 
-  const handleGetStarted = () => navigate(loggedIn ? "/onboarding" : "/signup");
+  const handleGetStarted = () => navigate("/onboarding");
   const selectedCategory = CATEGORIES.find((c) => c.id === selectedId) ?? null;
 
   return (

@@ -43,7 +43,7 @@ function Router() {
       <Route path="/templates" component={TemplatesPage} />
       <Route path="/login" component={() => <PublicOnlyRoute component={Login} />} />
       <Route path="/signup" component={() => <PublicOnlyRoute component={Signup} />} />
-      <Route path="/onboarding" component={() => <PrivateRoute component={Onboarding} />} />
+      <Route path="/onboarding" component={Onboarding} />
       <Route path="/forgot-password" component={ForgotPassword} />
       <Route path="/reset-password" component={ResetPassword} />
       <Route path="/admin" component={() => <AdminRoute component={Admin} />} />

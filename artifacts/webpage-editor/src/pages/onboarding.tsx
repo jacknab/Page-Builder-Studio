@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
+import { signup } from "@/lib/auth";
 import {
   BARBERSHOP_THEMES,
   NAIL_SALON_THEMES,
@@ -44,8 +45,8 @@ import {
 } from "lucide-react";
 import TemplatePreview from "@/components/preview/TemplatePreview";
 
-const DEFAULT_STEP_LABELS = ["Template", "About you", "Services", "Hours", "Locations", "Links"];
-const BARBERSHOP_STEP_LABELS = ["Template", "About you", "Services", "Hours", "Barbers", "Locations", "Links"];
+const DEFAULT_STEP_LABELS = ["Template", "About you", "Services", "Hours", "Locations", "Links", "Account"];
+const BARBERSHOP_STEP_LABELS = ["Template", "About you", "Services", "Hours", "Barbers", "Locations", "Links", "Account"];
 
 function StepIndicator({ step, labels }: { step: number; labels: string[] }) {
   return (
@@ -951,6 +952,94 @@ function LinksEditor({
   );
 }
 
+// ─── FINAL STEP: ACCOUNT CREATION ──────────────────────────────────────────
+function AccountStep({
+  email,
+  password,
+  confirm,
+  error,
+  loading,
+  onEmailChange,
+  onPasswordChange,
+  onConfirmChange,
+}: {
+  email: string;
+  password: string;
+  confirm: string;
+  error: string;
+  loading: boolean;
+  onEmailChange: (v: string) => void;
+  onPasswordChange: (v: string) => void;
+  onConfirmChange: (v: string) => void;
+}) {
+  return (
+    <div>
+      <h2 className="text-3xl font-black tracking-tight">Create your account</h2>
+      <p className="mt-2 text-base text-slate-500">
+        Almost done! Set up your login so you can access your site dashboard and track progress.
+      </p>
+
+      <div className="mt-8 space-y-5">
+        <div>
+          <Label className="mb-1.5 block text-sm font-semibold text-slate-700">
+            Email address <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => onEmailChange(e.target.value)}
+            autoFocus
+            className="h-11 text-base"
+            disabled={loading}
+          />
+        </div>
+
+        <div>
+          <Label className="mb-1.5 block text-sm font-semibold text-slate-700">
+            Password <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            type="password"
+            placeholder="At least 6 characters"
+            value={password}
+            onChange={(e) => onPasswordChange(e.target.value)}
+            className="h-11 text-base"
+            disabled={loading}
+          />
+        </div>
+
+        <div>
+          <Label className="mb-1.5 block text-sm font-semibold text-slate-700">
+            Confirm password <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            type="password"
+            placeholder="••••••••"
+            value={confirm}
+            onChange={(e) => onConfirmChange(e.target.value)}
+            className="h-11 text-base"
+            disabled={loading}
+          />
+        </div>
+
+        {error && (
+          <div className="rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+
+        <p className="text-xs text-slate-400">
+          Already have an account?{" "}
+          <a href="/login" className="font-semibold text-blue-600 hover:underline">
+            Sign in instead
+          </a>
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // ─── MAIN ONBOARDING PAGE ──────────────────────────────────────────────────
 export default function Onboarding() {
   const [, navigate] = useLocation();
@@ -973,12 +1062,19 @@ export default function Onboarding() {
   const [previewCategory, setPreviewCategory] = useState<TemplateCategoryConfig | null>(null);
   const [previewInitialThemeId, setPreviewInitialThemeId] = useState<string>("");
 
+  const [accountEmail, setAccountEmail] = useState("");
+  const [accountPassword, setAccountPassword] = useState("");
+  const [accountConfirm, setAccountConfirm] = useState("");
+  const [accountError, setAccountError] = useState("");
+  const [accountLoading, setAccountLoading] = useState(false);
+
   const isBarbershop = businessType === "barbershop";
   const stepLabels = isBarbershop ? BARBERSHOP_STEP_LABELS : DEFAULT_STEP_LABELS;
   const totalSteps = stepLabels.length;
   const barbersStep = isBarbershop ? 5 : null;
   const locationsStep = isBarbershop ? 6 : 5;
   const linksStep = isBarbershop ? 7 : 6;
+  const accountStep = totalSteps; // always last
 
   const handleSelectTemplate = (id: string, source: "blocks" | "html" | "launchsite", bType: BusinessType) => {
     setTemplateId(id);
@@ -1017,6 +1113,13 @@ export default function Onboarding() {
     if (step === 1) return templateId !== null;
     if (step === 2) return businessName.trim().length > 0;
     if (step === locationsStep) return locations.some((l) => l.address.trim().length > 0);
+    if (step === accountStep) {
+      return (
+        accountEmail.trim().length > 0 &&
+        accountPassword.length >= 6 &&
+        accountPassword === accountConfirm
+      );
+    }
     return true;
   };
 
@@ -1029,8 +1132,18 @@ export default function Onboarding() {
     if (step > 1) setStep((s) => s - 1);
   };
 
-  const finish = () => {
+  const finish = async () => {
     if (!templateId || !businessType) return;
+
+    setAccountError("");
+    setAccountLoading(true);
+
+    const authResult = await signup(accountEmail.trim(), accountPassword);
+    if (!authResult.success) {
+      setAccountError(authResult.error ?? "Could not create account. Please try again.");
+      setAccountLoading(false);
+      return;
+    }
 
     const data: OnboardingData = {
       templateId,
@@ -1139,6 +1252,18 @@ export default function Onboarding() {
               onSocialChange={(field, val) => setSocial((s) => ({ ...s, [field]: val }))}
             />
           )}
+          {step === accountStep && (
+            <AccountStep
+              email={accountEmail}
+              password={accountPassword}
+              confirm={accountConfirm}
+              error={accountError}
+              loading={accountLoading}
+              onEmailChange={setAccountEmail}
+              onPasswordChange={setAccountPassword}
+              onConfirmChange={setAccountConfirm}
+            />
+          )}
 
           <div className="mt-10 flex items-center justify-between">
             <Button
@@ -1152,7 +1277,7 @@ export default function Onboarding() {
             </Button>
 
             <div className="flex items-center gap-3">
-              {step < totalSteps && (
+              {step < totalSteps && step !== accountStep && (
                 <button
                   onClick={next}
                   disabled={!canAdvance()}
@@ -1163,12 +1288,12 @@ export default function Onboarding() {
               )}
               <Button
                 onClick={next}
-                disabled={!canAdvance()}
+                disabled={!canAdvance() || accountLoading}
                 className="gap-2 bg-blue-600 px-6 font-bold hover:bg-blue-700 disabled:opacity-40"
               >
-                {step === totalSteps ? (
+                {step === accountStep ? (
                   <>
-                    Launch my site
+                    {accountLoading ? "Creating account…" : "Create account & launch"}
                     <Rocket className="h-4 w-4" />
                   </>
                 ) : (

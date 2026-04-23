@@ -85,7 +85,7 @@ export default function Landing() {
               {loggedIn ? "Open studio" : "Sign in"}
             </Button>
             <Button
-              onClick={() => navigate(loggedIn ? "/app" : "/signup")}
+              onClick={() => navigate(loggedIn ? "/app" : "/onboarding")}
               className="gap-2 bg-blue-600 font-bold hover:bg-blue-700"
             >
               Launch my site
@@ -116,7 +116,7 @@ export default function Landing() {
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <Button
                   size="lg"
-                  onClick={() => navigate(loggedIn ? "/app" : "/signup")}
+                  onClick={() => navigate(loggedIn ? "/app" : "/onboarding")}
                   className="h-14 gap-2 rounded-2xl bg-blue-600 px-7 text-base font-extrabold hover:bg-blue-700"
                 >
                   Start my launch

@@ -34,7 +34,7 @@ export function SiteHeader({ hideCta }: { hideCta?: "login" | "signup" }) {
           )}
           {hideCta !== "signup" && (
             <Button
-              onClick={() => navigate(loggedIn ? "/app" : "/signup")}
+              onClick={() => navigate(loggedIn ? "/app" : "/onboarding")}
               className="gap-2 bg-blue-600 font-bold hover:bg-blue-700"
             >
               {loggedIn ? "Open studio" : "Get started"}
