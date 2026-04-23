@@ -27,7 +27,7 @@ export function Navbar({ theme, clientData }: Props) {
   const hasBooking = !!(clientData.bookingSlug && clientData.bookingDomain);
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-40 transition-all duration-300"
+      className="sticky top-0 left-0 right-0 z-40 transition-all duration-300"
       style={{ backgroundColor: c.navBg, borderBottom: `1px solid ${c.border}` }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
