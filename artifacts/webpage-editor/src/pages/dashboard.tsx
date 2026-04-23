@@ -20,7 +20,6 @@ import {
   Plus,
   Trash2,
   ChevronRight,
-  Sliders,
   Globe,
   Link2,
   ShoppingCart,
@@ -1117,29 +1116,12 @@ export default function Dashboard() {
 
         <div className="flex items-center gap-3">
           <button
-            onClick={() => {
-              const previewEl = document.getElementById("launchsite-preview");
-              if (previewEl) {
-                const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
-                  .map((el) => el.outerHTML)
-                  .join("\n");
-                const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${data.businessName}</title>${styles}</head><body>${previewEl.innerHTML}</body></html>`;
-                const EDITOR_KEY = "webpage-editor-sites-v2";
-                try {
-                  const existing = JSON.parse(localStorage.getItem(EDITOR_KEY) || "[]") as { id?: string; name?: string; slug?: string; status?: string; source?: string; html?: string; blocks?: unknown[]; [key: string]: unknown }[];
-                  const base = existing[0] ?? { id: "launchsite-site", name: data.businessName, slug: data.businessName.toLowerCase().replace(/\s+/g, "-"), status: "draft" };
-                  localStorage.setItem(EDITOR_KEY, JSON.stringify([{ ...base, source: "html", html, blocks: [] }]));
-                } catch {
-                  // proceed anyway
-                }
-              }
-              window.location.href = "/app?edit";
-            }}
-            className="flex items-center gap-1.5 rounded-xl border border-slate-200 px-3.5 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition"
-            title="Advanced editor — add photos, maps, new sections"
+            onClick={handleSave}
+            disabled={!hasUnsaved}
+            className="flex items-center gap-1.5 rounded-xl border border-slate-200 px-3.5 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            <Sliders className="h-4 w-4" />
-            Advanced Editor
+            <Check className="h-4 w-4" />
+            Save
           </button>
           <button
             onClick={() => { logout(); navigate("/login"); }}
@@ -1279,22 +1261,14 @@ export default function Dashboard() {
 
           </div>
 
-          {/* Sticky footer */}
-          <div className="shrink-0 border-t border-slate-100 p-4 flex gap-3">
+          {/* Footer */}
+          <div className="shrink-0 border-t border-slate-100 p-4">
             <button
               onClick={handleDiscard}
               disabled={!hasUnsaved}
-              className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full rounded-xl border border-slate-200 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Discard
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={!hasUnsaved}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 py-2.5 text-sm font-bold text-white hover:bg-blue-700 transition disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <Check className="h-4 w-4" />
-              Save changes
+              Discard changes
             </button>
           </div>
         </div>
