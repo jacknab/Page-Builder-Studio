@@ -7,6 +7,7 @@
   "email": "info@samplebarbershop.com",
   "address": "123 Main Street, Anytown USA",
   "established": 2018,
+  "numberOfBarbers": 4,
   "services": [
     { "name": "Classic Haircut", "price": "$25", "category": "Haircut" },
     { "name": "Fade", "price": "$30", "category": "Haircut" },

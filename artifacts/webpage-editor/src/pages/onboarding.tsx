@@ -211,18 +211,37 @@ function BusinessTypePicker({
   );
 }
 
+const TEAM_SIZE_LABEL: Record<string, string> = {
+  "barbershop": "How many barbers do you have?",
+  "hair-salon": "How many stylists do you have?",
+  "haircut-studio": "How many stylists do you have?",
+  "nail-salon": "How many nail technicians do you have?",
+};
+
 // ─── STEP 3: BUSINESS INFO ─────────────────────────────────────────────────
 function BusinessInfo({
+  businessType,
   name,
   tagline,
   description,
-  onChange,
+  established,
+  teamSize,
+  onTextChange,
+  onEstablishedChange,
+  onTeamSizeChange,
 }: {
+  businessType: BusinessType | null;
   name: string;
   tagline: string;
   description: string;
-  onChange: (field: "name" | "tagline" | "description", value: string) => void;
+  established: number | null;
+  teamSize: number | null;
+  onTextChange: (field: "name" | "tagline" | "description", value: string) => void;
+  onEstablishedChange: (value: number | null) => void;
+  onTeamSizeChange: (value: number | null) => void;
 }) {
+  const teamLabel = businessType ? TEAM_SIZE_LABEL[businessType] : "How many staff members do you have?";
+
   return (
     <div>
       <h2 className="text-3xl font-black tracking-tight">Tell us about your business</h2>
@@ -237,7 +256,7 @@ function BusinessInfo({
           <Input
             placeholder="e.g. Glamour Nails Studio"
             value={name}
-            onChange={(e) => onChange("name", e.target.value)}
+            onChange={(e) => onTextChange("name", e.target.value)}
             className="h-11 text-base"
             autoFocus
           />
@@ -249,7 +268,7 @@ function BusinessInfo({
           <Input
             placeholder="e.g. Luxury nails for every occasion"
             value={tagline}
-            onChange={(e) => onChange("tagline", e.target.value)}
+            onChange={(e) => onTextChange("tagline", e.target.value)}
             className="h-11 text-base"
           />
           <p className="mt-1.5 text-xs text-slate-400">Shown under your business name in the hero section.</p>
@@ -261,10 +280,48 @@ function BusinessInfo({
           <Textarea
             placeholder="Tell visitors who you are, what you specialise in, and why they should choose you..."
             value={description}
-            onChange={(e) => onChange("description", e.target.value)}
+            onChange={(e) => onTextChange("description", e.target.value)}
             className="min-h-[120px] resize-none text-base"
           />
           <p className="mt-1.5 text-xs text-slate-400">Used in the about / intro section of your site.</p>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label className="mb-1.5 block text-sm font-semibold text-slate-700">
+              Year founded
+            </Label>
+            <Input
+              type="number"
+              placeholder="e.g. 2015"
+              min={1900}
+              max={new Date().getFullYear()}
+              value={established ?? ""}
+              onChange={(e) => {
+                const v = parseInt(e.target.value, 10);
+                onEstablishedChange(isNaN(v) ? null : v);
+              }}
+              className="h-11 text-base"
+            />
+            <p className="mt-1.5 text-xs text-slate-400">Shows "Est. XXXX" and years in business.</p>
+          </div>
+          <div>
+            <Label className="mb-1.5 block text-sm font-semibold text-slate-700">
+              {teamLabel}
+            </Label>
+            <Input
+              type="number"
+              placeholder="e.g. 4"
+              min={1}
+              max={999}
+              value={teamSize ?? ""}
+              onChange={(e) => {
+                const v = parseInt(e.target.value, 10);
+                onTeamSizeChange(isNaN(v) ? null : v);
+              }}
+              className="h-11 text-base"
+            />
+            <p className="mt-1.5 text-xs text-slate-400">Shown in your about section.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -498,6 +555,8 @@ export default function Onboarding() {
   const [businessName, setBusinessName] = useState("");
   const [tagline, setTagline] = useState("");
   const [description, setDescription] = useState("");
+  const [established, setEstablished] = useState<number | null>(null);
+  const [teamSize, setTeamSize] = useState<number | null>(null);
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [hours, setHours] = useState<BusinessHours[]>(DEFAULT_HOURS);
   const [googleUrl, setGoogleUrl] = useState("");
@@ -558,6 +617,8 @@ export default function Onboarding() {
       businessName,
       tagline,
       description,
+      established,
+      teamSize,
       services,
       hours,
       googleListingUrl: googleUrl,
@@ -641,14 +702,19 @@ export default function Onboarding() {
           )}
           {step === 3 && (
             <BusinessInfo
+              businessType={businessType}
               name={businessName}
               tagline={tagline}
               description={description}
-              onChange={(field, val) => {
+              established={established}
+              teamSize={teamSize}
+              onTextChange={(field, val) => {
                 if (field === "name") setBusinessName(val);
                 else if (field === "tagline") setTagline(val);
                 else setDescription(val);
               }}
+              onEstablishedChange={setEstablished}
+              onTeamSizeChange={setTeamSize}
             />
           )}
           {step === 4 && <ServicesEditor services={services} onChange={setServices} />}

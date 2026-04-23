@@ -250,6 +250,19 @@ export function About({ theme, clientData }: Props) {
     ? currentYear - clientData.established
     : null;
 
+  const stats = [
+    yearsOpen !== null
+      ? { value: `${yearsOpen}+`, label: "Years in Business" }
+      : null,
+    clientData.numberOfBarbers
+      ? { value: clientData.numberOfBarbers, label: "Expert Barbers" }
+      : null,
+    clientData.services.length > 0
+      ? { value: `${clientData.services.length}+`, label: "Services Offered" }
+      : null,
+    { value: "4.9★", label: "Star Rating" },
+  ].filter(Boolean) as { value: string | number; label: string }[];
+
   return (
     <section id="about" className="py-20 px-4" style={{ backgroundColor: c.bgSecondary }}>
       <div className="max-w-6xl mx-auto">
@@ -289,9 +302,18 @@ export function About({ theme, clientData }: Props) {
               </p>
             )}
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            {yearsOpen !== null && (
+          <div
+            className={`grid gap-4 ${
+              stats.length <= 2
+                ? "grid-cols-2"
+                : stats.length === 3
+                ? "grid-cols-3"
+                : "grid-cols-2"
+            }`}
+          >
+            {stats.map(({ value, label }) => (
               <div
+                key={label}
                 className="p-6 rounded-xl text-center"
                 style={{ backgroundColor: c.card, border: `1px solid ${c.border}` }}
               >
@@ -299,67 +321,16 @@ export function About({ theme, clientData }: Props) {
                   className="text-3xl font-bold mb-1"
                   style={{ color: c.accent, fontFamily: theme.fonts.heading }}
                 >
-                  {yearsOpen}+
+                  {value}
                 </p>
                 <p
                   className="text-sm"
                   style={{ color: c.textSecondary, fontFamily: theme.fonts.body }}
                 >
-                  Years in Business
+                  {label}
                 </p>
               </div>
-            )}
-            <div
-              className="p-6 rounded-xl text-center"
-              style={{ backgroundColor: c.card, border: `1px solid ${c.border}` }}
-            >
-              <p
-                className="text-3xl font-bold mb-1"
-                style={{ color: c.accent, fontFamily: theme.fonts.heading }}
-              >
-                {clientData.services.length}+
-              </p>
-              <p
-                className="text-sm"
-                style={{ color: c.textSecondary, fontFamily: theme.fonts.body }}
-              >
-                Services Offered
-              </p>
-            </div>
-            <div
-              className="p-6 rounded-xl text-center"
-              style={{ backgroundColor: c.card, border: `1px solid ${c.border}` }}
-            >
-              <p
-                className="text-3xl font-bold mb-1"
-                style={{ color: c.accent, fontFamily: theme.fonts.heading }}
-              >
-                4.9
-              </p>
-              <p
-                className="text-sm"
-                style={{ color: c.textSecondary, fontFamily: theme.fonts.body }}
-              >
-                Star Rating
-              </p>
-            </div>
-            <div
-              className="p-6 rounded-xl text-center"
-              style={{ backgroundColor: c.card, border: `1px solid ${c.border}` }}
-            >
-              <p
-                className="text-3xl font-bold mb-1"
-                style={{ color: c.accent, fontFamily: theme.fonts.heading }}
-              >
-                100%
-              </p>
-              <p
-                className="text-sm"
-                style={{ color: c.textSecondary, fontFamily: theme.fonts.body }}
-              >
-                Satisfaction
-              </p>
-            </div>
+            ))}
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

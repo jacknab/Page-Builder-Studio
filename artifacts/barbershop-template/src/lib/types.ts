@@ -24,6 +24,7 @@ export interface ClientData {
   email?: string;
   address?: string;
   established?: number;
+  numberOfBarbers?: number;
   services: Service[];
   hours: Hours;
   googleUrl?: string;

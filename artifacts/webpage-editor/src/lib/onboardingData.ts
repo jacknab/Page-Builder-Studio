@@ -28,6 +28,8 @@ export interface OnboardingData {
   businessName: string;
   tagline: string;
   description: string;
+  established: number | null;
+  teamSize: number | null;
   services: ServiceItem[];
   hours: BusinessHours[];
   googleListingUrl: string;
