@@ -3,113 +3,197 @@ import { TEMPLATES } from "@/templates/registry";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-dvh bg-[#f0ebe1] text-slate-900" style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}>
+    <div className="min-h-dvh" style={{ background: "#e9e3d8", color: "#111" }}>
 
-      {/* Nav */}
-      <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-        <div className="flex items-center gap-8">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M4 10h12M10 4v12" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-                <circle cx="10" cy="10" r="3" fill="white"/>
-              </svg>
-            </div>
-            <span className="text-base font-bold tracking-tight">
-              LaunchSite <span className="font-normal text-slate-500">by Certxa</span>
-            </span>
-          </Link>
-          <nav className="hidden items-center gap-7 text-sm font-medium text-slate-600 md:flex">
-            <a href="#features" className="hover:text-slate-900 transition-colors">Features</a>
-            <a href="#how-it-works" className="hover:text-slate-900 transition-colors">How it works</a>
-            <a href="#templates" className="hover:text-slate-900 transition-colors">Templates</a>
-          </nav>
-        </div>
-        <div className="flex items-center gap-3">
-          <Link href="/login" className="text-sm font-medium text-slate-700 hover:text-slate-900 transition-colors">
-            Sign in
-          </Link>
-          <Link
-            href="/signup"
-            className="flex items-center gap-1.5 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
-          >
-            Start building <span>→</span>
-          </Link>
+      {/* ── Nav ────────────────────────────────────────── */}
+      <header style={{ borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-8 py-4">
+          <div className="flex items-center gap-10">
+            <Link href="/" className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <rect x="3" y="8" width="12" height="2" rx="1" fill="white"/>
+                  <rect x="8" y="3" width="2" height="12" rx="1" fill="white"/>
+                </svg>
+              </div>
+              <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.02em" }}>
+                LaunchSite{" "}
+                <span style={{ fontWeight: 400, color: "#888" }}>by Certxa</span>
+              </span>
+            </Link>
+            <nav className="hidden items-center gap-8 md:flex">
+              {["Features", "How it works", "Templates"].map((item) => (
+                <a
+                  key={item}
+                  href={`#${item.toLowerCase().replace(/ /g, "-")}`}
+                  style={{ fontSize: 14, fontWeight: 500, color: "#444", textDecoration: "none" }}
+                  className="hover:text-black transition-colors"
+                >
+                  {item}
+                </a>
+              ))}
+            </nav>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/login"
+              style={{ fontSize: 14, fontWeight: 500, color: "#444", textDecoration: "none" }}
+              className="hover:text-black transition-colors"
+            >
+              Sign in
+            </Link>
+            <Link
+              href="/signup"
+              style={{
+                fontSize: 14,
+                fontWeight: 600,
+                background: "#1d4ed8",
+                color: "#fff",
+                padding: "10px 20px",
+                borderRadius: 100,
+                textDecoration: "none",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+              className="hover:bg-blue-700 transition-colors"
+            >
+              Start building <span>→</span>
+            </Link>
+          </div>
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="mx-auto max-w-7xl px-6 pb-20 pt-10">
-        <div className="grid gap-12 md:grid-cols-[1fr_1fr] md:items-center">
+      {/* ── Hero ───────────────────────────────────────── */}
+      <section className="mx-auto max-w-7xl px-8 py-20 md:py-28">
+        <div className="grid items-center gap-16 md:grid-cols-2">
+          {/* Left */}
           <div>
-            <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-slate-300/60 bg-white/60 px-4 py-2 text-sm font-medium text-slate-700 backdrop-blur">
-              <span className="text-blue-600">✦</span>
+            <div
+              className="mb-8 inline-flex items-center gap-2"
+              style={{
+                border: "1px solid rgba(0,0,0,0.15)",
+                borderRadius: 100,
+                padding: "8px 16px",
+                background: "rgba(255,255,255,0.5)",
+                fontSize: 13,
+                fontWeight: 500,
+                color: "#333",
+              }}
+            >
+              <span style={{ color: "#1d4ed8", fontSize: 12 }}>✦</span>
               Website pages built for fast launches
             </div>
-            <h1 className="text-5xl font-black leading-[1.02] tracking-[-0.03em] md:text-6xl lg:text-7xl">
+
+            <h1
+              style={{
+                fontSize: "clamp(52px, 7vw, 82px)",
+                fontWeight: 900,
+                letterSpacing: "-0.04em",
+                lineHeight: 1.0,
+                margin: 0,
+              }}
+            >
               Launch a polished website page in minutes, not weeks.
             </h1>
-            <p className="mt-6 max-w-lg text-lg text-slate-600 leading-relaxed">
-              LaunchSite by Certxa helps salons, barbershops, nail studios, and service businesses get a stunning website live — without touching a line of code.
+
+            <p
+              style={{
+                marginTop: 28,
+                fontSize: 17,
+                lineHeight: 1.65,
+                color: "#555",
+                maxWidth: 460,
+              }}
+            >
+              LaunchSite by Certxa helps salons, barbershops, nail studios, and service businesses
+              get a stunning website live — without touching a line of code.
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-4">
+
+            <div className="mt-10 flex flex-wrap items-center gap-4">
               <Link
                 href="/signup"
-                className="rounded-full bg-blue-600 px-7 py-3.5 text-base font-semibold text-white hover:bg-blue-700 transition-colors"
+                style={{
+                  background: "#1d4ed8",
+                  color: "#fff",
+                  padding: "16px 32px",
+                  borderRadius: 100,
+                  fontWeight: 700,
+                  fontSize: 15,
+                  textDecoration: "none",
+                }}
+                className="hover:bg-blue-700 transition-colors"
               >
                 Start building →
               </Link>
-              <a href="#templates" className="text-sm font-semibold text-slate-700 hover:text-slate-900 underline underline-offset-4">
+              <a
+                href="#templates"
+                style={{ fontSize: 14, fontWeight: 600, color: "#333", textDecoration: "underline", textUnderlineOffset: 4 }}
+              >
                 Browse templates
               </a>
             </div>
           </div>
 
-          {/* App mockup */}
-          <div className="relative hidden md:block">
-            <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/10">
-              {/* Browser chrome */}
-              <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-4 py-3">
-                <span className="h-3 w-3 rounded-full bg-red-400"/>
-                <span className="h-3 w-3 rounded-full bg-yellow-400"/>
-                <span className="h-3 w-3 rounded-full bg-green-400"/>
-                <span className="ml-3 rounded bg-white px-3 py-1 text-xs font-medium text-slate-500 border border-slate-200">
+          {/* Right — App mockup */}
+          <div className="hidden md:block">
+            <div
+              style={{
+                borderRadius: 16,
+                overflow: "hidden",
+                boxShadow: "0 32px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.08)",
+                background: "#fff",
+              }}
+            >
+              {/* Browser bar */}
+              <div style={{ background: "#f5f5f5", borderBottom: "1px solid #e5e5e5", padding: "12px 16px", display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#ff5f57", display: "inline-block" }}/>
+                <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#febc2e", display: "inline-block" }}/>
+                <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#28c840", display: "inline-block" }}/>
+                <span style={{ marginLeft: 12, background: "#fff", border: "1px solid #e5e5e5", borderRadius: 6, padding: "4px 12px", fontSize: 12, color: "#888", fontWeight: 500 }}>
                   LaunchSite Studio · Certxa
                 </span>
               </div>
-              <div className="flex" style={{ minHeight: 320 }}>
+
+              <div style={{ display: "flex", minHeight: 340 }}>
                 {/* Sidebar */}
-                <div className="w-44 border-r border-slate-100 bg-slate-50 p-3">
-                  <div className="mb-3 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white">Hero</div>
+                <div style={{ width: 180, borderRight: "1px solid #f0f0f0", background: "#fafafa", padding: 12 }}>
+                  <div style={{ background: "#1d4ed8", color: "#fff", borderRadius: 10, padding: "10px 14px", fontSize: 13, fontWeight: 600, marginBottom: 2 }}>
+                    Hero
+                  </div>
                   {["Services", "Reviews", "Contact"].map((item) => (
-                    <div key={item} className="px-3 py-2 text-sm text-slate-500">{item}</div>
+                    <div key={item} style={{ padding: "10px 14px", fontSize: 13, color: "#888" }}>{item}</div>
                   ))}
-                  <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3">
-                    <div className="flex items-start gap-2">
-                      <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500">
-                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                          <path d="M2 5l2 2 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+
+                  {/* Ready badge */}
+                  <div style={{ marginTop: 16, background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 12, padding: 12 }}>
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                      <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#22c55e", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+                        <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                          <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-emerald-800">Ready to publish</p>
-                        <p className="text-xs text-emerald-600">Desktop + mobile checked</p>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: "#15803d" }}>Ready to publish</div>
+                        <div style={{ fontSize: 11, color: "#16a34a", marginTop: 1 }}>Desktop + mobile checked</div>
                       </div>
                     </div>
                   </div>
                 </div>
-                {/* Preview */}
-                <div className="flex-1 bg-blue-600 p-6 flex items-center">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-widest text-blue-300 mb-3">Your business</p>
-                    <h2 className="text-2xl font-black text-white leading-tight">
-                      Your business deserves a better first impression.
-                    </h2>
-                    <p className="mt-3 text-sm text-blue-200">Replace placeholder content with your real copy in seconds.</p>
-                    <div className="mt-4 rounded-lg bg-white/20 px-4 py-2 text-sm font-semibold text-white w-fit">
-                      Book now →
-                    </div>
+
+                {/* Preview panel */}
+                <div style={{ flex: 1, background: "#1d4ed8", padding: "36px 32px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.5)", marginBottom: 12 }}>
+                    Your business
+                  </div>
+                  <div style={{ fontSize: 26, fontWeight: 900, color: "#fff", lineHeight: 1.15, letterSpacing: "-0.02em" }}>
+                    Your business deserves a better first impression.
+                  </div>
+                  <div style={{ marginTop: 12, fontSize: 13, color: "rgba(255,255,255,0.65)", lineHeight: 1.6 }}>
+                    Replace placeholder content with your real copy in seconds.
+                  </div>
+                  <div style={{ marginTop: 20, display: "inline-flex", background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)", color: "#fff", borderRadius: 8, padding: "10px 20px", fontSize: 13, fontWeight: 600, width: "fit-content" }}>
+                    Book now →
                   </div>
                 </div>
               </div>
@@ -118,86 +202,69 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Features */}
-      <section id="features" className="border-t border-slate-200/70 bg-white/40 py-24">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="mb-14 grid gap-6 md:grid-cols-[1fr_auto]">
-            <div>
-              <p className="text-sm font-bold uppercase tracking-wider text-blue-600">Why LaunchSite</p>
-              <h2 className="mt-2 text-4xl font-black tracking-tight md:text-5xl">
-                Skip the builder, get the site.
-              </h2>
-            </div>
-          </div>
+      {/* ── Features ───────────────────────────────────── */}
+      <section id="features" style={{ borderTop: "1px solid rgba(0,0,0,0.08)", background: "rgba(255,255,255,0.35)", padding: "96px 0" }}>
+        <div className="mx-auto max-w-7xl px-8">
+          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#1d4ed8", marginBottom: 12 }}>Why LaunchSite</p>
+          <h2 style={{ fontSize: "clamp(36px, 4vw, 52px)", fontWeight: 900, letterSpacing: "-0.03em", lineHeight: 1.05, marginBottom: 56, maxWidth: 560 }}>
+            Skip the builder, get the site.
+          </h2>
           <div className="grid gap-6 md:grid-cols-3">
             {[
-              {
-                icon: "⚡",
-                title: "Live in minutes",
-                desc: "Answer a quick questionnaire about your business and we configure and launch your site. No design decisions.",
-              },
-              {
-                icon: "🎨",
-                title: "Industry-tuned templates",
-                desc: "Every template is built for a specific type of service business — salons, barbershops, studios, and more.",
-              },
-              {
-                icon: "🌐",
-                title: "Your domain, sorted",
-                desc: "Point your existing domain or let us help you get one. We handle the DNS so you don't have to.",
-              },
+              { icon: "⚡", title: "Live in minutes", desc: "Answer a short questionnaire about your business and we configure and launch your site. No design decisions needed." },
+              { icon: "🎨", title: "Industry-tuned designs", desc: "Every template is crafted for a specific type of service business — salons, barbershops, studios, and more." },
+              { icon: "🌐", title: "Your domain, sorted", desc: "Point your existing domain or let us help you get one. We handle the DNS configuration so you don't have to." },
             ].map((f) => (
-              <div key={f.title} className="rounded-2xl border border-slate-200/80 bg-white p-7">
-                <div className="mb-4 text-3xl">{f.icon}</div>
-                <h3 className="text-lg font-black">{f.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">{f.desc}</p>
+              <div key={f.title} style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 16, padding: 32 }}>
+                <div style={{ fontSize: 28, marginBottom: 16 }}>{f.icon}</div>
+                <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.02em", marginBottom: 10 }}>{f.title}</div>
+                <div style={{ fontSize: 14, lineHeight: 1.7, color: "#666" }}>{f.desc}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* How it works */}
-      <section id="how-it-works" className="py-24">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="mb-14">
-            <p className="text-sm font-bold uppercase tracking-wider text-blue-600">How it works</p>
-            <h2 className="mt-2 text-4xl font-black tracking-tight md:text-5xl">
-              Three steps, then you're live.
-            </h2>
-          </div>
+      {/* ── How it works ───────────────────────────────── */}
+      <section id="how-it-works" style={{ padding: "96px 0" }}>
+        <div className="mx-auto max-w-7xl px-8">
+          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#1d4ed8", marginBottom: 12 }}>How it works</p>
+          <h2 style={{ fontSize: "clamp(36px, 4vw, 52px)", fontWeight: 900, letterSpacing: "-0.03em", lineHeight: 1.05, marginBottom: 56 }}>
+            Three steps, then you're live.
+          </h2>
           <div className="grid gap-6 md:grid-cols-3">
             {[
-              { n: "01", t: "Pick a template", d: "Browse designs built for your type of business and choose the one that fits." },
+              { n: "01", t: "Pick a template", d: "Browse designs built for your type of business and choose the one that fits your brand." },
               { n: "02", t: "Fill in the details", d: "Tell us your business name, services, hours, and social links. Takes under 5 minutes." },
               { n: "03", t: "We launch it", d: "Your site goes live on a subdomain instantly. Connect your own domain whenever you're ready." },
             ].map((s) => (
-              <div key={s.n} className="rounded-2xl border border-slate-200/80 bg-white p-7">
-                <p className="mb-4 text-6xl font-black text-blue-600 leading-none">{s.n}</p>
-                <h3 className="text-lg font-black">{s.t}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">{s.d}</p>
+              <div key={s.n} style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 16, padding: 32 }}>
+                <div style={{ fontSize: 52, fontWeight: 900, color: "#1d4ed8", lineHeight: 1, marginBottom: 20, letterSpacing: "-0.04em" }}>{s.n}</div>
+                <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.02em", marginBottom: 10 }}>{s.t}</div>
+                <div style={{ fontSize: 14, lineHeight: 1.7, color: "#666" }}>{s.d}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Templates */}
-      <section id="templates" className="border-t border-slate-200/70 bg-white/40 py-24">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
+      {/* ── Templates ──────────────────────────────────── */}
+      <section id="templates" style={{ borderTop: "1px solid rgba(0,0,0,0.08)", background: "rgba(255,255,255,0.35)", padding: "96px 0" }}>
+        <div className="mx-auto max-w-7xl px-8">
+          <div className="mb-14 flex flex-wrap items-end justify-between gap-8">
             <div>
-              <p className="text-sm font-bold uppercase tracking-wider text-blue-600">Templates</p>
-              <h2 className="mt-2 max-w-xl text-4xl font-black leading-tight tracking-tight md:text-5xl">
+              <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#1d4ed8", marginBottom: 12 }}>Templates</p>
+              <h2 style={{ fontSize: "clamp(36px, 4vw, 52px)", fontWeight: 900, letterSpacing: "-0.03em", lineHeight: 1.05, maxWidth: 520 }}>
                 Find the right look for your business.
               </h2>
-              <p className="mt-3 max-w-lg text-slate-600">
+              <p style={{ marginTop: 16, fontSize: 15, lineHeight: 1.7, color: "#555", maxWidth: 480 }}>
                 Preview the templates available in LaunchSite. Pick one you like and create an account to get it live with your business info.
               </p>
             </div>
             <Link
               href="/signup"
-              className="shrink-0 rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+              style={{ background: "#1d4ed8", color: "#fff", padding: "14px 28px", borderRadius: 100, fontWeight: 600, fontSize: 14, textDecoration: "none", flexShrink: 0 }}
+              className="hover:bg-blue-700 transition-colors"
             >
               See all in the editor →
             </Link>
@@ -205,35 +272,42 @@ export default function LandingPage() {
 
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {TEMPLATES.map((t) => (
-              <Link href="/signup" key={t.slug} className="group block overflow-hidden rounded-2xl border border-slate-200 bg-white hover:shadow-lg hover:shadow-slate-200 transition-all">
-                <div className={`h-48 bg-gradient-to-br ${t.preview.bg} relative overflow-hidden`}>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center text-white opacity-80">
-                      <div className={`mx-auto mb-2 h-2 w-2 rounded-full ${t.preview.accent}`}/>
-                      <p className="text-xs font-bold uppercase tracking-widest">{t.preview.label}</p>
-                    </div>
-                  </div>
+              <Link
+                href="/signup"
+                key={t.slug}
+                style={{ display: "block", background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 16, overflow: "hidden", textDecoration: "none", color: "inherit" }}
+                className="group hover:shadow-xl transition-shadow duration-300"
+              >
+                <div className={`h-52 bg-gradient-to-br ${t.preview.bg} relative flex items-end p-5`}>
+                  <span
+                    style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)", color: "#fff", borderRadius: 100, padding: "4px 12px", fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}
+                  >
+                    {t.preview.label}
+                  </span>
                 </div>
-                <div className="flex items-center justify-between p-5">
+                <div style={{ padding: "18px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <div>
-                    <p className="font-bold">{t.name}</p>
-                    <div className="mt-1 inline-flex rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
+                    <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.01em" }}>{t.name}</div>
+                    <div style={{ marginTop: 4, display: "inline-block", background: "#f0f4ff", color: "#3b5bdb", borderRadius: 100, padding: "3px 10px", fontSize: 12, fontWeight: 600 }}>
                       {t.category}
                     </div>
                   </div>
-                  <span className="text-slate-400 transition-transform group-hover:translate-x-1">→</span>
+                  <span style={{ color: "#aaa", transition: "transform 0.2s" }} className="group-hover:translate-x-1">→</span>
                 </div>
               </Link>
             ))}
-            {/* Coming soon cards */}
+
             {["Restaurant", "Fitness studio", "Med spa", "Real estate"].map((name) => (
-              <div key={name} className="overflow-hidden rounded-2xl border border-dashed border-slate-300 bg-white/50">
-                <div className="flex h-48 items-center justify-center text-slate-300">
-                  <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4"/></svg>
+              <div
+                key={name}
+                style={{ background: "rgba(255,255,255,0.4)", border: "1px dashed rgba(0,0,0,0.15)", borderRadius: 16, overflow: "hidden" }}
+              >
+                <div style={{ height: 208, display: "flex", alignItems: "center", justifyContent: "center", color: "#ccc" }}>
+                  <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/></svg>
                 </div>
-                <div className="p-5">
-                  <p className="font-bold text-slate-400">{name}</p>
-                  <div className="mt-1 inline-flex rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-400">
+                <div style={{ padding: "18px 20px" }}>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: "#aaa" }}>{name}</div>
+                  <div style={{ marginTop: 4, display: "inline-block", background: "#f5f5f5", color: "#bbb", borderRadius: 100, padding: "3px 10px", fontSize: 12, fontWeight: 600 }}>
                     Coming soon
                   </div>
                 </div>
@@ -243,38 +317,47 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-24">
-        <div className="mx-auto max-w-4xl px-6 text-center">
-          <h2 className="text-5xl font-black tracking-tight md:text-6xl">
+      {/* ── CTA ────────────────────────────────────────── */}
+      <section style={{ padding: "120px 0" }}>
+        <div className="mx-auto max-w-3xl px-8 text-center">
+          <h2 style={{ fontSize: "clamp(42px, 6vw, 72px)", fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.0 }}>
             Ready to launch?
           </h2>
-          <p className="mx-auto mt-5 max-w-xl text-lg text-slate-600">
+          <p style={{ marginTop: 24, fontSize: 17, lineHeight: 1.65, color: "#555" }}>
             Get your business website live today. Free to start — bring your own domain whenever you're ready.
           </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <Link href="/signup" className="rounded-full bg-blue-600 px-8 py-4 text-base font-semibold text-white hover:bg-blue-700 transition-colors">
+          <div className="mt-10 flex flex-wrap justify-center gap-4">
+            <Link
+              href="/signup"
+              style={{ background: "#1d4ed8", color: "#fff", padding: "18px 40px", borderRadius: 100, fontWeight: 700, fontSize: 16, textDecoration: "none" }}
+              className="hover:bg-blue-700 transition-colors"
+            >
               Start building for free →
             </Link>
-            <Link href="/login" className="rounded-full border border-slate-300 bg-white px-8 py-4 text-base font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
+            <Link
+              href="/login"
+              style={{ background: "#fff", color: "#333", border: "1px solid rgba(0,0,0,0.15)", padding: "18px 40px", borderRadius: 100, fontWeight: 600, fontSize: 16, textDecoration: "none" }}
+              className="hover:bg-slate-50 transition-colors"
+            >
               Sign in
             </Link>
           </div>
         </div>
       </section>
 
-      <footer className="border-t border-slate-200/70 py-8">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 text-sm text-slate-500">
+      {/* ── Footer ─────────────────────────────────────── */}
+      <footer style={{ borderTop: "1px solid rgba(0,0,0,0.08)", padding: "28px 0" }}>
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-8">
           <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600">
-              <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
-                <path d="M4 10h12M10 4v12" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-                <circle cx="10" cy="10" r="3" fill="white"/>
+            <div style={{ width: 28, height: 28, background: "#1d4ed8", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <svg width="12" height="12" viewBox="0 0 18 18" fill="none">
+                <rect x="3" y="8" width="12" height="2" rx="1" fill="white"/>
+                <rect x="8" y="3" width="2" height="12" rx="1" fill="white"/>
               </svg>
             </div>
-            <span className="font-semibold text-slate-700">LaunchSite <span className="font-normal text-slate-400">by Certxa</span></span>
+            <span style={{ fontSize: 14, fontWeight: 700 }}>LaunchSite <span style={{ fontWeight: 400, color: "#888" }}>by Certxa</span></span>
           </div>
-          <p>© {new Date().getFullYear()} Certxa. All rights reserved.</p>
+          <p style={{ fontSize: 13, color: "#999" }}>© {new Date().getFullYear()} Certxa. All rights reserved.</p>
         </div>
       </footer>
     </div>
