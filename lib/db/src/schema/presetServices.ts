@@ -8,6 +8,8 @@ export const presetServicesTable = pgTable("preset_services", {
   sortOrder: integer("sort_order").notNull().default(0),
   name: text("name").notNull(),
   defaultPrice: text("default_price").notNull().default(""),
+  defaultDescription: text("default_description").notNull().default(""),
+  defaultDuration: text("default_duration").notNull().default(""),
 });
 
 export const insertPresetServiceSchema = createInsertSchema(

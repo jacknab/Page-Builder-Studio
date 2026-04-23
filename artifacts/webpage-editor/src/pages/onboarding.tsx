@@ -503,11 +503,11 @@ function ServicesEditor({
   const addService = () => {
     onChange([
       ...services,
-      { id: Math.random().toString(36).slice(2, 9), name: "", price: "" },
+      { id: Math.random().toString(36).slice(2, 9), name: "", price: "", description: "", duration: "" },
     ]);
   };
 
-  const updateService = (id: string, field: "name" | "price", value: string) => {
+  const updateService = (id: string, field: keyof Omit<ServiceItem, "id">, value: string) => {
     onChange(services.map((s) => (s.id === id ? { ...s, [field]: value } : s)));
   };
 
@@ -519,38 +519,54 @@ function ServicesEditor({
     <div>
       <h2 className="text-3xl font-black tracking-tight">Your services & prices</h2>
       <p className="mt-2 text-base text-slate-500">
-        We've pre-filled these based on your business type. Edit, delete, or add anything to match what you actually offer. Price is optional — leave it blank to hide it, or type anything like{" "}
-        <span className="font-semibold text-slate-700">"Call for details"</span> or{" "}
-        <span className="font-semibold text-slate-700">"$30–$50"</span>.
+        We've pre-filled these based on your business type. Edit, delete, or add anything to match what you actually offer. Price and duration are optional.
       </p>
 
-      <div className="mt-6 space-y-2.5">
+      <div className="mt-6 space-y-3">
         {services.map((service, index) => (
           <div
             key={service.id}
-            className="flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white p-3 shadow-sm"
+            className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm"
           >
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-500">
-              {index + 1}
+            {/* Row 1: number, name, price, delete */}
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-500">
+                {index + 1}
+              </div>
+              <Input
+                placeholder="Service name"
+                value={service.name}
+                onChange={(e) => updateService(service.id, "name", e.target.value)}
+                className="h-9 flex-1 border-slate-200 bg-slate-50 text-sm"
+              />
+              <Input
+                placeholder="Price (optional)"
+                value={service.price}
+                onChange={(e) => updateService(service.id, "price", e.target.value)}
+                className="h-9 w-36 border-slate-200 bg-slate-50 text-sm"
+              />
+              <button
+                onClick={() => removeService(service.id)}
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-500"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
             </div>
-            <Input
-              placeholder="Service name"
-              value={service.name}
-              onChange={(e) => updateService(service.id, "name", e.target.value)}
-              className="h-9 flex-1 border-slate-200 bg-slate-50 text-sm"
-            />
-            <Input
-              placeholder="Price (optional)"
-              value={service.price}
-              onChange={(e) => updateService(service.id, "price", e.target.value)}
-              className="h-9 w-40 border-slate-200 bg-slate-50 text-sm"
-            />
-            <button
-              onClick={() => removeService(service.id)}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-500"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
+            {/* Row 2: description + duration */}
+            <div className="mt-2 flex gap-2.5 pl-9">
+              <Input
+                placeholder="Short description (optional)"
+                value={service.description ?? ""}
+                onChange={(e) => updateService(service.id, "description", e.target.value)}
+                className="h-8 flex-1 border-slate-200 bg-slate-50 text-xs text-slate-600"
+              />
+              <Input
+                placeholder="Duration (optional)"
+                value={service.duration ?? ""}
+                onChange={(e) => updateService(service.id, "duration", e.target.value)}
+                className="h-8 w-36 border-slate-200 bg-slate-50 text-xs text-slate-600"
+              />
+            </div>
           </div>
         ))}
 
@@ -637,6 +653,14 @@ function HoursEditor({
       </div>
     </div>
   );
+}
+
+// ─── PHONE FORMATTER ────────────────────────────────────────────────────────
+function formatPhoneNumber(raw: string): string {
+  const digits = raw.replace(/\D/g, "").slice(0, 10);
+  if (digits.length < 4) return digits;
+  if (digits.length < 7) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
 }
 
 // ─── STEP 5/6: LOCATIONS ────────────────────────────────────────────────────
@@ -736,7 +760,7 @@ function LocationsEditor({
                   type="tel"
                   placeholder="e.g. (312) 555-0100"
                   value={loc.phone}
-                  onChange={(e) => update(loc.id, "phone", e.target.value)}
+                  onChange={(e) => update(loc.id, "phone", formatPhoneNumber(e.target.value))}
                   className="h-9 text-sm"
                 />
               </div>

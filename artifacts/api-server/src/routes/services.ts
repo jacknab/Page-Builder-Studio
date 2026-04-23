@@ -32,6 +32,8 @@ router.get("/presets", async (req, res) => {
       id: String(r.id),
       name: r.name,
       price: r.defaultPrice,
+      description: r.defaultDescription,
+      duration: r.defaultDuration,
     })),
   });
 });

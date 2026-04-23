@@ -4,6 +4,8 @@ export interface ServiceItem {
   id: string;
   name: string;
   price: string;
+  description?: string;
+  duration?: string;
 }
 
 export interface BarberItem {
