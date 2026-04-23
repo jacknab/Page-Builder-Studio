@@ -26,14 +26,14 @@ function PrivateRoute({ component: Component }: { component: React.ComponentType
 
 function PublicOnlyRoute({ component: Component }: { component: React.ComponentType }) {
   if (isLoggedIn()) {
-    return <Redirect to="/app" />;
+    return <Redirect to="/dashboard" />;
   }
   return <Component />;
 }
 
 function AdminRoute({ component: Component }: { component: React.ComponentType }) {
   if (!isLoggedIn()) return <Redirect to="/login" />;
-  if (!isAdmin()) return <Redirect to="/app" />;
+  if (!isAdmin()) return <Redirect to="/dashboard" />;
   return <Component />;
 }
 
