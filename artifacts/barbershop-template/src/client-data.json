@@ -1,54 +1,118 @@
 {
   "themeId": "midnight-gold",
-  "businessName": "Sample Barbershop",
-  "tagline": "Sharp Cuts, Sharp Style",
-  "description": "Welcome to our barbershop. We offer precision cuts and a great experience for every client. Our experienced barbers are dedicated to making you look and feel your best.",
-  "phone": "(555) 123-4567",
-  "email": "info@samplebarbershop.com",
-  "address": "123 Main Street, Anytown USA",
-  "established": 2018,
+  "businessName": "Toby's Barbershop",
+  "tagline": "Denver's Best Barbershop",
+  "description": "1000+ 5-star reviews. Expert fades, classic cuts, and hot towel shaves on East Colfax Ave since 2010.",
+  "phone": "(720) 123-4567",
+  "email": "alfanisbarbershop1@gmail.com",
+  "address": "123 Main St, Denver, CO 80218",
+  "established": 2010,
   "numberOfBarbers": 4,
-  "bookingUrl": "",
+  "bookingUrl": "https://alfanis-barbershop.square.site/",
   "services": [
-    { "name": "Classic Haircut", "price": "$25", "category": "Haircut", "description": "A timeless cut tailored to your style. Scissor or clipper finish.", "popular": true },
-    { "name": "Fade", "price": "$30", "category": "Haircut", "description": "Clean skin fade to any length. Low, mid, or high — precision every time.", "popular": true },
-    { "name": "Buzz Cut", "price": "$20", "category": "Haircut", "description": "Simple, sharp, and effortless. One length all the way around.", "popular": true },
-    { "name": "Kids Haircut", "price": "$18", "category": "Haircut", "description": "Patient and friendly service for the little ones." },
-    { "name": "Beard Trim", "price": "$15", "category": "Beard", "description": "Shape and clean your beard to keep it looking its best." },
-    { "name": "Hot Towel Shave", "price": "$30", "category": "Shave", "description": "Classic straight razor shave with hot towel treatment. The full experience." }
+    {
+      "name": "Alfani's Cut",
+      "price": "$37",
+      "category": "Haircut",
+      "description": "Alfani's Signature Haircut delivered by the GOATs. Clippers on sides, scissor-cut top, finished with hot lather neck shave.",
+      "popular": true
+    },
+    {
+      "name": "Combo Cut + Beard",
+      "price": "$55",
+      "category": "Haircut",
+      "description": "Full grooming experience with clippers and scissors for the perfect cut, plus clean beard trim. Hot lather neck shave included.",
+      "popular": true
+    },
+    {
+      "name": "Two Bits",
+      "price": "$63",
+      "category": "Shave",
+      "description": "Classic haircut paired with traditional face shave. Sharp. Clean. Legendary.",
+      "popular": true
+    },
+    {
+      "name": "Zero Fade",
+      "price": "$39",
+      "category": "Haircut",
+      "description": "Crisp zero fade, one step before bald. Scissors or clippers on top, hot lather neck shave finish.",
+      "popular": true
+    },
+    {
+      "name": "Kids Haircut",
+      "price": "$25",
+      "category": "Haircut",
+      "description": "Patient, friendly service for the little ones. Great cut every time.",
+      "popular": false
+    },
+    {
+      "name": "Beard Trim",
+      "price": "$20",
+      "category": "Beard",
+      "description": "Clean shape and trim to keep your beard looking its sharpest.",
+      "popular": false
+    },
+    {
+      "name": "Hot Towel Shave",
+      "price": "$40",
+      "category": "Shave",
+      "description": "Traditional straight razor shave with hot towel treatment. The full barbershop experience.",
+      "popular": false
+    },
+    {
+      "name": "Line Up / Edge Up",
+      "price": "$15",
+      "category": "Haircut",
+      "description": "Clean edge-up around hairline, temples, and neckline.",
+      "popular": false
+    }
   ],
   "barbers": [
     {
-      "name": "James",
-      "role": "Master Barber",
-      "yearsExp": 12,
-      "bio": "Specialises in fades, beard work, and classic cuts. Known for precision and attention to detail.",
-      "photoUrl": "https://images.pexels.com/photos/1570807/pexels-photo-1570807.jpeg?auto=compress&cs=tinysrgb&w=600"
+      "name": "Arthur 'Abo'",
+      "role": "Owner & Master Barber",
+      "yearsExp": 17,
+      "bio": "Proud Coloradan, graduated from one of the top barber schools in NYC. Cutting professionally since 2007. Barbering is my craft, my passion, and my lifestyle. Every cut is personal, every client matters.",
+      "photoUrl": "https://www.alfanisbarbershop.com/assets/barber-abo-DL2mueqi.jpg"
     },
     {
-      "name": "Marcus",
+      "name": "David",
       "role": "Senior Barber",
+      "yearsExp": 10,
+      "bio": "Whether it's a clean skin fade, a bold transformation, or a tricky cut others won't touch, I'm all in. I take time to understand what clients want, even when they don't have the words for it.",
+      "photoUrl": "https://www.alfanisbarbershop.com/assets/barber-david-new-80wt4g4b.jpg"
+    },
+    {
+      "name": "Lucca",
+      "role": "Barber",
       "yearsExp": 7,
-      "bio": "Expert in modern styles and skin fades. Always delivers a clean, sharp finish.",
-      "photoUrl": "https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=600"
+      "bio": "Picked up my first clippers at 23. Mastering precision and creativity with deep understanding of all hair types, thanks to my roots in Brazil. I'm here to elevate your look.",
+      "photoUrl": "https://www.alfanisbarbershop.com/assets/barber-lucca-BOklXKT4.jpg"
+    },
+    {
+      "name": "Maria",
+      "role": "Barber & Cosmetologist",
+      "yearsExp": 12,
+      "bio": "Double licensed professional with both barber and cosmetology licenses. My mission has always been to make people feel great about themselves. I enjoy cutting hair and wouldn't change it for anything.",
+      "photoUrl": "https://www.alfanisbarbershop.com/assets/barber-maria-ZPgCUMNg.webp"
     }
   ],
   "galleryImages": [
-    "https://images.pexels.com/photos/3998430/pexels-photo-3998430.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "https://images.pexels.com/photos/1319462/pexels-photo-1319462.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "https://images.pexels.com/photos/4947353/pexels-photo-4947353.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "https://images.pexels.com/photos/3998391/pexels-photo-3998391.jpeg?auto=compress&cs=tinysrgb&w=800"
+    "https://www.alfanisbarbershop.com/assets/gallery-11-web-CCRwFUlp.webp",
+    "https://www.alfanisbarbershop.com/assets/gallery-12-web-DucwTO7E.webp",
+    "https://www.alfanisbarbershop.com/assets/service-shave-BK2pbB_g.webp",
+    "https://www.alfanisbarbershop.com/assets/hero-desktop-lcp-DDPnf8bA.webp"
   ],
   "hours": {
     "monday": "9:00 AM – 7:00 PM",
     "tuesday": "9:00 AM – 7:00 PM",
     "wednesday": "9:00 AM – 7:00 PM",
     "thursday": "9:00 AM – 7:00 PM",
-    "friday": "9:00 AM – 7:00 PM",
-    "saturday": "8:00 AM – 6:00 PM",
-    "sunday": "Closed"
+    "friday": "9:00 AM – 5:00 PM",
+    "saturday": "Closed",
+    "sunday": "10:00 AM – 6:00 PM"
   },
-  "googleUrl": "",
+  "googleUrl": "https://maps.google.com/?q=123+Main+St,+Denver,+CO+80218",
   "instagramUrl": "",
   "facebookUrl": "",
   "tiktokUrl": "",
