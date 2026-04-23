@@ -15,6 +15,7 @@ import {
   saveOnboarding,
   type BusinessType,
   type ServiceItem,
+  type BarberItem,
   type BusinessHours,
   type OnboardingData,
 } from "@/lib/onboardingData";
@@ -25,6 +26,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   ArrowLeft,
   ArrowRight,
+  Camera,
   Check,
   Clock,
   Facebook,
@@ -36,23 +38,17 @@ import {
   Rocket,
   Share2,
   Trash2,
+  User,
   X,
 } from "lucide-react";
 
-const TOTAL_STEPS = 5;
+const DEFAULT_STEP_LABELS = ["Template", "About you", "Services", "Hours", "Links"];
+const BARBERSHOP_STEP_LABELS = ["Template", "About you", "Services", "Hours", "Barbers", "Links"];
 
-const STEP_LABELS = [
-  "Template",
-  "About you",
-  "Services",
-  "Hours",
-  "Links",
-];
-
-function StepIndicator({ step }: { step: number }) {
+function StepIndicator({ step, labels }: { step: number; labels: string[] }) {
   return (
     <div className="flex items-center gap-2">
-      {STEP_LABELS.map((label, i) => {
+      {labels.map((label, i) => {
         const num = i + 1;
         const done = num < step;
         const active = num === step;
@@ -582,6 +578,139 @@ function HoursEditor({
   );
 }
 
+// ─── STEP 5b: BARBERS (barbershop only) ─────────────────────────────────────
+const newBarber = (): BarberItem => ({
+  id: Math.random().toString(36).slice(2, 9),
+  name: "",
+  bio: "",
+  photoUrl: "",
+});
+
+function BarbersEditor({
+  barbers,
+  onChange,
+}: {
+  barbers: BarberItem[];
+  onChange: (barbers: BarberItem[]) => void;
+}) {
+  const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  const update = (id: string, field: keyof Omit<BarberItem, "id">, value: string) => {
+    onChange(barbers.map((b) => (b.id === id ? { ...b, [field]: value } : b)));
+  };
+
+  const remove = (id: string) => onChange(barbers.filter((b) => b.id !== id));
+
+  const handlePhoto = (id: string, file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => update(id, "photoUrl", e.target?.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  return (
+    <div>
+      <div className="flex items-start justify-between">
+        <div>
+          <h2 className="text-3xl font-black tracking-tight">Meet the team</h2>
+          <p className="mt-2 text-base text-slate-500">
+            Add your barbers so clients know who they're booking with. This section is{" "}
+            <span className="font-semibold text-slate-700">optional</span> — skip it if you'd rather leave it out.
+          </p>
+        </div>
+        <span className="mt-1 shrink-0 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-600">
+          Optional
+        </span>
+      </div>
+
+      <div className="mt-6 space-y-4">
+        {barbers.map((barber) => (
+          <div
+            key={barber.id}
+            className="relative rounded-2xl border border-slate-200 bg-slate-50 p-5"
+          >
+            <button
+              onClick={() => remove(barber.id)}
+              className="absolute right-4 top-4 rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"
+              title="Remove barber"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+
+            <div className="flex gap-4">
+              {/* Photo */}
+              <div className="shrink-0">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  ref={(el) => { fileRefs.current[barber.id] = el; }}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handlePhoto(barber.id, file);
+                  }}
+                />
+                <button
+                  onClick={() => fileRefs.current[barber.id]?.click()}
+                  className="group relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-slate-300 bg-white hover:border-blue-400 hover:bg-blue-50 transition-colors"
+                >
+                  {barber.photoUrl ? (
+                    <>
+                      <img
+                        src={barber.photoUrl}
+                        alt={barber.name}
+                        className="h-full w-full object-cover"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Camera className="h-5 w-5 text-white" />
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center gap-1 text-slate-400 group-hover:text-blue-500 transition-colors">
+                      <User className="h-6 w-6" />
+                      <span className="text-[10px] font-semibold">Photo</span>
+                    </div>
+                  )}
+                </button>
+              </div>
+
+              {/* Name + Bio */}
+              <div className="flex-1 space-y-3">
+                <div>
+                  <Label className="mb-1 block text-xs font-semibold text-slate-600">Name</Label>
+                  <Input
+                    placeholder="e.g. Marcus Johnson"
+                    value={barber.name}
+                    onChange={(e) => update(barber.id, "name", e.target.value)}
+                    className="h-9 text-sm"
+                  />
+                </div>
+                <div>
+                  <Label className="mb-1 block text-xs font-semibold text-slate-600">Short bio</Label>
+                  <Textarea
+                    placeholder="e.g. 8 years experience, specialises in fades and beard work."
+                    value={barber.bio}
+                    onChange={(e) => update(barber.id, "bio", e.target.value)}
+                    rows={2}
+                    className="resize-none text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+
+        <button
+          onClick={() => onChange([...barbers, newBarber()])}
+          className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-200 bg-white py-4 text-sm font-semibold text-slate-500 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+        >
+          <Plus className="h-4 w-4" />
+          Add a barber
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── STEP 6: LINKS ─────────────────────────────────────────────────────────
 function LinksEditor({
   googleUrl,
@@ -668,7 +797,14 @@ export default function Onboarding() {
   const [hours, setHours] = useState<BusinessHours[]>(DEFAULT_HOURS);
   const [googleUrl, setGoogleUrl] = useState("");
   const [social, setSocial] = useState(EMPTY_SOCIAL);
+  const [barbers, setBarbers] = useState<BarberItem[]>([]);
   const [previewCategory, setPreviewCategory] = useState<TemplateCategoryConfig | null>(null);
+
+  const isBarbershop = businessType === "barbershop";
+  const stepLabels = isBarbershop ? BARBERSHOP_STEP_LABELS : DEFAULT_STEP_LABELS;
+  const totalSteps = stepLabels.length;
+  const barbersStep = isBarbershop ? 5 : null;
+  const linksStep = isBarbershop ? 6 : 5;
 
   const handleSelectTemplate = (id: string, source: "blocks" | "html" | "launchsite", bType: BusinessType) => {
     setTemplateId(id);
@@ -703,7 +839,7 @@ export default function Onboarding() {
   };
 
   const next = () => {
-    if (step < TOTAL_STEPS) setStep((s) => s + 1);
+    if (step < totalSteps) setStep((s) => s + 1);
     else finish();
   };
 
@@ -725,6 +861,7 @@ export default function Onboarding() {
       teamSize,
       services,
       hours,
+      barbers: isBarbershop ? barbers : [],
       googleListingUrl: googleUrl,
       social,
     };
@@ -772,7 +909,7 @@ export default function Onboarding() {
 
       <main className="mx-auto max-w-4xl px-6 py-10">
         <div className="mb-10 flex justify-center">
-          <StepIndicator step={step} />
+          <StepIndicator step={step} labels={stepLabels} />
         </div>
 
         <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm md:p-10">
@@ -801,7 +938,10 @@ export default function Onboarding() {
           )}
           {step === 3 && <ServicesEditor services={services} onChange={setServices} />}
           {step === 4 && <HoursEditor hours={hours} onChange={setHours} />}
-          {step === 5 && (
+          {barbersStep !== null && step === barbersStep && (
+            <BarbersEditor barbers={barbers} onChange={setBarbers} />
+          )}
+          {step === linksStep && (
             <LinksEditor
               googleUrl={googleUrl}
               social={social}
@@ -822,7 +962,7 @@ export default function Onboarding() {
             </Button>
 
             <div className="flex items-center gap-3">
-              {step < TOTAL_STEPS && (
+              {step < totalSteps && (
                 <button
                   onClick={next}
                   disabled={!canAdvance()}
@@ -836,7 +976,7 @@ export default function Onboarding() {
                 disabled={!canAdvance()}
                 className="gap-2 bg-blue-600 px-6 font-bold hover:bg-blue-700 disabled:opacity-40"
               >
-                {step === TOTAL_STEPS ? (
+                {step === totalSteps ? (
                   <>
                     Launch my site
                     <Rocket className="h-4 w-4" />
@@ -853,7 +993,7 @@ export default function Onboarding() {
         </div>
 
         <p className="mt-6 text-center text-xs text-slate-400">
-          Step {step} of {TOTAL_STEPS} · You can update all of this later from your dashboard.
+          Step {step} of {totalSteps} · You can update all of this later from your dashboard.
         </p>
       </main>
 

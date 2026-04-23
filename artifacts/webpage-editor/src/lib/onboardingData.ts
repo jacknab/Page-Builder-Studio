@@ -6,6 +6,13 @@ export interface ServiceItem {
   price: string;
 }
 
+export interface BarberItem {
+  id: string;
+  name: string;
+  bio: string;
+  photoUrl: string;
+}
+
 export interface BusinessHours {
   day: string;
   open: boolean;
@@ -32,6 +39,7 @@ export interface OnboardingData {
   teamSize: number | null;
   services: ServiceItem[];
   hours: BusinessHours[];
+  barbers: BarberItem[];
   googleListingUrl: string;
   social: SocialLinks;
 }
