@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+:root {
+  --brand-cream: #f5f1e8;
+}
+
+body {
+  background-color: var(--brand-cream);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+html {
+  scroll-behavior: smooth;
+}

@@ -24,8 +24,29 @@ The admin panel (`/admin`) includes an **AI Generate** tab powered by OpenAI (vi
 - **API codegen**: Orval (from OpenAPI spec)
 - **Build**: esbuild (CJS bundle)
 - **Frontend app**: React + Vite (`artifacts/webpage-editor`)
+- **Marketing site**: `artifacts/launchsite` — Vite + React + TypeScript static site with SSG (see below)
 - **Template sources**: built-in block templates, custom HTML templates, and AI-generated templates (PostgreSQL `templates` table)
 - **AI Integration**: OpenAI via Replit AI Integrations (`@workspace/integrations-openai-ai-server`)
+
+## Launchsite SSG Package (`artifacts/launchsite`)
+
+Standalone Vite + React + TypeScript marketing site for the Launchsite service. Uses static pre-rendering (SSG) — every route outputs a full HTML file at build time. No SSR runtime, no backend, no SPA-only rendering.
+
+**Routes:** `/` (Home), `/how-it-works`, `/templates`
+
+**Build pipeline (3 steps):**
+1. `vite build` → `dist/client/` (client bundle + CSS)
+2. `vite build --ssr src/entry-server.tsx` → `dist/server/entry-server.js`
+3. `node prerender.mjs` → injects `renderToString` output into each route's `index.html`
+
+**Key files:**
+- `src/entry-client.tsx` — hydrates with `hydrateRoot` (or `createRoot` in dev)
+- `src/entry-server.tsx` — exports `render(url)` using `renderToString`
+- `prerender.mjs` — generates `dist/client/`, `dist/client/how-it-works/`, `dist/client/templates/` with full HTML
+- `vite.config.ts` — uses `isSsrBuild` to set `outDir` (client vs server)
+
+**Dev server:** `pnpm --filter @workspace/launchsite run dev` (port 3000)
+**Build:** `pnpm --filter @workspace/launchsite run build`
 
 ## Key Commands
 

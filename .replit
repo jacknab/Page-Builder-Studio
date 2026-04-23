@@ -24,6 +24,10 @@ args = "Start application"
 task = "workflow.run"
 args = "Start Backend"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start Launchsite"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -44,6 +48,18 @@ author = "agent"
 task = "shell.exec"
 args = "PORT=8080 pnpm --filter @workspace/api-server run dev"
 waitForPort = 8080
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow]]
+name = "Start Launchsite"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm --filter @workspace/launchsite run dev --port 3000"
+waitForPort = 3000
 
 [workflows.workflow.metadata]
 outputType = "console"
@@ -71,6 +87,10 @@ externalPort = 80
 
 [[ports]]
 localPort = 23796
+externalPort = 3000
+
+[[ports]]
+localPort = 3000
 externalPort = 3000
 
 [userenv]
