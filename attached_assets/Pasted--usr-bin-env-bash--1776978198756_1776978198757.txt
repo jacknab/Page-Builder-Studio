@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  setup.sh  –  Certxa Booking Platform full production VPS setup
+#  setup.sh  –  Launchsite full production VPS setup
 #
 #  Usage:
 #    bash setup.sh                     # interactive whiptail GUI menu
@@ -8,8 +8,8 @@
 #    bash setup.sh mydomain.com --yes  # fully unattended, run all steps
 #
 #  Requirements:
-#    - Ubuntu 22.04.5 LTS (Jammy Jellyfish)
-#    - Node.js v20.x LTS
+#    - Ubuntu 22.04 / 24.04 LTS
+#    - Node.js v24.x
 #    - PostgreSQL 15+
 # =============================================================================
 
@@ -33,8 +33,10 @@ DB_NAME="launchsite"
 SERVICE_NAME="launchsite"
 APP_DIR="$(cd "$(dirname "$0")" && pwd)"
 CONFIG_FILE="${APP_DIR}/.setup_config"
-BACKTITLE="Certxa Booking Platform – VPS Setup"
+BACKTITLE="Launchsite – VPS Setup"
 CERT_EMAIL=""
+CLIENTS_DIR="${APP_DIR}/client-sites"
+TEMPLATE_DIST="${APP_DIR}/artifacts/nail-salon-template/dist"
 
 # ─── WHIPTAIL HELPER ──────────────────────────────────────────────────────────
 ensure_whiptail() {
@@ -56,8 +58,11 @@ save_config() {
     cat > "$CONFIG_FILE" <<CONFIGEOF
 DOMAIN="${DOMAIN:-}"
 APP_PORT="${APP_PORT}"
+SITE_ROUTER_PORT="${SITE_ROUTER_PORT}"
 DB_NAME="${DB_NAME}"
 CERT_EMAIL="${CERT_EMAIL:-}"
+CLIENTS_DIR="${CLIENTS_DIR}"
+TEMPLATE_DIST="${TEMPLATE_DIST}"
 CONFIGEOF
     success "Configuration saved to $CONFIG_FILE"
 }
@@ -97,18 +102,18 @@ show_disclaimer() {
         --title "  DISCLAIMER  " \
         --backtitle "$BACKTITLE" \
         --msgbox "\
-Auto application setup process for Certxa Booking Platform.
-This setup tool is developed for Ubuntu 22.04.5 LTS Linux based systems.
+Auto application setup process for Launchsite.
+This setup tool is developed for Ubuntu 22.04/24.04 LTS Linux based systems.
 
-Requirements: Node.js v20.x LTS and PostgreSQL 15+
+Requirements: Node.js v24.x and PostgreSQL 15+
 
 This tool will:
-  - Install system dependencies and packages
+  - Install system dependencies and packages (Node 24, pnpm, PM2)
   - Configure PostgreSQL database and user
   - Set up SSL certificates via Let's Encrypt
   - Deploy the application with PM2 process management
-  - Configure Nginx as a reverse proxy (booking.conf)
-    with wildcard subdomain support for booking slugs
+  - Configure Nginx as a reverse proxy (launchsite.conf)
+    with wildcard subdomain support for client sites
 
 IMPORTANT - Please be aware:
   * All changes made are PERMANENT and cannot be automatically undone
@@ -131,7 +136,7 @@ By continuing you accept full responsibility for any changes made." \
     whiptail \
         --title "  DISCLAIMER  " \
         --backtitle "$BACKTITLE" \
-        --yesno "\nDo you agree to proceed with the Certxa setup?" \
+        --yesno "\nDo you agree to proceed with the Launchsite setup?" \
         9 50
     STATUS=$?
     set -e
@@ -150,7 +155,7 @@ check_apache() {
             --yesno "\
 WARNING: Apache2 web server detected on this system!
 
-Certxa requires Nginx as its reverse proxy. Apache2 will
+Launchsite requires Nginx as its reverse proxy. Apache2 will
 conflict with Nginx and must be removed before setup can continue.
 
 This will:
@@ -196,7 +201,7 @@ prompt_domain() {
         DOMAIN=$(whiptail \
             --title "  Domain Name  " \
             --backtitle "$BACKTITLE" \
-            --inputbox "\nEnter the domain name for this server:\n(e.g. example.com)\n\nNote: booking subdomains (e.g. salon.example.com)\nare handled automatically via wildcard SSL." \
+            --inputbox "\nEnter the domain name for this server:\n(e.g. example.com)\n\nNote: client subdomains (e.g. salon.example.com)\nare handled automatically via wildcard SSL." \
             12 58 "" \
             3>&1 1>&2 2>&3)
         STATUS=$?
@@ -271,7 +276,7 @@ show_menu() {
     local CHOICE
     set +e
     CHOICE=$(whiptail \
-        --title "  Certxa – VPS Setup Wizard  " \
+        --title "  Launchsite – VPS Setup Wizard  " \
         --backtitle "${BACKTITLE}" \
         --menu "\n${INFO}\n\nWhat would you like to do?" \
         28 76 16 \
@@ -282,13 +287,13 @@ show_menu() {
         "3"  "  Resume from Step 1  –  Swap space" \
         "4"  "  Resume from Step 2  –  System packages & Node.js" \
         "5"  "  Resume from Step 3  –  Firewall (UFW + fail2ban)" \
-        "6"  "  Resume from Step 4  –  npm install" \
+        "6"  "  Resume from Step 4  –  pnpm install" \
         "7"  "  Resume from Step 5  –  PostgreSQL database & user" \
         "8"  "  Resume from Step 6  –  .env configuration" \
-        "9"  "  Resume from Step 7  –  Uploads directory" \
+        "9"  "  Resume from Step 7  –  Client sites directory" \
         "10" "  Resume from Step 8  –  Database schema (Drizzle push)" \
         "11" "  Resume from Step 9  –  Production build" \
-        "12" "  Resume from Step 10 –  PM2 + Nginx (booking.conf) + SSL" \
+        "12" "  Resume from Step 10 –  PM2 + Nginx (launchsite.conf) + SSL" \
         "0"  "  Exit" \
         3>&1 1>&2 2>&3)
     STATUS=$?
@@ -475,15 +480,24 @@ do_step_2() {
         ufw fail2ban \
         unattended-upgrades apt-listchanges
 
-    # Node.js 20.x LTS
+    # Node.js 24.x
     NODE_VER=$(node --version 2>/dev/null | grep -oP '(?<=v)\d+' || echo "0")
-    if (( NODE_VER < 20 )); then
-        info "Node.js ${NODE_VER} found — installing 20.x LTS..."
-        curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - -q
+    if (( NODE_VER < 24 )); then
+        info "Node.js ${NODE_VER} found — installing 24.x..."
+        curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash - -q
         sudo apt-get install -y nodejs -qq
         success "Node.js $(node --version) installed."
     else
         info "Node.js $(node --version) already present — skipping."
+    fi
+
+    # pnpm (required — this is a pnpm monorepo)
+    if ! command -v pnpm &>/dev/null; then
+        info "Installing pnpm..."
+        sudo npm install -g pnpm -q
+        success "pnpm $(pnpm --version) installed."
+    else
+        info "pnpm $(pnpm --version) already present — skipping."
     fi
 
     # PM2
@@ -591,7 +605,7 @@ do_step_3() {
     if ! sudo systemctl is-active --quiet fail2ban 2>/dev/null; then
         sudo systemctl enable fail2ban --now
     fi
-    F2B_JAIL="/etc/fail2ban/jail.d/certxa.conf"
+    F2B_JAIL="/etc/fail2ban/jail.d/launchsite.conf"
     sudo tee "$F2B_JAIL" > /dev/null <<F2BEOF
 [DEFAULT]
 bantime  = 1h
@@ -610,22 +624,21 @@ F2BEOF
     success "Automatic security updates configured."
 }
 
-# ── Step 4 – npm install ──────────────────────────────────────────────────────
+# ── Step 4 – pnpm install ─────────────────────────────────────────────────────
 do_step_4() {
     hdr "Step 4/10  Node.js dependencies"
     cd "${APP_DIR}"
-    info "Installing npm packages (this may take a minute)..."
-    # Only wipe node_modules if package.json is newer than the modules directory
+    info "Installing pnpm workspace packages (this may take a few minutes)..."
+    # Only wipe node_modules if pnpm-lock.yaml is newer than the modules directory
     # or if node_modules is missing entirely — avoids a slow full reinstall on re-runs.
     if [ ! -d "${APP_DIR}/node_modules" ] \
-        || [ "${APP_DIR}/package.json" -nt "${APP_DIR}/node_modules/.package-lock.json" ]; then
-        rm -rf node_modules
-        npm install
+        || [ "${APP_DIR}/pnpm-lock.yaml" -nt "${APP_DIR}/node_modules/.modules.yaml" ]; then
+        pnpm install --frozen-lockfile
     else
         info "node_modules is up to date — skipping full reinstall."
-        npm install --prefer-offline --silent 2>/dev/null || npm install
+        pnpm install --prefer-offline 2>/dev/null || pnpm install
     fi
-    success "npm install complete."
+    success "pnpm install complete."
 }
 
 # ── Step 5 – PostgreSQL database + user ──────────────────────────────────────
@@ -758,25 +771,23 @@ PYEOF
     }
 
     if [ -f "${APP_DIR}/.env" ]; then
-        info ".env exists — updating DATABASE_URL, PORT, NODE_ENV, CORS_ORIGINS, APP_URL, GOOGLE_REDIRECT_URI, GOOGLE_AUTH_CALLBACK_URL."
-        upsert_env "DATABASE_URL"             "${NEW_DB_URL}"
-        upsert_env "PORT"                     "${APP_PORT}"
-        upsert_env "NODE_ENV"                 "production"
-        upsert_env "CORS_ALLOW_ALL"           "false"
-        upsert_env "CORS_ORIGINS"             "https://${DOMAIN},https://www.${DOMAIN}"
-        upsert_env "APP_URL"                  "https://${DOMAIN}"
-        upsert_env "GOOGLE_REDIRECT_URI"      "https://${DOMAIN}/google-business"
-        upsert_env "GOOGLE_AUTH_CALLBACK_URL" "https://${DOMAIN}/api/auth/google/callback"
-        if ! grep -q "^SESSION_SECRET=" "${APP_DIR}/.env"; then
-            local SESSION_SECRET
-            SESSION_SECRET=$(openssl rand -hex 32 2>/dev/null || echo "change-me-$(date +%s)")
-            upsert_env "SESSION_SECRET" "${SESSION_SECRET}"
-            info "SESSION_SECRET generated and added."
+        info ".env exists — updating DATABASE_URL, PORT, NODE_ENV, MAIN_DOMAIN, JWT_SECRET, CLIENTS_DIR, TEMPLATE_DIST."
+        upsert_env "DATABASE_URL"  "${NEW_DB_URL}"
+        upsert_env "PORT"          "${APP_PORT}"
+        upsert_env "NODE_ENV"      "production"
+        upsert_env "MAIN_DOMAIN"   "${DOMAIN}"
+        upsert_env "CLIENTS_DIR"   "${CLIENTS_DIR}"
+        upsert_env "TEMPLATE_DIST" "${TEMPLATE_DIST}"
+        if ! grep -q "^JWT_SECRET=" "${APP_DIR}/.env"; then
+            local JWT_SECRET
+            JWT_SECRET=$(openssl rand -hex 32 2>/dev/null || echo "change-me-$(date +%s)")
+            upsert_env "JWT_SECRET" "${JWT_SECRET}"
+            info "JWT_SECRET generated and added."
         fi
         success ".env updated."
     else
-        local SESSION_SECRET
-        SESSION_SECRET=$(openssl rand -hex 32 2>/dev/null || echo "change-me-$(date +%s)")
+        local JWT_SECRET
+        JWT_SECRET=$(openssl rand -hex 32 2>/dev/null || echo "change-me-$(date +%s)")
         cat > "${APP_DIR}/.env" <<EOF
 # ─── Database ────────────────────────────────────────────────────────────────
 DATABASE_URL=${NEW_DB_URL}
@@ -785,41 +796,23 @@ DATABASE_URL=${NEW_DB_URL}
 NODE_ENV=production
 PORT=${APP_PORT}
 
-# ─── Session ─────────────────────────────────────────────────────────────────
-SESSION_SECRET=${SESSION_SECRET}
+# ─── Auth ────────────────────────────────────────────────────────────────────
+JWT_SECRET=${JWT_SECRET}
 
-# ─── CORS ────────────────────────────────────────────────────────────────────
-CORS_ALLOW_ALL=false
-CORS_ORIGINS=https://${DOMAIN},https://www.${DOMAIN}
+# ─── Domain ──────────────────────────────────────────────────────────────────
+MAIN_DOMAIN=${DOMAIN}
 
-# ─── Trial ───────────────────────────────────────────────────────────────────
-TRIAL_PERIOD_DAYS=60
+# ─── Client sites ────────────────────────────────────────────────────────────
+CLIENTS_DIR=${CLIENTS_DIR}
+TEMPLATE_DIST=${TEMPLATE_DIST}
 
-# ─── Google OAuth ─────────────────────────────────────────────────────────────
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-GOOGLE_REDIRECT_URI=https://${DOMAIN}/google-business
-APP_URL=https://${DOMAIN}
-GOOGLE_AUTH_CALLBACK_URL=https://${DOMAIN}/api/auth/google/callback
-
-# ─── Mailgun ─────────────────────────────────────────────────────────────────
+# ─── Mailgun (optional — for email sending) ──────────────────────────────────
 MAILGUN_API_KEY=
 MAILGUN_DOMAIN=
 MAILGUN_FROM_EMAIL=
-MAILGUN_FROM_NAME=Certxa
-MAILGUN_SENDER_EMAIL=
 
-# ─── Twilio ──────────────────────────────────────────────────────────────────
-TWILIO_ACCOUNT_SID=
-TWILIO_AUTH_TOKEN=
-TWILIO_PHONE_NUMBER=
-
-# ─── TextBelt ────────────────────────────────────────────────────────────────
-TEXTBELT_API_KEY=
-
-# ─── Stripe ──────────────────────────────────────────────────────────────────
-STRIPE_SECRET_KEY=
-STRIPE_WEBHOOK_SECRET=
+# ─── Logging ─────────────────────────────────────────────────────────────────
+LOG_LEVEL=info
 EOF
         success ".env created."
     fi
@@ -827,19 +820,15 @@ EOF
     info ".env permissions set to 600."
 }
 
-# ── Step 7 – Uploads directory ────────────────────────────────────────────────
+# ── Step 7 – Client sites directory ──────────────────────────────────────────
 do_step_7() {
-    hdr "Step 7/10  Uploads directory"
-    for DIR in \
-        "${APP_DIR}/uploads" \
-        "${APP_DIR}/uploads/avatars" \
-        "${APP_DIR}/uploads/logos" \
-        "${APP_DIR}/uploads/products"; do
-        [ -d "$DIR" ] || mkdir -p "$DIR"
-        info "Verified: $DIR"
-    done
-    chmod -R 755 "${APP_DIR}/uploads"
-    success "uploads/ directory structure ready."
+    hdr "Step 7/10  Client sites directory"
+    # CLIENTS_DIR is where the site-router looks for per-client static overrides.
+    # The directory must exist and be writable by the Node process.
+    [ -d "${CLIENTS_DIR}" ] || mkdir -p "${CLIENTS_DIR}"
+    chmod 755 "${CLIENTS_DIR}"
+    info "Verified: ${CLIENTS_DIR}"
+    success "Client sites directory ready: ${CLIENTS_DIR}"
 }
 
 # ── Step 8 – Database schema ──────────────────────────────────────────────────
@@ -865,29 +854,6 @@ do_step_8() {
     }
 
     info "Running pre-migration data fixes..."
-
-    # Rename password_hash → password if the old column exists and the new one doesn't
-    local HAS_PW_HASH
-    HAS_PW_HASH=$(psql "${DB_URL}" -tAc \
-        "SELECT COUNT(*) FROM information_schema.columns
-         WHERE table_name='users' AND column_name='password_hash';" 2>/dev/null || echo "0")
-    local HAS_PW
-    HAS_PW=$(psql "${DB_URL}" -tAc \
-        "SELECT COUNT(*) FROM information_schema.columns
-         WHERE table_name='users' AND column_name='password';" 2>/dev/null || echo "0")
-
-    if [[ "${HAS_PW_HASH:-0}" == "1" && "${HAS_PW:-0}" == "0" ]]; then
-        info "Renaming 'password_hash' column to 'password' in users table..."
-        run_sql "ALTER TABLE users RENAME COLUMN password_hash TO password;"
-        success "Column renamed."
-    elif [[ "${HAS_PW_HASH:-0}" == "1" && "${HAS_PW:-0}" == "1" ]]; then
-        info "Both 'password_hash' and 'password' columns exist — merging..."
-        run_sql "UPDATE users SET password = password_hash WHERE password IS NULL OR password = '';"
-        run_sql "ALTER TABLE users DROP COLUMN password_hash;"
-        success "Merged and dropped old column."
-    else
-        info "Password column already in correct state — skipping."
-    fi
 
     # Remove users with null or empty emails
     local NULL_EMAIL_COUNT
@@ -916,36 +882,13 @@ do_step_8() {
     info "Pre-migration fixes complete. Pushing Drizzle schema..."
     echo ""
 
-    if ! ./node_modules/.bin/drizzle-kit push; then
+    # drizzle-kit push is defined in lib/db/package.json
+    # pnpm --filter runs it from the correct working directory.
+    if ! pnpm --filter @workspace/db run push; then
         warn "Schema push reported issues — retrying with --force to apply safe changes..."
-        if ! ./node_modules/.bin/drizzle-kit push --force; then
+        if ! pnpm --filter @workspace/db run push-force; then
             error "Schema push failed — check the error above and re-run Step 8."
         fi
-    fi
-
-    # ── Create sessions table (connect-pg-simple — not managed by Drizzle) ───
-    # connect-pg-simple has createTableIfMissing:true but that only fires at
-    # runtime. Creating it here guarantees it exists before PM2 starts the app
-    # so the first login never fails with "relation sessions does not exist".
-    info "Ensuring sessions table exists (express-session store)..."
-    psql "${DB_URL}" -v ON_ERROR_STOP=0 <<SESSIONSQL 2>/dev/null || true
-CREATE TABLE IF NOT EXISTS "sessions" (
-  "sid"    varchar      NOT NULL COLLATE "default",
-  "sess"   json         NOT NULL,
-  "expire" timestamp(6) NOT NULL,
-  CONSTRAINT "sessions_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE
-) WITH (OIDS=FALSE);
-
-CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "sessions" ("expire");
-SESSIONSQL
-    success "Sessions table ready."
-
-    # ── Full table verification + auto-repair ────────────────────────────────
-    # db:check --fix confirms all 48 required tables exist and repairs any that
-    # are still missing (runs drizzle-kit push again + sessions DDL as needed).
-    info "Running full database integrity check..."
-    if ! ./node_modules/.bin/tsx "${APP_DIR}/scripts/check-db.ts" --fix; then
-        error "Database check failed — one or more tables could not be created. Check the output above and re-run Step 8."
     fi
 
     success "Schema pushed and all tables verified."
@@ -956,48 +899,54 @@ do_step_9() {
     hdr "Step 9/10  Production build"
     cd "${APP_DIR}"
 
-    info "Cleaning old build artifacts..."
-    rm -rf "${APP_DIR}/dist"
-
-    info "Running production build (this may take 2-3 minutes)..."
-    if ! npm run build; then
+    info "Running production build — typecheck + all workspace packages (may take 3-5 minutes)..."
+    if ! pnpm run build; then
         error "Build failed — check the output above for errors."
     fi
 
-    # Verify the critical output files exist
+    # Verify the critical output files for each service
     local BUILD_OK=true
 
-    if [ ! -f "${APP_DIR}/dist/index.cjs" ]; then
-        warn "MISSING: dist/index.cjs (server bundle)"
+    # API server bundle
+    if [ ! -f "${APP_DIR}/artifacts/api-server/dist/index.mjs" ]; then
+        warn "MISSING: artifacts/api-server/dist/index.mjs (API server bundle)"
         BUILD_OK=false
     else
-        success "dist/index.cjs created ($(du -sh "${APP_DIR}/dist/index.cjs" | cut -f1))"
+        success "artifacts/api-server/dist/index.mjs built ($(du -sh "${APP_DIR}/artifacts/api-server/dist/index.mjs" | cut -f1))"
     fi
 
-    if [ ! -f "${APP_DIR}/dist/public/index.html" ]; then
-        warn "MISSING: dist/public/index.html (frontend entry)"
+    # Site router bundle
+    if [ ! -f "${APP_DIR}/artifacts/site-router/dist/index.mjs" ]; then
+        warn "MISSING: artifacts/site-router/dist/index.mjs (site-router bundle)"
         BUILD_OK=false
     else
-        success "dist/public/index.html created"
+        success "artifacts/site-router/dist/index.mjs built ($(du -sh "${APP_DIR}/artifacts/site-router/dist/index.mjs" | cut -f1))"
     fi
 
-    local ASSET_COUNT
-    ASSET_COUNT=$(find "${APP_DIR}/dist/public/assets" -type f 2>/dev/null | wc -l)
-    if [ "${ASSET_COUNT:-0}" -eq 0 ]; then
-        warn "MISSING: dist/public/assets/ is empty — CSS/JS files not built"
+    # Web editor SPA
+    if [ ! -f "${APP_DIR}/artifacts/webpage-editor/dist/index.html" ]; then
+        warn "MISSING: artifacts/webpage-editor/dist/index.html (dashboard frontend)"
         BUILD_OK=false
     else
-        success "dist/public/assets/ contains ${ASSET_COUNT} file(s)"
+        success "artifacts/webpage-editor/dist/index.html built"
+    fi
+
+    # Client templates (nail-salon is the default TEMPLATE_DIST)
+    if [ ! -f "${APP_DIR}/artifacts/nail-salon-template/dist/index.html" ]; then
+        warn "MISSING: artifacts/nail-salon-template/dist/index.html (client template)"
+        BUILD_OK=false
+    else
+        success "artifacts/nail-salon-template/dist/index.html built"
     fi
 
     if [ "${BUILD_OK}" = false ]; then
-        error "Build completed but output files are missing. Check for errors above."
+        error "Build completed but one or more output files are missing. Check for errors above."
     fi
 
-    success "Build complete and verified → ${APP_DIR}/dist/"
+    success "Build complete and verified."
 }
 
-# ── Step 10 – PM2 + Nginx (booking.conf) + SSL ───────────────────────────────
+# ── Step 10 – PM2 + Nginx (launchsite.conf) + SSL ────────────────────────────
 do_step_10() {
     hdr "Step 10a/10  PM2 process management (${SERVICE_NAME})"
 
@@ -1014,70 +963,96 @@ do_step_10() {
 
     mkdir -p "${APP_DIR}/logs"
 
-    # Read SESSION_SECRET and other values from .env so they're baked into PM2
-    local ENV_SESSION_SECRET ENV_CORS_ORIGINS ENV_TRIAL_DAYS
-    ENV_SESSION_SECRET=$(grep "^SESSION_SECRET=" "${APP_DIR}/.env" 2>/dev/null | cut -d= -f2- || echo "")
-    ENV_CORS_ORIGINS=$(grep "^CORS_ORIGINS=" "${APP_DIR}/.env" 2>/dev/null | cut -d= -f2- || echo "https://${DOMAIN},https://www.${DOMAIN}")
-    ENV_TRIAL_DAYS=$(grep "^TRIAL_PERIOD_DAYS=" "${APP_DIR}/.env" 2>/dev/null | cut -d= -f2- || echo "60")
+    # Read env values from .env so they're baked into PM2
+    local ENV_JWT_SECRET ENV_MAIN_DOMAIN ENV_CLIENTS_DIR ENV_TEMPLATE_DIST ENV_LOG_LEVEL
+    ENV_JWT_SECRET=$(grep "^JWT_SECRET=" "${APP_DIR}/.env" 2>/dev/null | cut -d= -f2- || echo "")
+    ENV_MAIN_DOMAIN=$(grep "^MAIN_DOMAIN=" "${APP_DIR}/.env" 2>/dev/null | cut -d= -f2- || echo "${DOMAIN}")
+    ENV_CLIENTS_DIR=$(grep "^CLIENTS_DIR=" "${APP_DIR}/.env" 2>/dev/null | cut -d= -f2- || echo "${CLIENTS_DIR}")
+    ENV_TEMPLATE_DIST=$(grep "^TEMPLATE_DIST=" "${APP_DIR}/.env" 2>/dev/null | cut -d= -f2- || echo "${TEMPLATE_DIST}")
+    ENV_LOG_LEVEL=$(grep "^LOG_LEVEL=" "${APP_DIR}/.env" 2>/dev/null | cut -d= -f2- || echo "info")
 
     cat > "${APP_DIR}/ecosystem.config.cjs" <<ECOEOF
 module.exports = {
   apps: [
     {
-      name: '${SERVICE_NAME}',
-      script: 'dist/index.cjs',
-      cwd: '${APP_DIR}',
+      name: '${SERVICE_NAME}-api',
+      script: 'dist/index.mjs',
+      cwd: '${APP_DIR}/artifacts/api-server',
       instances: 1,
       exec_mode: 'fork',
       env: {
         NODE_ENV: 'production',
         PORT: ${APP_PORT},
         DATABASE_URL: 'postgresql://${DB_USER}:${DB_PASSWORD}@127.0.0.1/${DB_NAME}?sslmode=disable',
-        SESSION_SECRET: '${ENV_SESSION_SECRET}',
-        CORS_ALLOW_ALL: 'false',
-        CORS_ORIGINS: '${ENV_CORS_ORIGINS}',
-        TRIAL_PERIOD_DAYS: '${ENV_TRIAL_DAYS}',
-        APP_URL: 'https://${DOMAIN}',
-        GOOGLE_REDIRECT_URI: 'https://${DOMAIN}/google-business',
-        GOOGLE_AUTH_CALLBACK_URL: 'https://${DOMAIN}/api/auth/google/callback'
+        JWT_SECRET: '${ENV_JWT_SECRET}',
+        MAIN_DOMAIN: '${ENV_MAIN_DOMAIN}',
+        LOG_LEVEL: '${ENV_LOG_LEVEL}'
       },
-      error_file: '${APP_DIR}/logs/pm2-error.log',
-      out_file: '${APP_DIR}/logs/pm2-out.log',
+      error_file: '${APP_DIR}/logs/api-error.log',
+      out_file: '${APP_DIR}/logs/api-out.log',
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
       merge_logs: true,
       autorestart: true,
       watch: false,
-      max_memory_restart: '1G'
+      max_memory_restart: '512M'
+    },
+    {
+      name: '${SERVICE_NAME}-router',
+      script: 'dist/index.mjs',
+      cwd: '${APP_DIR}/artifacts/site-router',
+      instances: 1,
+      exec_mode: 'fork',
+      env: {
+        NODE_ENV: 'production',
+        PORT: ${SITE_ROUTER_PORT},
+        DATABASE_URL: 'postgresql://${DB_USER}:${DB_PASSWORD}@127.0.0.1/${DB_NAME}?sslmode=disable',
+        MAIN_DOMAIN: '${ENV_MAIN_DOMAIN}',
+        CLIENTS_DIR: '${ENV_CLIENTS_DIR}',
+        TEMPLATE_DIST: '${ENV_TEMPLATE_DIST}'
+      },
+      error_file: '${APP_DIR}/logs/router-error.log',
+      out_file: '${APP_DIR}/logs/router-out.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+      merge_logs: true,
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '256M'
     }
   ]
 };
 ECOEOF
 
-    # Stop existing instance if running
-    pm2 stop "${SERVICE_NAME}" 2>/dev/null || true
-    pm2 delete "${SERVICE_NAME}" 2>/dev/null || true
+    # Stop any existing instances before restarting
+    pm2 stop "${SERVICE_NAME}-api"    2>/dev/null || true
+    pm2 stop "${SERVICE_NAME}-router" 2>/dev/null || true
+    pm2 delete "${SERVICE_NAME}-api"    2>/dev/null || true
+    pm2 delete "${SERVICE_NAME}-router" 2>/dev/null || true
 
-    info "Starting application with PM2..."
+    info "Starting Launchsite services with PM2..."
     pm2 start "${APP_DIR}/ecosystem.config.cjs"
 
-    info "Waiting for application to start..."
-    for i in $(seq 1 15); do
+    info "Waiting for services to start..."
+    for i in $(seq 1 20); do
         sleep 1
-        if pm2 list | grep -q "${SERVICE_NAME}.*online"; then
-            success "Application '${SERVICE_NAME}' is running."
+        local API_UP ROUTER_UP
+        API_UP=$(pm2 list 2>/dev/null | grep "${SERVICE_NAME}-api" | grep -c "online" || echo "0")
+        ROUTER_UP=$(pm2 list 2>/dev/null | grep "${SERVICE_NAME}-router" | grep -c "online" || echo "0")
+        if [ "${API_UP}" -ge 1 ] && [ "${ROUTER_UP}" -ge 1 ]; then
+            success "Both services are online: ${SERVICE_NAME}-api and ${SERVICE_NAME}-router"
             break
         fi
-        if [ "$i" -eq 15 ]; then
-            warn "Application did not come up within 15 seconds. Last log lines:"
-            pm2 logs "${SERVICE_NAME}" --lines 20 2>/dev/null || true
-            error "Application '${SERVICE_NAME}' failed to start — see logs above."
+        if [ "$i" -eq 20 ]; then
+            warn "Services did not come up within 20 s. Recent logs:"
+            pm2 logs "${SERVICE_NAME}-api"    --lines 15 --nostream 2>/dev/null || true
+            pm2 logs "${SERVICE_NAME}-router" --lines 15 --nostream 2>/dev/null || true
+            error "One or more services failed to start — check logs above."
         fi
     done
     pm2 save
     pm2 startup 2>/dev/null || true
 
     # ── Nginx + SSL ──────────────────────────────────────────────────────────
-    hdr "Step 10b/10  Nginx booking.conf + SSL"
+    hdr "Step 10b/10  Nginx launchsite.conf + SSL"
 
     info "Checking for existing certificates for '${DOMAIN}'..."
 
@@ -1415,7 +1390,7 @@ NGINXEOF
     fi
     sudo systemctl reload nginx
     sudo systemctl enable certbot.timer 2>/dev/null || true
-    success "Nginx configured and reloaded — booking.conf active."
+    success "Nginx configured and reloaded — launchsite.conf active."
 }
 
 # ── Diagnose / Fix 502 Bad Gateway ───────────────────────────────────────────
@@ -1425,108 +1400,103 @@ do_diagnose() {
     local ISSUES=()
     local FIXES=()
 
-    # ── 1. Check dist/index.cjs (server bundle) ──────────────────────────────
-    if [ ! -f "${APP_DIR}/dist/index.cjs" ]; then
-        ISSUES+=("✗ dist/index.cjs NOT FOUND — production build is missing")
+    # ── 1. Check API server bundle ────────────────────────────────────────────
+    if [ ! -f "${APP_DIR}/artifacts/api-server/dist/index.mjs" ]; then
+        ISSUES+=("✗ artifacts/api-server/dist/index.mjs NOT FOUND — API server not built")
         FIXES+=("Run Step 9 (Production build) to create it")
     else
-        success "dist/index.cjs exists"
+        success "artifacts/api-server/dist/index.mjs exists"
     fi
 
-    # ── 2. Check dist/public/index.html (frontend build) ─────────────────────
-    if [ ! -f "${APP_DIR}/dist/public/index.html" ]; then
-        ISSUES+=("✗ dist/public/index.html NOT FOUND — frontend build is missing")
+    # ── 2. Check site-router bundle ───────────────────────────────────────────
+    if [ ! -f "${APP_DIR}/artifacts/site-router/dist/index.mjs" ]; then
+        ISSUES+=("✗ artifacts/site-router/dist/index.mjs NOT FOUND — site-router not built")
         FIXES+=("Run Step 9 (Production build) to create it")
     else
-        success "dist/public/index.html exists"
+        success "artifacts/site-router/dist/index.mjs exists"
     fi
 
-    # ── 3. Check dist/public/assets/ (CSS/JS assets) ─────────────────────────
-    local ASSET_COUNT
-    ASSET_COUNT=$(find "${APP_DIR}/dist/public/assets" -type f 2>/dev/null | wc -l)
-    if [ "${ASSET_COUNT:-0}" -eq 0 ]; then
-        ISSUES+=("✗ dist/public/assets/ is empty or missing — CSS/JS assets not built")
-        FIXES+=("Run Step 9 (Production build) to rebuild the frontend")
+    # ── 3. Check webpage-editor SPA ──────────────────────────────────────────
+    if [ ! -f "${APP_DIR}/artifacts/webpage-editor/dist/index.html" ]; then
+        ISSUES+=("✗ artifacts/webpage-editor/dist/index.html NOT FOUND — dashboard frontend not built")
+        FIXES+=("Run Step 9 (Production build) to create it")
     else
-        success "dist/public/assets/ has ${ASSET_COUNT} file(s)"
+        local ASSET_COUNT
+        ASSET_COUNT=$(find "${APP_DIR}/artifacts/webpage-editor/dist/assets" -type f 2>/dev/null | wc -l)
+        success "artifacts/webpage-editor/dist/index.html exists (${ASSET_COUNT} asset file(s))"
     fi
 
-    # ── 4. Check PM2 status ───────────────────────────────────────────────────
+    # ── 4. Check client template ──────────────────────────────────────────────
+    if [ ! -f "${APP_DIR}/artifacts/nail-salon-template/dist/index.html" ]; then
+        ISSUES+=("✗ artifacts/nail-salon-template/dist/index.html NOT FOUND — client template not built")
+        FIXES+=("Run Step 9 (Production build) to create it")
+    else
+        success "artifacts/nail-salon-template/dist/index.html exists"
+    fi
+
+    # ── 5. Check PM2 status for both services ─────────────────────────────────
     if ! command -v pm2 &>/dev/null; then
         ISSUES+=("✗ PM2 not installed")
         FIXES+=("Run Step 2 (System packages) to install PM2")
     else
-        local PM2_STATUS
-        PM2_STATUS=$(pm2 list 2>/dev/null | grep "${SERVICE_NAME}" | awk '{print $10}' || echo "not found")
-        if echo "$PM2_STATUS" | grep -q "online"; then
-            success "PM2 process '${SERVICE_NAME}' is online"
-        elif pm2 list 2>/dev/null | grep -q "${SERVICE_NAME}"; then
-            ISSUES+=("✗ PM2 process '${SERVICE_NAME}' is NOT online (status: ${PM2_STATUS})")
-            FIXES+=("Check PM2 logs: pm2 logs ${SERVICE_NAME} --lines 50")
-            FIXES+=("Then re-run Step 10 to restart PM2")
-        else
-            ISSUES+=("✗ PM2 process '${SERVICE_NAME}' does not exist")
-            FIXES+=("Run Step 10 to start it with PM2")
-        fi
-    fi
-
-    # ── 5. Detect what port the app is actually listening on ──────────────────
-    local ACTUAL_PORT=""
-    if command -v ss &>/dev/null; then
-        ACTUAL_PORT=$(ss -tlnp 2>/dev/null | awk '/node/{print $4}' | grep -oP ':\d+$' | tr -d ':' | head -1 || true)
-    fi
-    if [ -n "${ACTUAL_PORT:-}" ]; then
-        success "App appears to be listening on port ${ACTUAL_PORT}"
-        if [ "${ACTUAL_PORT}" != "${APP_PORT}" ]; then
-            ISSUES+=("✗ App is on port ${ACTUAL_PORT} but this script is configured for port ${APP_PORT}")
-            FIXES+=("Use option 2 (Configuration Variables) to update APP_PORT to ${ACTUAL_PORT}, then re-run Step 10")
-        fi
-    else
-        warn "Could not detect which port the app is listening on (it may not be running)"
-    fi
-
-    # ── 6. Check Nginx config port vs APP_PORT ────────────────────────────────
-    local NGINX_CONF="/etc/nginx/sites-available/booking.conf"
-    if [ -f "${NGINX_CONF}" ]; then
-        local NGINX_PORT
-        NGINX_PORT=$(grep -oP '(?<=proxy_pass http://127\.0\.0\.1:)\d+' "${NGINX_CONF}" | head -1 || echo "")
-        if [ -n "${NGINX_PORT:-}" ]; then
-            success "Nginx booking.conf proxies to port ${NGINX_PORT}"
-            if [ "${NGINX_PORT}" != "${APP_PORT}" ]; then
-                ISSUES+=("✗ PORT MISMATCH: Nginx proxies to ${NGINX_PORT} but APP_PORT is ${APP_PORT}")
-                FIXES+=("Re-run Step 10 to regenerate booking.conf with the correct port (${APP_PORT})")
+        for SVC in "${SERVICE_NAME}-api" "${SERVICE_NAME}-router"; do
+            if pm2 list 2>/dev/null | grep -q "${SVC}.*online"; then
+                success "PM2 process '${SVC}' is online"
+            elif pm2 list 2>/dev/null | grep -q "${SVC}"; then
+                local SVC_STATUS
+                SVC_STATUS=$(pm2 list 2>/dev/null | grep "${SVC}" | awk '{print $10}' || echo "unknown")
+                ISSUES+=("✗ PM2 process '${SVC}' is NOT online (status: ${SVC_STATUS})")
+                FIXES+=("Check logs: pm2 logs ${SVC} --lines 50  then re-run Step 10")
+            else
+                ISSUES+=("✗ PM2 process '${SVC}' does not exist")
+                FIXES+=("Run Step 10 to start it with PM2")
             fi
+        done
+    fi
+
+    # ── 6. Check ports ────────────────────────────────────────────────────────
+    if command -v ss &>/dev/null; then
+        local LISTENING_PORTS
+        LISTENING_PORTS=$(ss -tlnp 2>/dev/null | awk '/node/{print $4}' | grep -oP ':\d+$' | tr -d ':' | sort -u || true)
+        if echo "${LISTENING_PORTS}" | grep -q "^${APP_PORT}$"; then
+            success "API server is listening on port ${APP_PORT}"
+        else
+            warn "Port ${APP_PORT} (API) not detected in listening ports — API may not be running"
         fi
-        
-        # Check for www to non-www redirect
+        if echo "${LISTENING_PORTS}" | grep -q "^${SITE_ROUTER_PORT}$"; then
+            success "Site-router is listening on port ${SITE_ROUTER_PORT}"
+        else
+            warn "Port ${SITE_ROUTER_PORT} (site-router) not detected in listening ports"
+        fi
+    fi
+
+    # ── 7. Check Nginx launchsite.conf ────────────────────────────────────────
+    local NGINX_CONF="/etc/nginx/sites-available/launchsite.conf"
+    if [ -f "${NGINX_CONF}" ]; then
+        success "/etc/nginx/sites-available/launchsite.conf exists"
         if ! grep -q "server_name www\.${DOMAIN}" "${NGINX_CONF}"; then
             ISSUES+=("✗ Nginx config missing www.${DOMAIN} server block")
-            FIXES+=("Re-run Step 10 to regenerate booking.conf with www redirect")
-        elif ! grep -q "return 301 https://${DOMAIN}" "${NGINX_CONF}"; then
-            ISSUES+=("✗ Nginx config missing www to non-www redirect")
-            FIXES+=("Re-run Step 10 to regenerate booking.conf with www redirect")
+            FIXES+=("Re-run Step 10 to regenerate launchsite.conf")
         else
             success "www to non-www redirect is configured"
         fi
-        
-        # Check HTTP redirect covers wildcard subdomains
         if ! grep -qE "server_name.*\*\.${DOMAIN}" "${NGINX_CONF}"; then
-            ISSUES+=("✗ HTTP→HTTPS redirect does not cover *.${DOMAIN} — booking subdomain HTTP requests won't redirect")
-            FIXES+=("Re-run Step 10 to regenerate booking.conf with wildcard HTTP redirect")
+            ISSUES+=("✗ HTTP→HTTPS redirect does not cover *.${DOMAIN} — client subdomain HTTP won't redirect")
+            FIXES+=("Re-run Step 10 to regenerate launchsite.conf")
         else
-            success "HTTP redirect covers *.${DOMAIN} (booking subdomains)"
+            success "HTTP redirect covers *.${DOMAIN} (client subdomains)"
         fi
     else
-        ISSUES+=("✗ /etc/nginx/sites-available/booking.conf not found")
+        ISSUES+=("✗ /etc/nginx/sites-available/launchsite.conf not found")
         FIXES+=("Run Step 10 to generate and install the Nginx config")
     fi
 
-    # ── 7. Check .env has required keys ──────────────────────────────────────
+    # ── 8. Check .env has required keys ──────────────────────────────────────
     if [ ! -f "${APP_DIR}/.env" ]; then
         ISSUES+=("✗ .env file not found")
         FIXES+=("Run Step 6 (.env configuration) to create it")
     else
-        for KEY in DATABASE_URL NODE_ENV PORT SESSION_SECRET; do
+        for KEY in DATABASE_URL NODE_ENV PORT JWT_SECRET MAIN_DOMAIN; do
             if ! grep -q "^${KEY}=" "${APP_DIR}/.env" 2>/dev/null; then
                 ISSUES+=("✗ .env is missing: ${KEY}")
                 FIXES+=("Run Step 6 (.env configuration) to set ${KEY}")
@@ -1537,39 +1507,6 @@ do_diagnose() {
         if [ "${ENV_NODE}" != "production" ]; then
             ISSUES+=("✗ NODE_ENV in .env is '${ENV_NODE}' — must be 'production'")
             FIXES+=("Run Step 6 to set NODE_ENV=production")
-        fi
-        
-        # Check CORS_ORIGINS includes both domain and www.domain
-        local CORS_ORIGINS
-        CORS_ORIGINS=$(grep "^CORS_ORIGINS=" "${APP_DIR}/.env" | cut -d= -f2-)
-        if [ -n "${CORS_ORIGINS:-}" ]; then
-            if [[ "${CORS_ORIGINS}" != *"https://${DOMAIN}"* ]]; then
-                ISSUES+=("✗ CORS_ORIGINS missing https://${DOMAIN}")
-                FIXES+=("Run Step 6 to update CORS_ORIGINS")
-            fi
-            if [[ "${CORS_ORIGINS}" != *"https://www.${DOMAIN}"* ]]; then
-                ISSUES+=("✗ CORS_ORIGINS missing https://www.${DOMAIN}")
-                FIXES+=("Run Step 6 to update CORS_ORIGINS")
-            fi
-        else
-            ISSUES+=("✗ .env is missing: CORS_ORIGINS")
-            FIXES+=("Run Step 6 (.env configuration) to set CORS_ORIGINS")
-        fi
-    fi
-
-    # ── 8. Check sessions table exists ───────────────────────────────────────
-    if [ -f "${APP_DIR}/.env" ] && grep -q "^DATABASE_URL=" "${APP_DIR}/.env"; then
-        local DIAG_DB_URL
-        DIAG_DB_URL=$(grep "^DATABASE_URL=" "${APP_DIR}/.env" | head -1 | cut -d= -f2-)
-        local SESS_CHECK
-        SESS_CHECK=$(psql "${DIAG_DB_URL}" -tAc \
-            "SELECT COUNT(*) FROM information_schema.tables
-             WHERE table_schema='public' AND table_name='sessions';" 2>/dev/null || echo "0")
-        if [[ "${SESS_CHECK:-0}" == "0" ]]; then
-            ISSUES+=("✗ 'sessions' table missing — all logins will fail (relation does not exist)")
-            FIXES+=("Re-run Step 8 (Database schema) to create the sessions table")
-        else
-            success "sessions table exists (express-session store)"
         fi
     fi
 
@@ -1586,11 +1523,12 @@ do_diagnose() {
     if [ ${#ISSUES[@]} -eq 0 ]; then
         echo -e "${GREEN}${BOLD}All checks passed!${RESET}"
         echo ""
-        echo "If you still see 502 or missing assets, try:"
+        echo "If you still see 502 or errors, try:"
         echo "  1. Pull the latest code and re-run Step 9 (rebuild)"
         echo "  2. Re-run Step 10 (restart PM2 + Nginx)"
-        echo "  3. Check PM2 logs: pm2 logs ${SERVICE_NAME} --lines 50"
-        echo "  4. Check Nginx error log: sudo tail -40 /var/log/nginx/booking_error.log"
+        echo "  3. pm2 logs ${SERVICE_NAME}-api --lines 50"
+        echo "  4. pm2 logs ${SERVICE_NAME}-router --lines 50"
+        echo "  5. sudo tail -40 /var/log/nginx/launchsite_error.log"
     else
         echo -e "${RED}${BOLD}Found ${#ISSUES[@]} issue(s):${RESET}"
         echo ""
@@ -1604,11 +1542,11 @@ do_diagnose() {
         done
         echo ""
         echo -e "${YELLOW}Useful debug commands:${RESET}"
-        echo "  pm2 logs ${SERVICE_NAME} --lines 50"
+        echo "  pm2 logs ${SERVICE_NAME}-api    --lines 50"
+        echo "  pm2 logs ${SERVICE_NAME}-router --lines 50"
         echo "  pm2 list"
-        echo "  sudo tail -40 /var/log/nginx/booking_error.log"
+        echo "  sudo tail -40 /var/log/nginx/launchsite_error.log"
         echo "  sudo nginx -t"
-        echo "  ls -la ${APP_DIR}/dist/public/assets/ 2>/dev/null | head -20"
     fi
 
     echo ""
@@ -1631,32 +1569,29 @@ run_from() {
 
     echo ""
     echo -e "${BOLD}${GREEN}════════════════════════════════════════════════${RESET}"
-    echo -e "${BOLD}${GREEN}  Setup complete!${RESET}"
+    echo -e "${BOLD}${GREEN}  Launchsite setup complete!${RESET}"
     echo ""
-    echo -e "  ${BOLD}Site      :${RESET} ${CYAN}https://${DOMAIN}${RESET}"
+    echo -e "  ${BOLD}Dashboard :${RESET} ${CYAN}https://${DOMAIN}${RESET}"
     echo -e "  ${BOLD}Login     :${RESET} https://${DOMAIN}/login"
-    echo -e "  ${BOLD}Admin     :${RESET} https://${DOMAIN}/isadmin"
     echo -e "  ${BOLD}Database  :${RESET} ${DB_NAME}  (user: ${DB_USER})"
-    echo -e "  ${BOLD}Service   :${RESET} ${SERVICE_NAME}  (PM2)"
-    echo -e "  ${BOLD}Nginx     :${RESET} /etc/nginx/sites-available/booking.conf"
+    echo -e "  ${BOLD}API       :${RESET} ${SERVICE_NAME}-api     (PM2 — port ${APP_PORT})"
+    echo -e "  ${BOLD}Router    :${RESET} ${SERVICE_NAME}-router  (PM2 — port ${SITE_ROUTER_PORT})"
+    echo -e "  ${BOLD}Nginx     :${RESET} /etc/nginx/sites-available/launchsite.conf"
     echo ""
     echo -e "  ${BOLD}Useful commands:${RESET}"
-    echo -e "    App logs  : pm2 logs ${SERVICE_NAME} -f"
-    echo -e "    Restart   : pm2 restart ${SERVICE_NAME}"
-    echo -e "    PM2 list  : pm2 list"
-    echo -e "    Nginx log : sudo tail -f /var/log/nginx/booking_error.log"
-    echo -e "    Firewall  : sudo ufw status"
+    echo -e "    API logs    : pm2 logs ${SERVICE_NAME}-api    -f"
+    echo -e "    Router logs : pm2 logs ${SERVICE_NAME}-router -f"
+    echo -e "    Restart all : pm2 restart all"
+    echo -e "    PM2 list    : pm2 list"
+    echo -e "    Nginx log   : sudo tail -f /var/log/nginx/launchsite_error.log"
+    echo -e "    Firewall    : sudo ufw status"
     echo ""
-    echo -e "  ${BOLD}${YELLOW}Fill in your API keys in .env then restart:${RESET}"
+    echo -e "  ${BOLD}${YELLOW}Optional: fill in Mailgun keys in .env then restart:${RESET}"
     echo -e "    nano ${APP_DIR}/.env"
     echo ""
-    echo -e "    GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET"
     echo -e "    MAILGUN_API_KEY / MAILGUN_DOMAIN / MAILGUN_FROM_EMAIL"
-    echo -e "    TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN / TWILIO_PHONE_NUMBER"
-    echo -e "    TEXTBELT_API_KEY"
-    echo -e "    STRIPE_SECRET_KEY / STRIPE_WEBHOOK_SECRET"
     echo ""
-    echo -e "    pm2 restart ${SERVICE_NAME}"
+    echo -e "    pm2 restart ${SERVICE_NAME}-api"
     echo -e "${BOLD}${GREEN}════════════════════════════════════════════════${RESET}"
     echo ""
 }
