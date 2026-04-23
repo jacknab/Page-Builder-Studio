@@ -34,6 +34,7 @@ router.get("/presets", async (req, res) => {
       price: r.defaultPrice,
       description: r.defaultDescription,
       duration: r.defaultDuration,
+      category: r.defaultCategory,
     })),
   });
 });

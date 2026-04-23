@@ -6,6 +6,7 @@ export interface ServiceItem {
   price: string;
   description?: string;
   duration?: string;
+  category?: string;
 }
 
 export interface BarberItem {

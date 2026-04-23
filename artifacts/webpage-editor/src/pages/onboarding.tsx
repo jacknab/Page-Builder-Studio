@@ -493,17 +493,28 @@ function BusinessInfo({
 }
 
 // ─── STEP 4: SERVICES ──────────────────────────────────────────────────────
+const SERVICE_CATEGORIES: Record<string, string[]> = {
+  "nail-salon":      ["Manicure", "Pedicure", "Nail Repair", "Nail Enhancements", "Spa Services"],
+  "barbershop":      ["Haircut", "Beard", "Shave"],
+  "hair-salon":      ["Cut & Style", "Color", "Treatment"],
+  "haircut-studio":  ["Haircut", "Add-on"],
+};
+
 function ServicesEditor({
   services,
   onChange,
+  businessType,
 }: {
   services: ServiceItem[];
   onChange: (services: ServiceItem[]) => void;
+  businessType: string;
 }) {
+  const categories = SERVICE_CATEGORIES[businessType] ?? [];
+
   const addService = () => {
     onChange([
       ...services,
-      { id: Math.random().toString(36).slice(2, 9), name: "", price: "", description: "", duration: "" },
+      { id: Math.random().toString(36).slice(2, 9), name: "", price: "", description: "", duration: "", category: "" },
     ]);
   };
 
@@ -519,7 +530,7 @@ function ServicesEditor({
     <div>
       <h2 className="text-3xl font-black tracking-tight">Your services & prices</h2>
       <p className="mt-2 text-base text-slate-500">
-        We've pre-filled these based on your business type. Edit, delete, or add anything to match what you actually offer. Price and duration are optional.
+        We've pre-filled these based on your business type. Edit, delete, or add anything to match what you actually offer.
       </p>
 
       <div className="mt-6 space-y-3">
@@ -540,10 +551,10 @@ function ServicesEditor({
                 className="h-9 flex-1 border-slate-200 bg-slate-50 text-sm"
               />
               <Input
-                placeholder="Price (optional)"
+                placeholder="Price"
                 value={service.price}
                 onChange={(e) => updateService(service.id, "price", e.target.value)}
-                className="h-9 w-36 border-slate-200 bg-slate-50 text-sm"
+                className="h-9 w-28 border-slate-200 bg-slate-50 text-sm"
               />
               <button
                 onClick={() => removeService(service.id)}
@@ -552,19 +563,41 @@ function ServicesEditor({
                 <Trash2 className="h-4 w-4" />
               </button>
             </div>
-            {/* Row 2: description + duration */}
+            {/* Row 2: category + duration */}
             <div className="mt-2 flex gap-2.5 pl-9">
+              {categories.length > 0 ? (
+                <select
+                  value={service.category ?? ""}
+                  onChange={(e) => updateService(service.id, "category", e.target.value)}
+                  className="h-8 flex-1 rounded-md border border-slate-200 bg-slate-50 px-2 text-xs text-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                >
+                  <option value="">Category (optional)</option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              ) : (
+                <Input
+                  placeholder="Category (optional)"
+                  value={service.category ?? ""}
+                  onChange={(e) => updateService(service.id, "category", e.target.value)}
+                  className="h-8 flex-1 border-slate-200 bg-slate-50 text-xs text-slate-600"
+                />
+              )}
+              <Input
+                placeholder="Duration"
+                value={service.duration ?? ""}
+                onChange={(e) => updateService(service.id, "duration", e.target.value)}
+                className="h-8 w-28 border-slate-200 bg-slate-50 text-xs text-slate-600"
+              />
+            </div>
+            {/* Row 3: description */}
+            <div className="mt-2 pl-9">
               <Input
                 placeholder="Short description (optional)"
                 value={service.description ?? ""}
                 onChange={(e) => updateService(service.id, "description", e.target.value)}
-                className="h-8 flex-1 border-slate-200 bg-slate-50 text-xs text-slate-600"
-              />
-              <Input
-                placeholder="Duration (optional)"
-                value={service.duration ?? ""}
-                onChange={(e) => updateService(service.id, "duration", e.target.value)}
-                className="h-8 w-36 border-slate-200 bg-slate-50 text-xs text-slate-600"
+                className="h-8 w-full border-slate-200 bg-slate-50 text-xs text-slate-600"
               />
             </div>
           </div>
@@ -1475,7 +1508,7 @@ export default function Onboarding() {
               onTeamSizeChange={setTeamSize}
             />
           )}
-          {step === 2 && <ServicesEditor services={services} onChange={setServices} />}
+          {step === 2 && <ServicesEditor services={services} onChange={setServices} businessType={businessType} />}
           {step === 3 && <HoursEditor hours={hours} onChange={setHours} />}
           {step === CHECK_IN_STEP && (
             <CheckInStep enabled={includeCheckIn} onToggle={setIncludeCheckIn} />
