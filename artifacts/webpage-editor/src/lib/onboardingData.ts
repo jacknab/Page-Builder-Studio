@@ -23,7 +23,7 @@ export interface SocialLinks {
 
 export interface OnboardingData {
   templateId: string;
-  templateSource: "blocks" | "html";
+  templateSource: "blocks" | "html" | "launchsite";
   businessType: BusinessType | null;
   businessName: string;
   tagline: string;

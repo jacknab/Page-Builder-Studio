@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { TEMPLATES } from "@/lib/templates";
 import { HTML_TEMPLATES } from "@/lib/htmlTemplates";
+import { BARBERSHOP_THEMES, NAIL_SALON_THEMES, type LaunchsiteTemplate } from "@/lib/launchsiteTemplates";
 import {
   BUSINESS_TYPES,
   PRESET_SERVICES,
@@ -88,80 +89,201 @@ function StepIndicator({ step }: { step: number }) {
 }
 
 // ─── STEP 1: TEMPLATE PICKER ───────────────────────────────────────────────
+type TemplateCategory = "barbershop" | "nail-salon" | "hair-salon" | "haircut-studio";
+
+const CATEGORY_LABELS: Record<TemplateCategory, string> = {
+  "barbershop":      "Barbershop",
+  "nail-salon":      "Nail Salon",
+  "hair-salon":      "Hair Salon",
+  "haircut-studio":  "Haircut Studio",
+};
+
+function LaunchsiteTemplateCard({
+  tpl,
+  isSelected,
+  onSelect,
+}: {
+  tpl: LaunchsiteTemplate;
+  isSelected: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      onClick={onSelect}
+      className={`group relative overflow-hidden rounded-2xl border-2 bg-white text-left transition hover:-translate-y-0.5 hover:shadow-lg ${
+        isSelected ? "border-blue-600 shadow-lg shadow-blue-600/10" : "border-slate-200"
+      }`}
+    >
+      {isSelected && (
+        <div className="absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-white shadow">
+          <Check className="h-4 w-4" />
+        </div>
+      )}
+      <div className="relative h-40 overflow-hidden bg-slate-100">
+        <img
+          src={tpl.heroImage}
+          alt={tpl.name}
+          className="h-full w-full object-cover"
+          style={{ filter: "brightness(0.82)" }}
+        />
+        <div
+          className="absolute inset-0 opacity-40"
+          style={{ background: `linear-gradient(135deg, ${tpl.bgColor} 0%, transparent 60%)` }}
+        />
+        <div
+          className="absolute bottom-0 left-0 right-0 h-1"
+          style={{ background: tpl.accentColor }}
+        />
+        <span
+          className="absolute bottom-3 left-3 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest"
+          style={{ background: tpl.accentColor, color: tpl.bgColor }}
+        >
+          {tpl.style}
+        </span>
+      </div>
+      <div className="p-4">
+        <p className="font-extrabold tracking-tight">{tpl.name}</p>
+        <p className="mt-1 text-xs text-slate-500 line-clamp-2">{tpl.description}</p>
+      </div>
+    </button>
+  );
+}
+
+function HtmlTemplateCard({
+  tpl,
+  isSelected,
+  onSelect,
+}: {
+  tpl: LaunchsiteTemplate;
+  isSelected: boolean;
+  onSelect: () => void;
+}) {
+  const htmlTpl = HTML_TEMPLATES.find((h) => h.id === tpl.id);
+  return (
+    <button
+      onClick={onSelect}
+      className={`group relative overflow-hidden rounded-2xl border-2 bg-white text-left transition hover:-translate-y-0.5 hover:shadow-lg ${
+        isSelected ? "border-blue-600 shadow-lg shadow-blue-600/10" : "border-slate-200"
+      }`}
+    >
+      {isSelected && (
+        <div className="absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-white shadow">
+          <Check className="h-4 w-4" />
+        </div>
+      )}
+      <div className="relative h-40 overflow-hidden bg-slate-100">
+        {htmlTpl ? (
+          <iframe
+            title={tpl.name}
+            srcDoc={htmlTpl.html}
+            className="pointer-events-none h-[520px] w-full border-0"
+            style={{ transform: "scale(0.28)", transformOrigin: "top left", width: "358%" }}
+          />
+        ) : (
+          <img src={tpl.heroImage} alt={tpl.name} className="h-full w-full object-cover" />
+        )}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-1"
+          style={{ background: tpl.accentColor }}
+        />
+        <span
+          className="absolute bottom-3 left-3 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest"
+          style={{ background: tpl.accentColor, color: tpl.bgColor === "#0a0a0a" || tpl.bgColor === "#ffffff" ? tpl.bgColor : "#fff" }}
+        >
+          {tpl.style}
+        </span>
+      </div>
+      <div className="p-4">
+        <p className="font-extrabold tracking-tight">{tpl.name}</p>
+        <p className="mt-1 text-xs text-slate-500 line-clamp-2">{tpl.description}</p>
+      </div>
+    </button>
+  );
+}
+
 function TemplatePicker({
   selected,
   onSelect,
 }: {
-  selected: { id: string; source: "blocks" | "html" } | null;
-  onSelect: (id: string, source: "blocks" | "html") => void;
+  selected: { id: string; source: "blocks" | "html" | "launchsite" } | null;
+  onSelect: (id: string, source: "blocks" | "html" | "launchsite", businessType: BusinessType) => void;
 }) {
-  const all = [
-    ...TEMPLATES.map((t) => ({
-      id: t.id,
-      name: t.name,
-      description: t.description,
-      source: "blocks" as const,
-      html: null as string | null,
-      imageUrl: String(
-        t.blocks.find((b) => b.type === "hero" || b.type === "image")?.props.imageUrl ?? ""
-      ),
-    })),
-    ...HTML_TEMPLATES.map((t) => ({
-      id: t.id,
-      name: t.name,
-      description: t.description,
-      source: "html" as const,
-      html: t.html as string | null,
-      imageUrl: "",
-    })),
-  ];
+  const [activeCategory, setActiveCategory] = useState<TemplateCategory>("barbershop");
+
+  const categories: TemplateCategory[] = ["barbershop", "nail-salon", "hair-salon", "haircut-studio"];
+  const hasTemplates: Record<TemplateCategory, boolean> = {
+    "barbershop":     true,
+    "nail-salon":     true,
+    "hair-salon":     false,
+    "haircut-studio": false,
+  };
 
   return (
     <div>
       <h2 className="text-3xl font-black tracking-tight">Pick your template</h2>
       <p className="mt-2 text-base text-slate-500">
-        Choose the design that best fits your business. You can swap it later.
+        Browse by business type and choose the design that fits your brand.
       </p>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {all.map((t) => {
-          const isSelected = selected?.id === t.id && selected?.source === t.source;
-          return (
-            <button
-              key={`${t.source}-${t.id}`}
-              onClick={() => onSelect(t.id, t.source)}
-              className={`group relative overflow-hidden rounded-2xl border-2 bg-white text-left transition hover:-translate-y-0.5 hover:shadow-lg ${
-                isSelected ? "border-blue-600 shadow-lg shadow-blue-600/10" : "border-slate-200"
-              }`}
-            >
-              {isSelected && (
-                <div className="absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-white shadow">
-                  <Check className="h-4 w-4" />
-                </div>
-              )}
-              <div className="h-40 overflow-hidden bg-slate-100">
-                {t.html ? (
-                  <iframe
-                    title={t.name}
-                    srcDoc={t.html}
-                    className="pointer-events-none h-[520px] w-full border-0"
-                    style={{ transform: "scale(0.28)", transformOrigin: "top left", width: "358%" }}
-                  />
-                ) : t.imageUrl ? (
-                  <img src={t.imageUrl} alt={t.name} className="h-full w-full object-cover" />
-                ) : (
-                  <div className="flex h-full items-center justify-center bg-gradient-to-br from-blue-600 to-slate-950 p-6 text-center text-white">
-                    <p className="text-xl font-black">{t.name}</p>
-                  </div>
-                )}
-              </div>
-              <div className="p-4">
-                <p className="font-extrabold tracking-tight">{t.name}</p>
-                <p className="mt-1 text-xs text-slate-500 line-clamp-2">{t.description}</p>
-              </div>
-            </button>
-          );
-        })}
+
+      {/* Category tabs */}
+      <div className="mt-6 flex flex-wrap gap-2">
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setActiveCategory(cat)}
+            className={`relative rounded-full px-4 py-2 text-sm font-bold transition ${
+              activeCategory === cat
+                ? "bg-blue-600 text-white shadow-sm"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            }`}
+          >
+            {CATEGORY_LABELS[cat]}
+            {!hasTemplates[cat] && (
+              <span className="ml-1.5 rounded-full bg-white/20 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide">
+                Soon
+              </span>
+            )}
+          </button>
+        ))}
       </div>
+
+      {/* Barbershop templates */}
+      {activeCategory === "barbershop" && (
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {BARBERSHOP_THEMES.map((tpl) => (
+            <LaunchsiteTemplateCard
+              key={tpl.id}
+              tpl={tpl}
+              isSelected={selected?.id === tpl.id && selected?.source === "launchsite"}
+              onSelect={() => onSelect(tpl.id, "launchsite", "barbershop")}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Nail salon templates */}
+      {activeCategory === "nail-salon" && (
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {NAIL_SALON_THEMES.map((tpl) => (
+            <HtmlTemplateCard
+              key={tpl.id}
+              tpl={tpl}
+              isSelected={selected?.id === tpl.id && selected?.source === "html"}
+              onSelect={() => onSelect(tpl.id, "html", "nail-salon")}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Coming soon categories */}
+      {(activeCategory === "hair-salon" || activeCategory === "haircut-studio") && (
+        <div className="mt-6 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 py-20 text-center">
+          <p className="text-2xl font-black tracking-tight text-slate-300">Coming Soon</p>
+          <p className="mt-2 text-sm text-slate-400">
+            {CATEGORY_LABELS[activeCategory]} templates are in the works. Check back soon!
+          </p>
+        </div>
+      )}
     </div>
   );
 }
@@ -550,7 +672,7 @@ export default function Onboarding() {
   const [step, setStep] = useState(1);
 
   const [templateId, setTemplateId] = useState<string | null>(null);
-  const [templateSource, setTemplateSource] = useState<"blocks" | "html">("blocks");
+  const [templateSource, setTemplateSource] = useState<"blocks" | "html" | "launchsite">("launchsite");
   const [businessType, setBusinessType] = useState<BusinessType | null>(null);
   const [businessName, setBusinessName] = useState("");
   const [tagline, setTagline] = useState("");
@@ -562,9 +684,18 @@ export default function Onboarding() {
   const [googleUrl, setGoogleUrl] = useState("");
   const [social, setSocial] = useState(EMPTY_SOCIAL);
 
-  const handleSelectTemplate = (id: string, source: "blocks" | "html") => {
+  const handleSelectTemplate = (id: string, source: "blocks" | "html" | "launchsite", bType: BusinessType) => {
     setTemplateId(id);
     setTemplateSource(source);
+    if (bType && bType !== businessType) {
+      setBusinessType(bType);
+      setServices(
+        PRESET_SERVICES[bType].map((s) => ({
+          ...s,
+          id: Math.random().toString(36).slice(2, 9),
+        }))
+      );
+    }
   };
 
   const handleSelectBusinessType = (type: BusinessType) => {
@@ -643,10 +774,11 @@ export default function Onboarding() {
           props: JSON.parse(JSON.stringify(b.props)),
         }));
       }
-    } else {
+    } else if (templateSource === "html") {
       const tpl = HTML_TEMPLATES.find((t) => t.id === templateId);
       if (tpl) html = tpl.html;
     }
+    // "launchsite" source: no blocks/html needed — built from client-data.json at launch time
 
     const site = {
       id: Math.random().toString(36).slice(2, 9),
