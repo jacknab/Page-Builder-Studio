@@ -13,14 +13,28 @@ import {
 } from "./components/Sections";
 import rawClientData from "./client-data.json";
 
-const clientData = rawClientData as ClientData;
+const fallbackData = rawClientData as ClientData;
 
-function getInitialThemeId(): string {
+function getSlug(): string | null {
+  try {
+    const host = window.location.hostname;
+    const params = new URLSearchParams(window.location.search);
+    const paramSlug = params.get("slug");
+    if (paramSlug) return paramSlug;
+    const parts = host.split(".");
+    if (parts.length >= 3) return parts[0];
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function getInitialThemeId(data: ClientData): string {
   try {
     const params = new URLSearchParams(window.location.search);
-    return params.get("theme") || clientData.themeId;
+    return params.get("theme") || data.themeId;
   } catch {
-    return clientData.themeId;
+    return data.themeId;
   }
 }
 
@@ -41,13 +55,27 @@ function applyFonts(headingFont: string, bodyFont: string) {
 }
 
 export default function App() {
-  const [themeId, setThemeId] = useState(getInitialThemeId);
+  const [clientData, setClientData] = useState<ClientData>(fallbackData);
+  const [themeId, setThemeId] = useState(() => getInitialThemeId(fallbackData));
   const theme = getThemeById(themeId);
+
+  useEffect(() => {
+    const slug = getSlug();
+    if (!slug) return;
+    fetch(`/api/sites/${encodeURIComponent(slug)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: ClientData | null) => {
+        if (!data) return;
+        setClientData(data);
+        setThemeId(getInitialThemeId(data));
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     applyFonts(theme.fonts.heading, theme.fonts.body);
     document.title = `${clientData.businessName} – ${clientData.tagline}`;
-  }, [theme]);
+  }, [theme, clientData]);
 
   useEffect(() => {
     const handler = (e: MessageEvent) => {

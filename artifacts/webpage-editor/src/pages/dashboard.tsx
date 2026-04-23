@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { logout } from "@/lib/auth";
+import { logout, getToken } from "@/lib/auth";
 import {
   loadOnboarding,
   saveOnboarding,
@@ -702,10 +702,12 @@ function CopyButton({ text }: { text: string }) {
 
 function PublishModal({
   businessName,
+  sitePayload,
   onClose,
   onPublished,
 }: {
   businessName: string;
+  sitePayload: Record<string, unknown>;
   onClose: () => void;
   onPublished: (data: PublishData) => void;
 }) {
@@ -713,20 +715,42 @@ function PublishModal({
   const [subdomain, setSubdomain] = useState(toSlug(businessName));
   const [customDomain, setCustomDomain] = useState("");
   const [launched, setLaunched] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const subdomainUrl = `https://${subdomain}.${BASE_DOMAIN}`;
   const cleanDomain = customDomain.trim().replace(/^https?:\/\//, "").replace(/\/$/, "");
 
-  function handleLaunch() {
-    const data: PublishData = {
+  async function handleLaunch() {
+    setSaving(true);
+    const publishData: PublishData = {
       option,
       subdomain: option === "subdomain" ? subdomain : undefined,
       customDomain: option === "custom-domain" ? cleanDomain : undefined,
       publishedAt: new Date().toISOString(),
     };
-    localStorage.setItem(PUBLISH_KEY, JSON.stringify(data));
+    localStorage.setItem(PUBLISH_KEY, JSON.stringify(publishData));
+
+    try {
+      const token = getToken();
+      await fetch("/api/sites/publish", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          ...sitePayload,
+          subdomain: option === "subdomain" ? subdomain : undefined,
+          customDomain: option === "custom-domain" ? cleanDomain : undefined,
+        }),
+      });
+    } catch {
+      // still proceed — data saved locally
+    }
+
+    setSaving(false);
     setLaunched(true);
-    onPublished(data);
+    onPublished(publishData);
   }
 
   const canLaunch =
@@ -948,11 +972,11 @@ function PublishModal({
               {/* Launch button */}
               <button
                 onClick={handleLaunch}
-                disabled={!canLaunch}
+                disabled={!canLaunch || saving}
                 className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-sm font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <Rocket className="h-4 w-4" />
-                {option === "subdomain" ? "Launch with this subdomain" : "I've added the DNS record — Launch"}
+                {saving ? "Saving…" : option === "subdomain" ? "Launch with this subdomain" : "I've added the DNS record — Launch"}
                 <ArrowRight className="h-4 w-4" />
               </button>
             </div>
@@ -1312,6 +1336,28 @@ export default function Dashboard() {
       {publishOpen && (
         <PublishModal
           businessName={data.businessName || "My Business"}
+          sitePayload={{
+            templateId: data.templateId,
+            businessType: data.businessType,
+            businessName: data.businessName,
+            tagline: data.tagline,
+            description: data.description,
+            phone: data.phone,
+            email: data.email,
+            address: data.address,
+            established: data.estYear,
+            teamSize: data.teamSize,
+            bookingSlug: data.bookingSlug,
+            bookingDomain: data.bookingDomain,
+            services: data.services,
+            hours: data.hours,
+            googleUrl: data.googleUrl,
+            instagramUrl: data.instagramUrl,
+            facebookUrl: data.facebookUrl,
+            tiktokUrl: data.tiktokUrl,
+            yelpUrl: data.yelpUrl,
+            siteContent: content,
+          }}
           onClose={() => setPublishOpen(false)}
           onPublished={(pd) => {
             setPublishData(pd);

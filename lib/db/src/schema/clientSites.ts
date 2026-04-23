@@ -27,10 +27,16 @@ export const clientSitesTable = pgTable("client_sites", {
   tagline: text("tagline"),
   description: text("description"),
   phone: text("phone"),
+  email: text("email"),
   address: text("address"),
+  established: integer("established"),
+  teamSize: integer("team_size"),
+  bookingSlug: text("booking_slug"),
+  bookingDomain: text("booking_domain"),
 
   servicesJson: text("services_json"),
   hoursJson: text("hours_json"),
+  siteContentJson: text("site_content_json"),
 
   googleUrl: text("google_url"),
   instagramUrl: text("instagram_url"),
