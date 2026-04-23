@@ -54,6 +54,81 @@ function applyFonts(headingFont: string, bodyFont: string) {
   });
 }
 
+function setMeta(name: string, content: string, attr = "name") {
+  if (!content) return;
+  let el = document.querySelector(`meta[${attr}="${name}"]`) as HTMLMetaElement | null;
+  if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
+  el.setAttribute("content", content);
+}
+
+function setLink(rel: string, href: string) {
+  let el = document.querySelector(`link[rel="${rel}"]`) as HTMLLinkElement | null;
+  if (!el) { el = document.createElement("link"); el.setAttribute("rel", rel); document.head.appendChild(el); }
+  el.setAttribute("href", href);
+}
+
+function injectSeo(data: ClientData) {
+  const name        = data.businessName  || "";
+  const description = (data.description || data.tagline || `${name} — professional services.`).slice(0, 160);
+  const address     = data.address || "";
+  const cityMatch   = address.match(/,\s*([^,]+),\s*[A-Z]{2}/);
+  const city        = cityMatch ? cityMatch[1].trim() : "";
+  const pageTitle   = city ? `${name} | ${city}` : name;
+  const canonicalUrl = window.location.origin;
+
+  // Primary
+  document.title = pageTitle;
+  setMeta("description", description);
+  setMeta("robots", "index, follow");
+  setLink("canonical", canonicalUrl);
+
+  // Open Graph
+  setMeta("og:type",        "local.business",  "property");
+  setMeta("og:title",       pageTitle,          "property");
+  setMeta("og:description", description,        "property");
+  setMeta("og:url",         canonicalUrl,       "property");
+  setMeta("og:site_name",   name,               "property");
+  setMeta("og:locale",      "en_US",            "property");
+
+  // Twitter Card
+  setMeta("twitter:card",        "summary");
+  setMeta("twitter:title",       pageTitle);
+  setMeta("twitter:description", description);
+
+  // JSON-LD — remove any previous injection first
+  document.querySelectorAll('script[data-launchsite-ld]').forEach((el) => el.remove());
+  const typeMap: Record<string, string> = {
+    "nail-salon": "NailSalon", "barbershop": "BarberShop", "hair-salon": "HairSalon",
+  };
+  const schemaType = typeMap[data.businessType || ""] || "LocalBusiness";
+  const jsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": schemaType,
+    "name": name,
+    "description": description,
+    "url": canonicalUrl,
+    ...(data.phone   ? { "telephone": data.phone }   : {}),
+    ...(data.email   ? { "email":     data.email }    : {}),
+    ...(address      ? { "address":   { "@type": "PostalAddress", "streetAddress": address } } : {}),
+    ...(data.services?.length ? {
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Services",
+        "itemListElement": data.services.slice(0, 10).map((s, i) => ({
+          "@type": "Offer", "position": i + 1,
+          "itemOffered": { "@type": "Service", "name": s.name },
+        })),
+      },
+    } : {}),
+    "priceRange": "$$",
+  };
+  const ld = document.createElement("script");
+  ld.type = "application/ld+json";
+  ld.setAttribute("data-launchsite-ld", "1");
+  ld.textContent = JSON.stringify(jsonLd);
+  document.head.appendChild(ld);
+}
+
 export default function App() {
   const [clientData, setClientData] = useState<ClientData>(fallbackData);
   const [themeId, setThemeId] = useState(() => getInitialThemeId(fallbackData));
@@ -74,7 +149,7 @@ export default function App() {
 
   useEffect(() => {
     applyFonts(theme.fonts.heading, theme.fonts.body);
-    document.title = `${clientData.businessName} – ${clientData.tagline}`;
+    injectSeo(clientData);
   }, [theme, clientData]);
 
   useEffect(() => {

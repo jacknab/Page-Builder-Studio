@@ -1,0 +1,90 @@
+  <!-- Preload Hero Image for faster LCP - use mobile version for mobile devices -->
+    <link rel="preload" as="image" href="/assets/hero-mobile-new-N8fg8ckZ.webp" type="image/webp" media="(max-width: 767px)" fetchpriority="high">
+    <link rel="preload" as="image" href="/assets/hero-desktop-lcp-DDPnf8bA.webp" type="image/webp" media="(min-width: 768px)" fetchpriority="high">
+    
+    <!-- Premium Fonts - Preload for non-blocking loading -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap"></noscript>
+    
+    <!-- Primary Meta Tags -->
+    <title>Best Barbershop Denver | Barber Near Me | Haircut Near Me | Alfani's</title>
+    <meta name="description" content="Looking for a barber near me in Denver? Alfani's is the best barbershop in Denver with 1000+ 5-star reviews. Expert fades, haircuts, beard trims on E Colfax Ave. Walk-ins welcome. Book now!" />
+    <meta name="author" content="Alfani's Barbershop" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow" />
+    <link rel="canonical" href="https://www.alfanisbarbershop.com/" />
+    
+    <!-- LLM/AI Search Optimization -->
+    <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM Information" />
+    <link rel="alternate" type="text/plain" href="/.well-known/llms.txt" title="LLM Information" />
+    <meta name="ai-content-declaration" content="human-created" />
+    <meta name="abstract" content="Alfani's Barbershop is the best barbershop in Denver with 1000+ 5-star reviews. Best barber near me on E Colfax Ave near Cheesman Park. Expert fades, haircuts, beard trims. Walk-ins welcome. Phone: (720) 379-6471." />
+    
+    <!-- Local Business Keywords -->
+    <meta name="keywords" content="barber near me, barbershop near me, haircut near me, best barber near me, best barbershop Denver, Denver barbershop, barber Denver, haircut Denver, best haircut Denver, mens haircut Denver, fade haircut Denver, best fade Denver, beard trim near me, beard trim Denver, hot towel shave Denver, walk-in barbershop Denver, walk-in haircut Denver, kids haircut Denver, kids barber Denver, cheap haircut Denver, Capitol Hill barbershop, Cheesman Park barber, Colfax barbershop, City Park barber, Uptown Denver barbershop, Congress Park barber, Aurora barbershop, Colorado barbershop, mens grooming Denver, top rated barbershop Denver, best barber Denver" />
+
+    <!-- Geo Tags for Google Places / Local SEO -->
+    <meta name="geo.region" content="US-CO" />
+    <meta name="geo.placename" content="Denver, Colorado" />
+    <meta name="geo.position" content="39.7401;-104.9690" />
+    <meta name="ICBM" content="39.7401, -104.9690" />
+    
+    <!-- Additional Local SEO Meta Tags -->
+    <meta name="DC.title" content="Alfani's Barbershop - Denver's Best Barbershop" />
+    <meta name="DC.creator" content="Alfani's Barbershop" />
+    <meta name="DC.subject" content="Barbershop, Haircuts, Fades, Beard Trims, Denver" />
+    <meta name="DC.description" content="Denver's top-rated barbershop since 2010. Expert fades, haircuts, and hot towel shaves." />
+    <meta name="DC.publisher" content="Alfani's Barbershop" />
+    <meta name="DC.type" content="Service" />
+    <meta name="DC.format" content="text/html" />
+    <meta name="DC.language" content="en" />
+    <meta name="DC.coverage" content="Denver, Colorado, USA" />
+    
+    <!-- Business Contact Info for Rich Results -->
+    <meta name="contact" content="info@alfanisbarbershop.com" />
+    <meta name="reply-to" content="info@alfanisbarbershop.com" />
+    <meta name="rating" content="5 stars" />
+    <meta name="revisit-after" content="7 days" />
+    <meta name="distribution" content="global" />
+    <meta name="target" content="all" />
+
+    <!-- Favicon - Optimized for Google SERP (96x96 is authoritative for Google) -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon-96x96.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:title" content="Alfani's Barbershop | Denver's #1 Rated Barbershop" />
+    <meta property="og:description" content="1000+ 5-star reviews. Expert fades, haircuts & hot towel shaves on E Colfax Ave. Walk-ins welcome. First visit $10 off. Book online now." />
+    <meta property="og:type" content="business.business" />
+    <meta property="og:url" content="https://www.alfanisbarbershop.com/" />
+    <meta property="og:image" content="https://www.alfanisbarbershop.com/images/storefront.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Alfani's Barbershop storefront on E Colfax Ave Denver" />
+    <meta property="og:site_name" content="Alfani's Barbershop" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="es_US" />
+    <meta http-equiv="content-language" content="en" />
+    
+    <!-- Open Graph Business Tags -->
+    <meta property="business:contact_data:street_address" content="1240 E Colfax Ave" />
+    <meta property="business:contact_data:locality" content="Denver" />
+    <meta property="business:contact_data:region" content="CO" />
+    <meta property="business:contact_data:postal_code" content="80218" />
+    <meta property="business:contact_data:country_name" content="United States" />
+    <meta property="business:contact_data:phone_number" content="+1-720-379-6471" />
+    <meta property="business:contact_data:website" content="https://www.alfanisbarbershop.com/" />
+    <meta property="place:location:latitude" content="39.7401" />
+    <meta property="place:location:longitude" content="-104.9690" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Alfani's Barbershop | Denver's Best Barbershop" />
+    <meta name="twitter:description" content="1000+ 5-star reviews. Expert fades, haircuts & hot towel shaves. Walk-ins welcome. Book online." />
+    <meta name="twitter:image" content="https://www.alfanisbarbershop.com/images/storefront.jpg" />
+    <meta name="twitter:image:alt" content="Alfani's Barbershop Denver" />

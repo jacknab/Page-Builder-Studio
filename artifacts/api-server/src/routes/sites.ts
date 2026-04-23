@@ -143,6 +143,7 @@ router.get("/:slug", async (req, res) => {
 
   return res.json({
     themeId: site.templateId ?? "rose-quartz",
+    businessType: site.businessType ?? "",
     businessName: site.businessName ?? "",
     tagline: site.tagline ?? "",
     description: site.description ?? "",

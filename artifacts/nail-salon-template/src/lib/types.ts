@@ -17,6 +17,7 @@ export interface Hours {
 
 export interface ClientData {
   themeId: string;
+  businessType?: string;
   businessName: string;
   tagline: string;
   description: string;
