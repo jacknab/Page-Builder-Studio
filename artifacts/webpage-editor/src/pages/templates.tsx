@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { ArrowRight, Rocket, X } from "lucide-react";
+import { ArrowRight, Rocket, X, Palette, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { isLoggedIn } from "@/lib/auth";
 import {
@@ -105,19 +105,38 @@ function PreviewModal({
   onGetStarted: () => void;
 }) {
   const [activeThemeId, setActiveThemeId] = useState(design.themes[0]?.id ?? "");
+  const [pickerOpen, setPickerOpen] = useState(false);
   const activeTheme = design.themes.find((t) => t.id === activeThemeId) ?? design.themes[0];
+  const pickerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (pickerOpen) setPickerOpen(false);
+        else onClose();
+      }
+    };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [onClose]);
+  }, [onClose, pickerOpen]);
+
+  /* Close picker when clicking outside */
+  useEffect(() => {
+    if (!pickerOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setPickerOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [pickerOpen]);
 
   if (!activeTheme) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#0a0a0a" }}>
-      {/* Header */}
+      {/* Slim header — no pills */}
       <div
         className="flex-shrink-0 border-b"
         style={{ background: "#111", borderColor: "rgba(255,255,255,0.07)" }}
@@ -132,14 +151,8 @@ function PreviewModal({
           <div className="flex items-center gap-2">
             <span className="text-lg">{categoryEmoji}</span>
             <span className="text-sm font-bold text-white">{design.name}</span>
-            <span className="text-sm text-white/40">—</span>
-            <span className="text-sm font-semibold text-white/80">{activeTheme.name}</span>
-            <span
-              className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest"
-              style={{ background: activeTheme.accentColor, color: "#fff" }}
-            >
-              {activeTheme.style}
-            </span>
+            <span className="text-sm text-white/30">·</span>
+            <span className="text-sm text-white/60">{activeTheme.name}</span>
           </div>
           <div className="flex-1" />
           <Button
@@ -151,35 +164,73 @@ function PreviewModal({
             <ArrowRight className="h-3 w-3" />
           </Button>
         </div>
-
-        {/* Style pills */}
-        <div className="flex flex-wrap gap-1.5 px-4 pb-3">
-          {design.themes.map((t) => {
-            const active = t.id === activeThemeId;
-            return (
-              <button
-                key={t.id}
-                onClick={() => setActiveThemeId(t.id)}
-                className="rounded-full px-3 py-1 text-xs font-semibold transition"
-                style={
-                  active
-                    ? { background: t.accentColor, color: "#fff" }
-                    : { background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.55)" }
-                }
-              >
-                {t.name}
-              </button>
-            );
-          })}
-        </div>
       </div>
 
-      {/* Native preview */}
+      {/* Preview */}
       <div className="flex-1 overflow-y-auto">
         <TemplatePreview
           previewType={design.previewType}
           themeId={activeThemeId}
         />
+      </div>
+
+      {/* Floating palette button + theme picker */}
+      <div ref={pickerRef} className="fixed bottom-6 right-6 z-[60] flex flex-col items-end gap-3">
+        {/* Theme picker panel — slides up when open */}
+        {pickerOpen && (
+          <div
+            className="flex max-h-[60vh] w-56 flex-col overflow-hidden rounded-2xl shadow-2xl"
+            style={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)" }}
+          >
+            <div className="border-b px-4 py-3" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+              <p className="text-xs font-bold uppercase tracking-widest text-white/40">
+                {design.themes.length} styles
+              </p>
+            </div>
+            <div className="overflow-y-auto">
+              {design.themes.map((t) => {
+                const active = t.id === activeThemeId;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => { setActiveThemeId(t.id); setPickerOpen(false); }}
+                    className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-white/5"
+                  >
+                    {/* Color swatch */}
+                    <span
+                      className="h-5 w-5 flex-shrink-0 rounded-full border-2"
+                      style={{
+                        background: t.accentColor,
+                        borderColor: active ? "#fff" : "transparent",
+                      }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-xs font-semibold truncate ${active ? "text-white" : "text-white/70"}`}>
+                        {t.name}
+                      </p>
+                      <p className="text-[10px] text-white/30 truncate">{t.style}</p>
+                    </div>
+                    {active && <Check className="h-3.5 w-3.5 flex-shrink-0 text-white/60" />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Palette trigger button */}
+        <button
+          onClick={() => setPickerOpen((v) => !v)}
+          className="flex h-14 w-14 items-center justify-center rounded-full shadow-2xl transition hover:scale-105 active:scale-95"
+          style={{
+            background: activeTheme.accentColor,
+            color: "#fff",
+            boxShadow: `0 8px 32px ${activeTheme.accentColor}66`,
+          }}
+          title="Change style"
+        >
+          <Palette className="h-6 w-6" />
+        </button>
       </div>
     </div>
   );
