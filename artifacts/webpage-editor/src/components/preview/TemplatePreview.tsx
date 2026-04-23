@@ -1,14 +1,17 @@
 import { lazy, Suspense } from "react";
 
-const BarbershopPreview = lazy(() => import("./BarbershopPreview"));
-const NailSalonPreview = lazy(() => import("./NailSalonPreview"));
+const BarbershopPreview  = lazy(() => import("./BarbershopPreview"));
+const BarbershopPreview2 = lazy(() => import("./BarbershopPreview2"));
+const NailSalonPreview   = lazy(() => import("./NailSalonPreview"));
+
+export type PreviewType = "barbershop" | "barbershop2" | "nail-salon";
 
 interface Props {
-  businessType: "barbershop" | "nail-salon";
+  previewType: PreviewType;
   themeId: string;
 }
 
-export default function TemplatePreview({ businessType, themeId }: Props) {
+export default function TemplatePreview({ previewType, themeId }: Props) {
   return (
     <Suspense
       fallback={
@@ -17,8 +20,9 @@ export default function TemplatePreview({ businessType, themeId }: Props) {
         </div>
       }
     >
-      {businessType === "barbershop" && <BarbershopPreview themeId={themeId} />}
-      {businessType === "nail-salon" && <NailSalonPreview themeId={themeId} />}
+      {previewType === "barbershop"  && <BarbershopPreview  themeId={themeId} />}
+      {previewType === "barbershop2" && <BarbershopPreview2 themeId={themeId} />}
+      {previewType === "nail-salon"  && <NailSalonPreview   themeId={themeId} />}
     </Suspense>
   );
 }

@@ -5,20 +5,30 @@ import { Button } from "@/components/ui/button";
 import { isLoggedIn } from "@/lib/auth";
 import {
   BARBERSHOP_THEMES,
+  BARBERSHOP2_THEMES,
   NAIL_SALON_THEMES,
   type LaunchsiteTemplate,
 } from "@/lib/launchsiteTemplates";
-import TemplatePreview from "@/components/preview/TemplatePreview";
+import TemplatePreview, { type PreviewType } from "@/components/preview/TemplatePreview";
 
-type FilterId = "all" | "barbershop" | "nail-salon" | "hair-salon" | "haircut-studio";
+type CategoryId = "barbershop" | "nail-salon" | "hair-salon" | "haircut-studio";
+
+interface TemplateDesign {
+  id: string;
+  name: string;
+  description: string;
+  heroImage: string;
+  themes: LaunchsiteTemplate[];
+  previewType: PreviewType;
+}
 
 interface Category {
-  id: FilterId;
+  id: CategoryId;
   label: string;
   emoji: string;
-  themes: LaunchsiteTemplate[];
   available: boolean;
   description: string;
+  designs: TemplateDesign[];
 }
 
 const CATEGORIES: Category[] = [
@@ -26,48 +36,76 @@ const CATEGORIES: Category[] = [
     id: "hair-salon",
     label: "Hair Salon",
     emoji: "✂️",
-    themes: [],
     available: false,
     description: "Elegant sites for hair stylists and salons",
+    designs: [],
   },
   {
     id: "nail-salon",
     label: "Nail Salon",
     emoji: "💅",
-    themes: NAIL_SALON_THEMES,
     available: true,
     description: "Polished, beautiful sites for nail studios",
+    designs: [
+      {
+        id: "nail-salon-v1",
+        name: "Nail Salon",
+        description: "Soft, elegant design for nail studios",
+        heroImage: NAIL_SALON_THEMES[0].heroImage,
+        themes: NAIL_SALON_THEMES,
+        previewType: "nail-salon",
+      },
+    ],
   },
   {
     id: "barbershop",
     label: "Barbershop",
     emoji: "💈",
-    themes: BARBERSHOP_THEMES,
     available: true,
     description: "Bold, sharp sites for barbershops",
+    designs: [
+      {
+        id: "barbershop-v1",
+        name: "Classic Barbershop",
+        description: "Dark, luxury layout with gallery and team section",
+        heroImage: BARBERSHOP_THEMES[0].heroImage,
+        themes: BARBERSHOP_THEMES,
+        previewType: "barbershop",
+      },
+      {
+        id: "barbershop-v2",
+        name: "Modern Barbershop",
+        description: "Clean split-hero layout with reviews and booking CTA",
+        heroImage: BARBERSHOP2_THEMES[0].heroImage,
+        themes: BARBERSHOP2_THEMES,
+        previewType: "barbershop2",
+      },
+    ],
   },
   {
     id: "haircut-studio",
     label: "Haircut Studio",
     emoji: "🪒",
-    themes: [],
     available: false,
     description: "Modern sites for haircut studios",
+    designs: [],
   },
 ];
 
 /* ─── Preview Modal ─────────────────────────────────────────────────────── */
 function PreviewModal({
-  category,
+  design,
+  categoryEmoji,
   onClose,
   onGetStarted,
 }: {
-  category: Category;
+  design: TemplateDesign;
+  categoryEmoji: string;
   onClose: () => void;
   onGetStarted: () => void;
 }) {
-  const [activeThemeId, setActiveThemeId] = useState(category.themes[0]?.id ?? "");
-  const activeTheme = category.themes.find((t) => t.id === activeThemeId) ?? category.themes[0];
+  const [activeThemeId, setActiveThemeId] = useState(design.themes[0]?.id ?? "");
+  const activeTheme = design.themes.find((t) => t.id === activeThemeId) ?? design.themes[0];
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -92,8 +130,8 @@ function PreviewModal({
             <X className="h-4 w-4" />
           </button>
           <div className="flex items-center gap-2">
-            <span className="text-lg">{category.emoji}</span>
-            <span className="text-sm font-bold text-white">{category.label}</span>
+            <span className="text-lg">{categoryEmoji}</span>
+            <span className="text-sm font-bold text-white">{design.name}</span>
             <span className="text-sm text-white/40">—</span>
             <span className="text-sm font-semibold text-white/80">{activeTheme.name}</span>
             <span
@@ -116,7 +154,7 @@ function PreviewModal({
 
         {/* Style pills */}
         <div className="flex flex-wrap gap-1.5 px-4 pb-3">
-          {category.themes.map((t) => {
+          {design.themes.map((t) => {
             const active = t.id === activeThemeId;
             return (
               <button
@@ -139,7 +177,7 @@ function PreviewModal({
       {/* Native preview */}
       <div className="flex-1 overflow-y-auto">
         <TemplatePreview
-          businessType={category.id as "barbershop" | "nail-salon"}
+          previewType={design.previewType}
           themeId={activeThemeId}
         />
       </div>
@@ -147,41 +185,33 @@ function PreviewModal({
   );
 }
 
-/* ─── Category Card ─────────────────────────────────────────────────────── */
-function CategoryCard({
-  category,
+/* ─── Design Card ────────────────────────────────────────────────────────── */
+function DesignCard({
+  design,
+  categoryEmoji,
   onPreview,
   onGetStarted,
 }: {
-  category: Category;
+  design: TemplateDesign;
+  categoryEmoji: string;
   onPreview: () => void;
   onGetStarted: () => void;
 }) {
-  const firstTheme = category.themes[0];
-
   return (
     <div className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
       {/* Thumbnail */}
       <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
-        {firstTheme ? (
-          <img
-            src={firstTheme.heroImage}
-            alt={category.label}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-            style={{ filter: "brightness(0.8)" }}
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center">
-            <span className="text-7xl opacity-10">{category.emoji}</span>
-          </div>
-        )}
+        <img
+          src={design.heroImage}
+          alt={design.name}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          style={{ filter: "brightness(0.8)" }}
+        />
 
         {/* Style count badge */}
-        {category.themes.length > 0 && (
-          <div className="absolute right-3 top-3 rounded-full bg-black/70 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm">
-            {category.themes.length} styles
-          </div>
-        )}
+        <div className="absolute right-3 top-3 rounded-full bg-black/70 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm">
+          {design.themes.length} styles
+        </div>
 
         {/* Hover overlay */}
         <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/30 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
@@ -203,14 +233,10 @@ function CategoryCard({
       {/* Card footer */}
       <div className="p-4">
         <div className="flex items-center gap-2">
-          <span className="text-xl">{category.emoji}</span>
-          <p className="font-extrabold tracking-tight text-slate-900">{category.label}</p>
+          <span className="text-xl">{categoryEmoji}</span>
+          <p className="font-extrabold tracking-tight text-slate-900">{design.name}</p>
         </div>
-        <p className="mt-0.5 text-xs leading-relaxed text-slate-500">
-          {category.themes.length > 0
-            ? `${category.themes.length} styles to choose from`
-            : category.description}
-        </p>
+        <p className="mt-0.5 text-xs leading-relaxed text-slate-500">{design.description}</p>
         <div className="mt-3 flex items-center gap-2">
           <button
             onClick={onPreview}
@@ -255,8 +281,8 @@ function ComingSoonCard({ category }: { category: Category }) {
 export default function TemplatesPage() {
   const [, navigate] = useLocation();
   const loggedIn = isLoggedIn();
-  const [selectedId, setSelectedId] = useState<FilterId | null>(null);
-  const [previewCategory, setPreviewCategory] = useState<Category | null>(null);
+  const [selectedId, setSelectedId] = useState<CategoryId | null>(null);
+  const [previewDesign, setPreviewDesign] = useState<{ design: TemplateDesign; categoryEmoji: string } | null>(null);
 
   const handleGetStarted = () => navigate(loggedIn ? "/onboarding" : "/signup");
   const selectedCategory = CATEGORIES.find((c) => c.id === selectedId) ?? null;
@@ -328,28 +354,34 @@ export default function TemplatesPage() {
           })}
         </div>
 
-        {/* Design area — only shown after selecting a category */}
+        {/* Design cards — only shown after selecting a category */}
         {!selectedCategory && (
-          <p className="text-sm text-slate-400">← Select a category above to see its design.</p>
+          <p className="text-sm text-slate-400">← Select a category above to see its designs.</p>
         )}
 
         {selectedCategory && (
-          <div className="max-w-xs">
-            <CategoryCard
-              category={selectedCategory}
-              onPreview={() => setPreviewCategory(selectedCategory)}
-              onGetStarted={handleGetStarted}
-            />
+          <div className="flex flex-wrap gap-6">
+            {selectedCategory.designs.map((design) => (
+              <div key={design.id} className="w-full max-w-xs">
+                <DesignCard
+                  design={design}
+                  categoryEmoji={selectedCategory.emoji}
+                  onPreview={() => setPreviewDesign({ design, categoryEmoji: selectedCategory.emoji })}
+                  onGetStarted={handleGetStarted}
+                />
+              </div>
+            ))}
           </div>
         )}
       </main>
 
       {/* Preview modal */}
-      {previewCategory && (
+      {previewDesign && (
         <PreviewModal
-          category={previewCategory}
-          onClose={() => setPreviewCategory(null)}
-          onGetStarted={() => { setPreviewCategory(null); handleGetStarted(); }}
+          design={previewDesign.design}
+          categoryEmoji={previewDesign.categoryEmoji}
+          onClose={() => setPreviewDesign(null)}
+          onGetStarted={() => { setPreviewDesign(null); handleGetStarted(); }}
         />
       )}
     </div>

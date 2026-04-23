@@ -101,6 +101,22 @@ export const BARBERSHOP_THEMES: LaunchsiteTemplate[] = [
   { id: "porcelain-ink",     name: "Porcelain & Ink",      description: "Delicate porcelain white with ink black",       businessType: "barbershop", heroImage: PEXELS_MIRROR,  accentColor: "#1a1a1a", bgColor: "#faf8f5",  style: "Art Deco" },
 ];
 
+const PEXELS_BS2_A = "https://images.pexels.com/photos/2269872/pexels-photo-2269872.jpeg?auto=compress&cs=tinysrgb&w=800";
+const PEXELS_BS2_B = "https://images.pexels.com/photos/3998424/pexels-photo-3998424.jpeg?auto=compress&cs=tinysrgb&w=800";
+const PEXELS_BS2_C = "https://images.pexels.com/photos/1484808/pexels-photo-1484808.jpeg?auto=compress&cs=tinysrgb&w=800";
+const PEXELS_BS2_D = "https://images.pexels.com/photos/4812636/pexels-photo-4812636.jpeg?auto=compress&cs=tinysrgb&w=800";
+
+export const BARBERSHOP2_THEMES: LaunchsiteTemplate[] = [
+  { id: "urban-noir",     name: "Urban Noir",      description: "Stark black with electric yellow",   businessType: "barbershop", heroImage: PEXELS_BS2_A, accentColor: "#f5c518", bgColor: "#0f0f0f",  style: "Bold" },
+  { id: "clean-white",   name: "Clean White",      description: "Crisp white with black and red",      businessType: "barbershop", heroImage: PEXELS_BS2_B, accentColor: "#e11d48", bgColor: "#ffffff",  style: "Modern" },
+  { id: "forest-cream",  name: "Forest & Cream",   description: "Deep green with warm cream tones",    businessType: "barbershop", heroImage: PEXELS_BS2_C, accentColor: "#2d5a27", bgColor: "#faf7f2",  style: "Classic" },
+  { id: "copper-noir",   name: "Copper Noir",      description: "Near-black with copper warmth",       businessType: "barbershop", heroImage: PEXELS_BS2_D, accentColor: "#b87333", bgColor: "#12100e",  style: "Luxury" },
+  { id: "sky-sand",      name: "Sky & Sand",       description: "Cool sky blue with sandy neutrals",   businessType: "barbershop", heroImage: PEXELS_BS2_A, accentColor: "#1e6fa8", bgColor: "#f0f4f8",  style: "Contemporary" },
+  { id: "crimson-bone",  name: "Crimson & Bone",   description: "Bold crimson with off-white bone",    businessType: "barbershop", heroImage: PEXELS_BS2_B, accentColor: "#8b0000", bgColor: "#f8f4ee",  style: "Heritage" },
+  { id: "slate-white",   name: "Slate & White",    description: "Sophisticated slate, clean white",    businessType: "barbershop", heroImage: PEXELS_BS2_C, accentColor: "#4a5568", bgColor: "#ffffff",  style: "Minimal" },
+  { id: "midnight-rust", name: "Midnight & Rust",  description: "Midnight blue with rusty orange",     businessType: "barbershop", heroImage: PEXELS_BS2_D, accentColor: "#d4522a", bgColor: "#0d1117",  style: "Industrial" },
+];
+
 export const NAIL_SALON_THEMES: LaunchsiteTemplate[] = [
   { id: "rose-quartz",      name: "Rose Quartz",         description: "Soft blush pink with rose gold accents",      businessType: "nail-salon", heroImage: PEXELS_NAILS_2,   accentColor: "#c8748a", bgColor: "#fdf0f3",  style: "Romantic" },
   { id: "midnight-noir",    name: "Midnight Noir",        description: "Dramatic black with rose gold glamour",       businessType: "nail-salon", heroImage: PEXELS_NAILS_1,   accentColor: "#c9a87c", bgColor: "#0d0d0d",  style: "Luxury" },

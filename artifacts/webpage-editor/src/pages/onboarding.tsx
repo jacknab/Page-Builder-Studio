@@ -189,7 +189,7 @@ function PreviewModal({
       {/* Native preview — no iframe, no separate server needed */}
       <div className="flex-1 overflow-y-auto">
         <TemplatePreview
-          businessType={category.type as "barbershop" | "nail-salon"}
+          previewType={category.type as "barbershop" | "nail-salon"}
           themeId={activeThemeId}
         />
       </div>
