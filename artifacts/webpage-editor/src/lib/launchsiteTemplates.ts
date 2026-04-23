@@ -26,6 +26,11 @@ const PEXELS_DARK    = "https://images.pexels.com/photos/1371360/pexels-photo-13
 const PEXELS_CHAIR   = "https://images.pexels.com/photos/1813272/pexels-photo-1813272.jpeg?auto=compress&cs=tinysrgb&w=800";
 const PEXELS_NAILS_1 = "https://images.pexels.com/photos/3997391/pexels-photo-3997391.jpeg?auto=compress&cs=tinysrgb&w=800";
 const PEXELS_NAILS_2 = "https://images.pexels.com/photos/939836/pexels-photo-939836.jpeg?auto=compress&cs=tinysrgb&w=800";
+const THUMB_NS_EMERALD  = "/thumb-ns-emerald-glam.png";
+const THUMB_NS_NUDE     = "/thumb-ns-nude-studio.png";
+const THUMB_NS_SAGE     = "/thumb-ns-sage-linen.png";
+const THUMB_NS_BLUSH    = "/thumb-ns-blush-luxe.png";
+const THUMB_NS_IVORY    = "/thumb-ns-ivory-gold.png";
 const PEXELS_HAIR_1  = "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=800";
 const PEXELS_CUT_1   = "https://images.pexels.com/photos/1813272/pexels-photo-1813272.jpeg?auto=compress&cs=tinysrgb&w=800";
 
@@ -97,14 +102,14 @@ export const BARBERSHOP_THEMES: LaunchsiteTemplate[] = [
 ];
 
 export const NAIL_SALON_THEMES: LaunchsiteTemplate[] = [
-  { id: "rose-quartz",      name: "Rose Quartz",         description: "Soft blush pink with rose gold accents",      businessType: "nail-salon", heroImage: PEXELS_NAILS_2, accentColor: "#c8748a", bgColor: "#fdf0f3",  style: "Romantic" },
-  { id: "midnight-noir",    name: "Midnight Noir",        description: "Dramatic black with rose gold glamour",       businessType: "nail-salon", heroImage: PEXELS_NAILS_1, accentColor: "#c9a87c", bgColor: "#0d0d0d",  style: "Luxury" },
-  { id: "ivory-gold",       name: "Ivory & Gold",         description: "Pristine ivory with warm gold accents",       businessType: "nail-salon", heroImage: PEXELS_NAILS_2, accentColor: "#b8860b", bgColor: "#fdfaf4",  style: "Classic" },
-  { id: "blush-luxe",       name: "Blush Luxe",           description: "Warm blush with mauve and dusty rose",        businessType: "nail-salon", heroImage: PEXELS_NAILS_1, accentColor: "#a0522d", bgColor: "#f8f0ee",  style: "Romantic" },
-  { id: "emerald-glam",     name: "Emerald Glam",         description: "Deep emerald green with champagne shimmer",   businessType: "nail-salon", heroImage: PEXELS_NAILS_1, accentColor: "#d4b483", bgColor: "#0d1f17",  style: "Luxury" },
-  { id: "nude-studio",      name: "Nude Studio",          description: "Clean neutral nudes with a modern edge",      businessType: "nail-salon", heroImage: PEXELS_NAILS_2, accentColor: "#8a7560", bgColor: "#f5f0eb",  style: "Minimal" },
-  { id: "plum-velvet",      name: "Plum Velvet",          description: "Deep plum luxury with lavender highlights",   businessType: "nail-salon", heroImage: PEXELS_NAILS_1, accentColor: "#c084fc", bgColor: "#1a0d2e",  style: "Luxury" },
-  { id: "champagne-cream",  name: "Champagne & Cream",    description: "Warm champagne bubbles with cream elegance",  businessType: "nail-salon", heroImage: PEXELS_NAILS_2, accentColor: "#c8a870", bgColor: "#faf6ee",  style: "Classic" },
-  { id: "carbon-coral",     name: "Carbon & Coral",       description: "Dark carbon modern with coral pop",           businessType: "nail-salon", heroImage: PEXELS_NAILS_1, accentColor: "#ff6b6b", bgColor: "#1a1a1a",  style: "Modern" },
-  { id: "sage-linen",       name: "Sage & Linen",         description: "Earthy sage green with natural linen warmth", businessType: "nail-salon", heroImage: PEXELS_NAILS_2, accentColor: "#6b7c5a", bgColor: "#f2f0ea",  style: "Botanical" },
+  { id: "rose-quartz",      name: "Rose Quartz",         description: "Soft blush pink with rose gold accents",      businessType: "nail-salon", heroImage: PEXELS_NAILS_2,   accentColor: "#c8748a", bgColor: "#fdf0f3",  style: "Romantic" },
+  { id: "midnight-noir",    name: "Midnight Noir",        description: "Dramatic black with rose gold glamour",       businessType: "nail-salon", heroImage: PEXELS_NAILS_1,   accentColor: "#c9a87c", bgColor: "#0d0d0d",  style: "Luxury" },
+  { id: "ivory-gold",       name: "Ivory & Gold",         description: "Pristine ivory with warm gold accents",       businessType: "nail-salon", heroImage: THUMB_NS_IVORY,   accentColor: "#b8860b", bgColor: "#fdfaf4",  style: "Classic" },
+  { id: "blush-luxe",       name: "Blush Luxe",           description: "Warm blush with mauve and dusty rose",        businessType: "nail-salon", heroImage: THUMB_NS_BLUSH,   accentColor: "#a0522d", bgColor: "#f8f0ee",  style: "Romantic" },
+  { id: "emerald-glam",     name: "Emerald Glam",         description: "Deep emerald green with champagne shimmer",   businessType: "nail-salon", heroImage: THUMB_NS_EMERALD, accentColor: "#d4b483", bgColor: "#0d1f17",  style: "Luxury" },
+  { id: "nude-studio",      name: "Nude Studio",          description: "Clean neutral nudes with a modern edge",      businessType: "nail-salon", heroImage: THUMB_NS_NUDE,    accentColor: "#8a7560", bgColor: "#f5f0eb",  style: "Minimal" },
+  { id: "plum-velvet",      name: "Plum Velvet",          description: "Deep plum luxury with lavender highlights",   businessType: "nail-salon", heroImage: PEXELS_NAILS_1,   accentColor: "#c084fc", bgColor: "#1a0d2e",  style: "Luxury" },
+  { id: "champagne-cream",  name: "Champagne & Cream",    description: "Warm champagne bubbles with cream elegance",  businessType: "nail-salon", heroImage: PEXELS_NAILS_2,   accentColor: "#c8a870", bgColor: "#faf6ee",  style: "Classic" },
+  { id: "carbon-coral",     name: "Carbon & Coral",       description: "Dark carbon modern with coral pop",           businessType: "nail-salon", heroImage: PEXELS_NAILS_1,   accentColor: "#ff6b6b", bgColor: "#1a1a1a",  style: "Modern" },
+  { id: "sage-linen",       name: "Sage & Linen",         description: "Earthy sage green with natural linen warmth", businessType: "nail-salon", heroImage: THUMB_NS_SAGE,    accentColor: "#6b7c5a", bgColor: "#f2f0ea",  style: "Botanical" },
 ];
