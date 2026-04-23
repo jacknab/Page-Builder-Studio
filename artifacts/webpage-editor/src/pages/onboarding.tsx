@@ -93,13 +93,9 @@ function StepIndicator({ step, labels }: { step: number; labels: string[] }) {
 // ─── TEMPLATE URL HELPER ───────────────────────────────────────────────────
 function getTemplateUrl(port: number, themeId: string): string {
   const { hostname, protocol } = window.location;
-  if (hostname === "localhost" || hostname === "127.0.0.1") {
-    return `${protocol}//${hostname}:${port}/?theme=${themeId}`;
-  }
-  // In Replit the main app URL has no port prefix (e.g. "abc.replit.dev").
-  // Port-specific apps are accessed by prepending the port:
-  // "5173-abc.replit.dev", "6000-abc.replit.dev", etc.
-  return `${protocol}//${port}-${hostname}/?theme=${themeId}`;
+  // Works for both localhost and Replit — Replit exposes additional ports
+  // via hostname:port (e.g. https://abc.replit.dev:5173/)
+  return `${protocol}//${hostname}:${port}/?theme=${themeId}`;
 }
 
 const THEMES_BY_TYPE: Record<string, LaunchsiteTemplate[]> = {
