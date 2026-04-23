@@ -1132,9 +1132,10 @@ export default function Dashboard() {
           </button>
           <button
             onClick={() => setPublishOpen(true)}
-            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-blue-700 transition"
+            className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-blue-700 transition"
           >
-            {publishData ? "Published ✓" : "Request Launch"}
+            <Rocket className="h-4 w-4" />
+            Publish
           </button>
         </div>
       </header>
