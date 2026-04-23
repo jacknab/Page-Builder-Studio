@@ -1158,10 +1158,10 @@ export default function Dashboard() {
       </header>
 
       {/* ── Body: preview (left) + editor panel (right) ─────────────────────── */}
-      <div className="flex flex-1 overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
+      <div className="flex flex-1 overflow-hidden">
 
-        {/* Left: template preview — scrolls with the page */}
-        <div className="flex-1">
+        {/* Left: scrollable template preview */}
+        <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
           <div id="launchsite-preview">
             {previewType === "nail-salon" && (() => {
               const theme = getNailTheme(data.templateId);
@@ -1230,17 +1230,17 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Right: editor panel — flows alongside template, natural height */}
-        <div className="z-10 w-[360px] shrink-0 border-l border-slate-200 bg-white shadow-xl">
+        {/* Right: permanent editor panel */}
+        <div className="z-10 flex w-[360px] shrink-0 flex-col border-l border-slate-200 bg-white shadow-xl overflow-hidden">
 
           {/* Panel header */}
-          <div className="border-b border-slate-100 px-5 py-4">
+          <div className="shrink-0 border-b border-slate-100 px-5 py-4">
             <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">Site Editor</p>
             <p className="text-xs text-slate-400 mt-0.5">Changes update live in the preview</p>
           </div>
 
-          {/* Form body — no height constraints, flows naturally */}
-          <div>
+          {/* Scrollable form body */}
+          <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
 
             <div className="border-b border-slate-100 px-5 py-3 bg-slate-50">
               <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Business Info</p>
@@ -1280,7 +1280,7 @@ export default function Dashboard() {
           </div>
 
           {/* Sticky footer */}
-          <div className="border-t border-slate-100 p-4 flex gap-3">
+          <div className="shrink-0 border-t border-slate-100 p-4 flex gap-3">
             <button
               onClick={handleDiscard}
               disabled={!hasUnsaved}
