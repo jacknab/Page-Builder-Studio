@@ -61,65 +61,128 @@ function setMeta(name: string, content: string, attr = "name") {
   el.setAttribute("content", content);
 }
 
-function setLink(rel: string, href: string) {
-  let el = document.querySelector(`link[rel="${rel}"]`) as HTMLLinkElement | null;
-  if (!el) { el = document.createElement("link"); el.setAttribute("rel", rel); document.head.appendChild(el); }
+function setLink(rel: string, href: string, extra?: Record<string, string>) {
+  const sel = extra ? Object.entries(extra).map(([k, v]) => `[${k}="${v}"]`).join("") : "";
+  let el = document.querySelector(`link[rel="${rel}"]${sel}`) as HTMLLinkElement | null;
+  if (!el) {
+    el = document.createElement("link");
+    el.setAttribute("rel", rel);
+    if (extra) Object.entries(extra).forEach(([k, v]) => el!.setAttribute(k, v));
+    document.head.appendChild(el);
+  }
   el.setAttribute("href", href);
 }
 
+function parseAddr(raw: string) {
+  const m = raw.match(/^(.+?),\s*(.+?),\s*([A-Z]{2})\s*(\d{5})?/);
+  return m
+    ? { street: m[1].trim(), city: m[2].trim(), state: m[3], zip: m[4] || "" }
+    : { street: raw, city: "", state: "", zip: "" };
+}
+
 function injectSeo(data: ClientData) {
-  const name        = data.businessName  || "";
+  const name        = data.businessName || "";
   const description = (data.description || data.tagline || `${name} — professional services.`).slice(0, 160);
-  const address     = data.address || "";
-  const cityMatch   = address.match(/,\s*([^,]+),\s*[A-Z]{2}/);
-  const city        = cityMatch ? cityMatch[1].trim() : "";
-  const pageTitle   = city ? `${name} | ${city}` : name;
+  const addr        = parseAddr(data.address || "");
   const canonicalUrl = window.location.origin;
+  const pageTitle   = addr.city ? `${name} | ${addr.city}` : name;
 
-  // Primary
-  document.title = pageTitle;
-  setMeta("description", description);
-  setMeta("robots", "index, follow");
-  setLink("canonical", canonicalUrl);
-
-  // Open Graph
-  setMeta("og:type",        "local.business",  "property");
-  setMeta("og:title",       pageTitle,          "property");
-  setMeta("og:description", description,        "property");
-  setMeta("og:url",         canonicalUrl,       "property");
-  setMeta("og:site_name",   name,               "property");
-  setMeta("og:locale",      "en_US",            "property");
-
-  // Twitter Card
-  setMeta("twitter:card",        "summary");
-  setMeta("twitter:title",       pageTitle);
-  setMeta("twitter:description", description);
-
-  // JSON-LD — remove any previous injection first
-  document.querySelectorAll('script[data-launchsite-ld]').forEach((el) => el.remove());
   const typeMap: Record<string, string> = {
     "nail-salon": "NailSalon", "barbershop": "BarberShop", "hair-salon": "HairSalon",
   };
   const schemaType = typeMap[data.businessType || ""] || "LocalBusiness";
+  const typeName   = schemaType.replace(/([A-Z])/g, " $1").trim();
+
+  const svcKeywords = data.services?.slice(0, 8).map(s => s.name).join(", ") || "";
+  const keywords = [name, addr.city, addr.state, typeName, svcKeywords,
+    `${typeName} near me`, `best ${typeName} ${addr.city}`,
+  ].filter(Boolean).join(", ");
+
+  // Primary
+  document.title = pageTitle;
+  setMeta("description",   description);
+  setMeta("keywords",      keywords);
+  setMeta("author",        name);
+  setMeta("robots",        "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1");
+  setMeta("googlebot",     "index, follow");
+  setMeta("abstract",      description);
+  setMeta("rating",        "5 stars");
+  setMeta("revisit-after", "7 days");
+  setMeta("distribution",  "global");
+  setLink("canonical", canonicalUrl);
+
+  // LLM / AI Search
+  setLink("alternate", `${canonicalUrl}/llms.txt`, { type: "text/plain", title: "LLM Information" });
+  setMeta("ai-content-declaration", "human-created");
+
+  // Geo
+  if (addr.state) setMeta("geo.region",    `US-${addr.state}`);
+  if (addr.city)  setMeta("geo.placename", `${addr.city}${addr.state ? `, ${addr.state}` : ""}`);
+
+  // Dublin Core
+  setMeta("DC.title",       name);
+  setMeta("DC.creator",     name);
+  setMeta("DC.subject",     [typeName, addr.city].filter(Boolean).join(", "));
+  setMeta("DC.description", description);
+  setMeta("DC.publisher",   name);
+  setMeta("DC.type",        "Service");
+  setMeta("DC.format",      "text/html");
+  setMeta("DC.language",    "en");
+  if (addr.city) setMeta("DC.coverage", `${addr.city}${addr.state ? `, ${addr.state}` : ""}, USA`);
+
+  // Business contact
+  if (data.email) { setMeta("contact", data.email); setMeta("reply-to", data.email); }
+
+  // Open Graph
+  const ogType = data.businessType ? "business.business" : "local.business";
+  setMeta("og:type",        ogType,        "property");
+  setMeta("og:title",       pageTitle,     "property");
+  setMeta("og:description", description,   "property");
+  setMeta("og:url",         canonicalUrl,  "property");
+  setMeta("og:site_name",   name,          "property");
+  setMeta("og:locale",      "en_US",       "property");
+
+  // OG Business Contact
+  if (addr.street) setMeta("business:contact_data:street_address", addr.street, "property");
+  if (addr.city)   setMeta("business:contact_data:locality",       addr.city,   "property");
+  if (addr.state)  setMeta("business:contact_data:region",         addr.state,  "property");
+  if (addr.zip)    setMeta("business:contact_data:postal_code",    addr.zip,    "property");
+  setMeta("business:contact_data:country_name", "United States", "property");
+  if (data.phone) setMeta("business:contact_data:phone_number", data.phone, "property");
+  setMeta("business:contact_data:website", canonicalUrl, "property");
+
+  // Twitter
+  setMeta("twitter:card",        "summary_large_image");
+  setMeta("twitter:title",       pageTitle);
+  setMeta("twitter:description", description);
+
+  // JSON-LD
+  document.querySelectorAll('script[data-launchsite-ld]').forEach(el => el.remove());
+  const sameAs = [data.googleUrl, data.instagramUrl, data.facebookUrl, data.tiktokUrl, data.yelpUrl].filter(Boolean);
   const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": schemaType,
     "name": name,
     "description": description,
     "url": canonicalUrl,
-    ...(data.phone   ? { "telephone": data.phone }   : {}),
-    ...(data.email   ? { "email":     data.email }    : {}),
-    ...(address      ? { "address":   { "@type": "PostalAddress", "streetAddress": address } } : {}),
-    ...(data.services?.length ? {
-      "hasOfferCatalog": {
-        "@type": "OfferCatalog",
-        "name": "Services",
-        "itemListElement": data.services.slice(0, 10).map((s, i) => ({
-          "@type": "Offer", "position": i + 1,
-          "itemOffered": { "@type": "Service", "name": s.name },
-        })),
-      },
-    } : {}),
+    ...(data.phone ? { "telephone": data.phone } : {}),
+    ...(data.email ? { "email": data.email }     : {}),
+    ...(data.address ? { "address": {
+      "@type": "PostalAddress",
+      "streetAddress": addr.street,
+      ...(addr.city  ? { "addressLocality": addr.city }  : {}),
+      ...(addr.state ? { "addressRegion":   addr.state } : {}),
+      ...(addr.zip   ? { "postalCode":      addr.zip }   : {}),
+      "addressCountry": "US",
+    }} : {}),
+    ...(data.services?.length ? { "hasOfferCatalog": {
+      "@type": "OfferCatalog", "name": "Services",
+      "itemListElement": data.services.slice(0, 10).map((s, i) => ({
+        "@type": "Offer", "position": i + 1,
+        "itemOffered": { "@type": "Service", "name": s.name },
+      })),
+    }} : {}),
+    ...(sameAs.length ? { "sameAs": sameAs } : {}),
     "priceRange": "$$",
   };
   const ld = document.createElement("script");
