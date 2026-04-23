@@ -8,6 +8,7 @@ import Home from "@/pages/home";
 import Admin from "@/pages/admin";
 import Login from "@/pages/login";
 import Signup from "@/pages/signup";
+import Onboarding from "@/pages/onboarding";
 import ForgotPassword from "@/pages/forgot-password";
 import ResetPassword from "@/pages/reset-password";
 import { isLoggedIn } from "@/lib/auth";
@@ -34,6 +35,7 @@ function Router() {
       <Route path="/" component={Landing} />
       <Route path="/login" component={() => <PublicOnlyRoute component={Login} />} />
       <Route path="/signup" component={() => <PublicOnlyRoute component={Signup} />} />
+      <Route path="/onboarding" component={() => <PrivateRoute component={Onboarding} />} />
       <Route path="/forgot-password" component={ForgotPassword} />
       <Route path="/reset-password" component={ResetPassword} />
       <Route path="/admin" component={() => <PrivateRoute component={Admin} />} />
