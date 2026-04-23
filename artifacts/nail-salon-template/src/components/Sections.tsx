@@ -12,6 +12,7 @@ import {
   ExternalLink,
   CalendarCheck,
   Sparkles,
+  Check,
 } from "lucide-react";
 import BookingWidget from "./BookingWidget";
 
@@ -79,47 +80,92 @@ export function Navbar({ theme, clientData }: Props) {
 export function Hero({ theme, clientData }: Props) {
   const c = theme.colors;
   const hasBooking = !!(clientData.bookingSlug && clientData.bookingDomain);
+
+  const trustItems = [
+    hasBooking ? "Book Online" : "Walk-ins Welcome",
+    clientData.established ? `Est. ${clientData.established}` : "Expert Team",
+    clientData.teamSize ? `${clientData.teamSize} Nail Artists` : "5-Star Service",
+  ];
+
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center overflow-hidden">
+      {/* Background image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${theme.heroImage})` }}
       />
+      {/* Base dark layer — always ensures readability */}
+      <div className="absolute inset-0" style={{ backgroundColor: "rgba(0,0,0,0.52)" }} />
+      {/* Theme colour tint on top */}
       <div className="absolute inset-0" style={{ backgroundColor: c.heroOverlay }} />
-      <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-        {clientData.established && (
+
+      <div className="relative z-10 w-full max-w-5xl mx-auto px-6 sm:px-10 lg:px-16 py-32 md:py-40">
+
+        {/* Location / status badge */}
+        {clientData.address && (
           <div
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-7"
             style={{
-              backgroundColor: c.accentLight,
-              border: `1px solid ${c.accent}`,
+              backgroundColor: "rgba(255,255,255,0.08)",
+              border: "1px solid rgba(255,255,255,0.18)",
             }}
           >
-            <Award size={13} style={{ color: c.accent }} />
             <span
-              className="text-xs font-semibold tracking-widest uppercase"
-              style={{ color: c.accent, fontFamily: theme.fonts.body }}
+              className="h-2 w-2 rounded-full"
+              style={{ backgroundColor: c.accent }}
+            />
+            <span
+              className="text-xs font-semibold text-white/80 tracking-wide"
+              style={{ fontFamily: theme.fonts.body }}
             >
-              Est. {clientData.established}
+              {clientData.address}
             </span>
           </div>
         )}
+
+        {/* Two-tone heading */}
         <h1
-          className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-5 leading-tight"
-          style={{ color: c.text, fontFamily: theme.fonts.heading }}
+          className="mb-6 leading-[1.06] font-bold"
+          style={{ fontFamily: theme.fonts.heading }}
         >
-          {clientData.businessName}
+          <span className="block text-5xl sm:text-6xl md:text-7xl text-white">
+            {clientData.businessName}
+          </span>
+          <span
+            className="block text-5xl sm:text-6xl md:text-7xl"
+            style={{ color: c.accent }}
+          >
+            {clientData.tagline}
+          </span>
         </h1>
+
+        {/* Description */}
         <p
-          className="text-xl md:text-2xl mb-10 max-w-2xl mx-auto italic"
-          style={{ color: c.textSecondary, fontFamily: theme.fonts.heading }}
+          className="text-base md:text-lg mb-8 max-w-xl leading-relaxed"
+          style={{ color: "rgba(255,255,255,0.72)", fontFamily: theme.fonts.body }}
         >
-          {clientData.tagline}
+          {clientData.description}
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+
+        {/* Trust badges */}
+        <div className="flex flex-wrap gap-x-6 gap-y-2 mb-10">
+          {trustItems.map((item) => (
+            <span
+              key={item}
+              className="flex items-center gap-1.5 text-sm font-medium"
+              style={{ color: "rgba(255,255,255,0.80)", fontFamily: theme.fonts.body }}
+            >
+              <Check size={14} style={{ color: c.accent }} />
+              {item}
+            </span>
+          ))}
+        </div>
+
+        {/* CTAs */}
+        <div className="flex flex-col sm:flex-row gap-3">
           <a
             href="#booking"
-            className="px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+            className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full font-bold text-base transition-all hover:scale-105 active:scale-95"
             style={{
               backgroundColor: c.buttonPrimary,
               color: c.badgeText,
@@ -127,15 +173,15 @@ export function Hero({ theme, clientData }: Props) {
             }}
           >
             {hasBooking ? "Book Your Appointment" : "View Services"}
-            <ChevronRight size={20} />
+            <ChevronRight size={18} />
           </a>
           <a
             href="#services"
-            className="px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 flex items-center justify-center gap-2"
+            className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full font-bold text-base transition-all hover:scale-105"
             style={{
-              backgroundColor: c.buttonSecondary,
-              color: c.text,
-              border: `2px solid ${c.border}`,
+              backgroundColor: "rgba(255,255,255,0.10)",
+              color: "#ffffff",
+              border: "1.5px solid rgba(255,255,255,0.30)",
               fontFamily: theme.fonts.body,
             }}
           >
