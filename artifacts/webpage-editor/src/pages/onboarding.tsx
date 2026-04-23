@@ -47,7 +47,7 @@ import {
 } from "lucide-react";
 import TemplatePreview from "@/components/preview/TemplatePreview";
 
-const STEP_LABELS = ["Template", "About", "Services", "Hours", "Check-In", "Locations", "Team", "Gallery", "Links", "Account"];
+const STEP_LABELS = ["About", "Services", "Hours", "Check-In", "Locations", "Team", "Gallery", "Links", "Account"];
 
 function StepIndicator({ step, labels }: { step: number; labels: string[] }) {
   return (
@@ -1258,15 +1258,39 @@ export default function Onboarding() {
   const [accountLoading, setAccountLoading] = useState(false);
 
   const stepLabels = STEP_LABELS;
-  const totalSteps = stepLabels.length; // 10
-  // Fixed step indices
-  const CHECK_IN_STEP  = 5;
-  const LOCATIONS_STEP = 6;
-  const TEAM_STEP      = 7;
-  const GALLERY_STEP   = 8;
-  const LINKS_STEP     = 9;
-  const ACCOUNT_STEP   = 10;
+  const totalSteps = stepLabels.length; // 9
+  // Fixed step indices (Template step is gone — template comes from URL params)
+  const CHECK_IN_STEP  = 4;
+  const LOCATIONS_STEP = 5;
+  const TEAM_STEP      = 6;
+  const GALLERY_STEP   = 7;
+  const LINKS_STEP     = 8;
+  const ACCOUNT_STEP   = 9;
   const accountStep    = ACCOUNT_STEP;
+
+  // Read template + type from URL params on mount; redirect if missing
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const themeId = params.get("theme");
+    const bType   = params.get("type") as BusinessType | null;
+
+    if (!themeId || !bType) {
+      navigate("/templates");
+      return;
+    }
+
+    setTemplateId(themeId);
+    setTemplateSource("launchsite");
+    setBusinessType(bType);
+    if (PRESET_SERVICES[bType]) {
+      setServices(
+        PRESET_SERVICES[bType].map((s) => ({ ...s, id: Math.random().toString(36).slice(2, 9) }))
+      );
+    }
+    if (DEFAULT_DESCRIPTIONS[bType]) {
+      setDescription(DEFAULT_DESCRIPTIONS[bType]);
+    }
+  }, []);
 
   const handleSelectTemplate = (id: string, source: "blocks" | "html" | "launchsite", bType: BusinessType) => {
     setTemplateId(id);
@@ -1302,8 +1326,7 @@ export default function Onboarding() {
 
 
   const canAdvance = () => {
-    if (step === 1) return templateId !== null;
-    if (step === 2) return businessName.trim().length > 0;
+    if (step === 1) return businessName.trim().length > 0;
     if (step === LOCATIONS_STEP) return locations.some((l) => l.address.trim().length > 0);
     if (step === ACCOUNT_STEP) {
       return (
@@ -1406,16 +1429,6 @@ export default function Onboarding() {
 
         <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm md:p-10">
           {step === 1 && (
-            <TemplatePicker
-              selectedId={templateId}
-              onSelect={handleDirectSelect}
-              onPreview={(cat, themeId) => {
-                setPreviewCategory(cat);
-                setPreviewInitialThemeId(themeId);
-              }}
-            />
-          )}
-          {step === 2 && (
             <BusinessInfo
               businessType={businessType}
               name={businessName}
@@ -1432,8 +1445,8 @@ export default function Onboarding() {
               onTeamSizeChange={setTeamSize}
             />
           )}
-          {step === 3 && <ServicesEditor services={services} onChange={setServices} />}
-          {step === 4 && <HoursEditor hours={hours} onChange={setHours} />}
+          {step === 2 && <ServicesEditor services={services} onChange={setServices} />}
+          {step === 3 && <HoursEditor hours={hours} onChange={setHours} />}
           {step === CHECK_IN_STEP && (
             <CheckInStep enabled={includeCheckIn} onToggle={setIncludeCheckIn} />
           )}

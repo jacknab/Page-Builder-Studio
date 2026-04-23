@@ -111,7 +111,7 @@ function PreviewModal({
   design: TemplateDesign;
   categoryEmoji: string;
   onClose: () => void;
-  onGetStarted: () => void;
+  onGetStarted: (themeId: string, businessType: string) => void;
 }) {
   const [activeThemeId, setActiveThemeId] = useState(design.themes[0]?.id ?? "");
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -165,7 +165,7 @@ function PreviewModal({
           <div className="flex-1" />
           <Button
             size="sm"
-            onClick={onGetStarted}
+            onClick={() => onGetStarted(activeThemeId, design.previewType)}
             className="h-8 gap-1.5 rounded-lg bg-blue-600 px-4 text-xs font-bold hover:bg-blue-500"
           >
             Get Started
@@ -313,7 +313,8 @@ export default function TemplatesPage() {
   const [selectedId, setSelectedId] = useState<CategoryId | null>(null);
   const [previewDesign, setPreviewDesign] = useState<{ design: TemplateDesign; categoryEmoji: string } | null>(null);
 
-  const handleGetStarted = () => navigate("/onboarding");
+  const handleGetStarted = (themeId: string, businessType: string) =>
+    navigate(`/onboarding?theme=${encodeURIComponent(themeId)}&type=${encodeURIComponent(businessType)}`);
   const selectedCategory = CATEGORIES.find((c) => c.id === selectedId) ?? null;
 
   return (
@@ -334,13 +335,6 @@ export default function TemplatesPage() {
               className="font-semibold"
             >
               {loggedIn ? "Open studio" : "Sign in"}
-            </Button>
-            <Button
-              onClick={handleGetStarted}
-              className="gap-2 bg-blue-600 font-bold hover:bg-blue-700"
-            >
-              Get started
-              <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
