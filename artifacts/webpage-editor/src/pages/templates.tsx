@@ -6,6 +6,7 @@ import { isLoggedIn } from "@/lib/auth";
 import {
   BARBERSHOP_THEMES,
   BARBERSHOP2_THEMES,
+  BARBERSHOP3_THEMES,
   NAIL_SALON_THEMES,
   type LaunchsiteTemplate,
 } from "@/lib/launchsiteTemplates";
@@ -79,6 +80,14 @@ const CATEGORIES: Category[] = [
         heroImage: BARBERSHOP2_THEMES[0].heroImage,
         themes: BARBERSHOP2_THEMES,
         previewType: "barbershop2",
+      },
+      {
+        id: "barbershop-v3",
+        name: "Walk-In & Check-In",
+        description: "Classic luxury design with a built-in online check-in queue",
+        heroImage: BARBERSHOP3_THEMES[0].heroImage,
+        themes: BARBERSHOP3_THEMES,
+        previewType: "barbershop3",
       },
     ],
   },

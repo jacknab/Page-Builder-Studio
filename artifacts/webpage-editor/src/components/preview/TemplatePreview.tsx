@@ -2,9 +2,10 @@ import { lazy, Suspense } from "react";
 
 const BarbershopPreview  = lazy(() => import("./BarbershopPreview"));
 const BarbershopPreview2 = lazy(() => import("./BarbershopPreview2"));
+const BarbershopPreview3 = lazy(() => import("./BarbershopPreview3"));
 const NailSalonPreview   = lazy(() => import("./NailSalonPreview"));
 
-export type PreviewType = "barbershop" | "barbershop2" | "nail-salon";
+export type PreviewType = "barbershop" | "barbershop2" | "barbershop3" | "nail-salon";
 
 interface Props {
   previewType: PreviewType;
@@ -22,6 +23,7 @@ export default function TemplatePreview({ previewType, themeId }: Props) {
     >
       {previewType === "barbershop"  && <BarbershopPreview  themeId={themeId} />}
       {previewType === "barbershop2" && <BarbershopPreview2 themeId={themeId} />}
+      {previewType === "barbershop3" && <BarbershopPreview3 themeId={themeId} />}
       {previewType === "nail-salon"  && <NailSalonPreview   themeId={themeId} />}
     </Suspense>
   );

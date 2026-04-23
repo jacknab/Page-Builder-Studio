@@ -117,6 +117,17 @@ export const BARBERSHOP2_THEMES: LaunchsiteTemplate[] = [
   { id: "midnight-rust", name: "Midnight & Rust",  description: "Midnight blue with rusty orange",     businessType: "barbershop", heroImage: PEXELS_BS2_D, accentColor: "#d4522a", bgColor: "#0d1117",  style: "Industrial" },
 ];
 
+export const BARBERSHOP3_THEMES: LaunchsiteTemplate[] = [
+  { id: "midnight-gold",    name: "Midnight & Gold",     description: "Dark luxury with gold accents",              businessType: "barbershop", heroImage: PEXELS_BARBER,  accentColor: "#d4a853", bgColor: "#0a0a0a",  style: "Luxury" },
+  { id: "obsidian-copper",  name: "Obsidian & Copper",   description: "Deep black with warm copper highlights",      businessType: "barbershop", heroImage: PEXELS_CHAIR,   accentColor: "#c87533", bgColor: "#0c0c0c",  style: "Industrial" },
+  { id: "walnut-brass",     name: "Walnut & Brass",      description: "Rich walnut wood with brass hardware",        businessType: "barbershop", heroImage: PEXELS_SALON,   accentColor: "#d4a843", bgColor: "#3e2723",  style: "Rustic" },
+  { id: "mahogany-whiskey", name: "Mahogany & Whiskey",  description: "Rich mahogany wood with whiskey amber",       businessType: "barbershop", heroImage: PEXELS_SALON,   accentColor: "#d4880f", bgColor: "#4a1c1c",  style: "Luxury" },
+  { id: "espresso-cream",   name: "Espresso & Cream",    description: "Rich espresso brown with cream",              businessType: "barbershop", heroImage: PEXELS_BARBER,  accentColor: "#f5deb3", bgColor: "#2c1e14",  style: "Rustic" },
+  { id: "graphite-amber",   name: "Graphite & Amber",    description: "Cool graphite with warm amber glow",          businessType: "barbershop", heroImage: PEXELS_DARK,    accentColor: "#f59e0b", bgColor: "#2d3436",  style: "Industrial" },
+  { id: "charcoal-crimson", name: "Charcoal & Crimson",  description: "Dark charcoal with bold red accents",         businessType: "barbershop", heroImage: PEXELS_BARBER,  accentColor: "#dc2626", bgColor: "#1a1a1a",  style: "Bold" },
+  { id: "noir-silver",      name: "Noir & Silver",       description: "Pure black with silver metallic",             businessType: "barbershop", heroImage: PEXELS_DARK,    accentColor: "#c0c0c0", bgColor: "#000000",  style: "Minimal" },
+];
+
 export const NAIL_SALON_THEMES: LaunchsiteTemplate[] = [
   { id: "rose-quartz",      name: "Rose Quartz",         description: "Soft blush pink with rose gold accents",      businessType: "nail-salon", heroImage: PEXELS_NAILS_2,   accentColor: "#c8748a", bgColor: "#fdf0f3",  style: "Romantic" },
   { id: "midnight-noir",    name: "Midnight Noir",        description: "Dramatic black with rose gold glamour",       businessType: "nail-salon", heroImage: PEXELS_NAILS_1,   accentColor: "#c9a87c", bgColor: "#0d0d0d",  style: "Luxury" },
