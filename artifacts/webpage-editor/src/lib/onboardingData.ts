@@ -57,6 +57,8 @@ export interface OnboardingData {
   hours: BusinessHours[];
   locations: LocationItem[];
   includeCheckIn: boolean;
+  includeBooking: boolean;
+  existingBookingUrl: string;
   includeTeam: boolean;
   teamMembers: BarberItem[];
   includeGallery: boolean;

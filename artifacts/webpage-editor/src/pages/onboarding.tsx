@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { signup } from "@/lib/auth";
 import {
@@ -28,13 +28,16 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   ArrowLeft,
   ArrowRight,
+  CalendarCheck,
   Camera,
   Check,
   Clock,
   Facebook,
   Globe2,
   ImageIcon,
+  Info,
   Instagram,
+  Link,
   MapPin,
   Phone,
   Plus,
@@ -58,7 +61,7 @@ async function fetchPresetServices(businessType: BusinessType): Promise<ServiceI
   }
 }
 
-const STEP_LABELS = ["About", "Services", "Hours", "Check-In", "Locations", "Team", "Gallery", "Links", "Account"];
+const STEP_LABELS = ["About", "Services", "Hours", "Check-In", "Booking", "Locations", "Team", "Gallery", "Links", "Account"];
 
 function StepIndicator({ step, labels }: { step: number; labels: string[] }) {
   return (
@@ -876,7 +879,41 @@ function FeatureToggle({
   );
 }
 
-// ─── STEP 5: CHECK-IN QUEUE ──────────────────────────────────────────────────
+// ─── LEARN MORE MODAL ────────────────────────────────────────────────────────
+function LearnMoreModal({
+  open,
+  onClose,
+  title,
+  children,
+}: {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
+}) {
+  const overlayRef = useRef<HTMLDivElement>(null);
+  if (!open) return null;
+  return (
+    <div
+      ref={overlayRef}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm"
+      onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
+    >
+      <div className="relative w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
+        <button
+          onClick={onClose}
+          className="absolute right-5 top-5 flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+        >
+          <X className="h-4 w-4" />
+        </button>
+        <h3 className="text-2xl font-black tracking-tight text-slate-900">{title}</h3>
+        <div className="mt-4">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+// ─── STEP 4: CHECK-IN QUEUE ───────────────────────────────────────────────────
 function CheckInStep({
   enabled,
   onToggle,
@@ -884,8 +921,30 @@ function CheckInStep({
   enabled: boolean;
   onToggle: (v: boolean) => void;
 }) {
+  const [modalOpen, setModalOpen] = useState(false);
   return (
     <div>
+      <LearnMoreModal open={modalOpen} onClose={() => setModalOpen(false)} title="Online Check-In Queue">
+        <p className="text-sm text-slate-500 leading-relaxed">
+          Your customers join a digital queue from their phone — no app download, no waiting in a lobby. Here's what it looks like for them:
+        </p>
+        <ul className="mt-4 space-y-3 text-sm text-slate-700">
+          {[
+            "They tap a link or scan a QR code on your website to join the queue",
+            "They see their live position and estimated wait time in real time",
+            "A progress bar updates automatically as the queue moves",
+            "They get notified when it's almost their turn to head in",
+            "You manage everything from a simple dashboard — call the next client, pause, or close the queue at any time",
+          ].map((item) => (
+            <li key={item} className="flex items-start gap-3">
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-5 text-xs text-slate-400">Included with your LaunchSite plan — no extra setup needed.</p>
+      </LearnMoreModal>
+
       <FeatureToggle
         enabled={enabled}
         onToggle={onToggle}
@@ -895,8 +954,17 @@ function CheckInStep({
         yesLabel="Yes, add a check-in queue"
         noLabel="No, appointments only"
       />
+
+      <button
+        onClick={() => setModalOpen(true)}
+        className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-800 transition"
+      >
+        <Info className="h-4 w-4" />
+        Learn more about the check-in queue
+      </button>
+
       {enabled && (
-        <div className="rounded-2xl border border-blue-100 bg-blue-50 p-6 space-y-3">
+        <div className="mt-6 rounded-2xl border border-blue-100 bg-blue-50 p-6 space-y-3">
           <p className="text-sm font-extrabold text-blue-800">What your customers will see:</p>
           <ul className="space-y-2 text-sm text-blue-700">
             <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />A "Check In Now" button on your homepage</li>
@@ -906,6 +974,95 @@ function CheckInStep({
           <p className="text-xs text-blue-500">No extra setup needed — we handle everything.</p>
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── STEP 5: ONLINE BOOKING ───────────────────────────────────────────────────
+function BookingStep({
+  enabled,
+  onToggle,
+  existingUrl,
+  onExistingUrlChange,
+}: {
+  enabled: boolean;
+  onToggle: (v: boolean) => void;
+  existingUrl: string;
+  onExistingUrlChange: (v: string) => void;
+}) {
+  const [modalOpen, setModalOpen] = useState(false);
+  return (
+    <div>
+      <LearnMoreModal open={modalOpen} onClose={() => setModalOpen(false)} title="Certxa Online Booking">
+        <p className="text-sm text-slate-500 leading-relaxed">
+          Certxa Booking turns your website into a 24/7 appointment machine. Clients book, reschedule, and cancel on their own — no phone tag.
+        </p>
+        <ul className="mt-4 space-y-3 text-sm text-slate-700">
+          {[
+            "Clients book directly from your website, any time of day",
+            "Smart scheduling blocks out unavailable times automatically — no double-bookings",
+            "Automated SMS and email reminders cut no-shows significantly",
+            "Clients can reschedule or cancel themselves without calling you",
+            "You see your full schedule and team calendar in one clean dashboard",
+            "Each service, duration, and staff member is configurable to match exactly how you work",
+          ].map((item) => (
+            <li key={item} className="flex items-start gap-3">
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-5 rounded-xl bg-blue-50 p-4 text-sm text-blue-700">
+          <p className="font-bold">Interested in Certxa Booking?</p>
+          <p className="mt-1 text-blue-600">Our team will reach out after your site goes live to walk you through setup.</p>
+        </div>
+      </LearnMoreModal>
+
+      <FeatureToggle
+        enabled={enabled}
+        onToggle={onToggle}
+        icon={CalendarCheck}
+        title="Online Booking"
+        description="Let clients book appointments directly from your website, 24/7 — powered by Certxa Booking."
+        yesLabel="Yes, add online booking"
+        noLabel="No thanks, skip it"
+      />
+
+      <button
+        onClick={() => setModalOpen(true)}
+        className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-800 transition"
+      >
+        <Info className="h-4 w-4" />
+        Learn more about Certxa Booking
+      </button>
+
+      {enabled && (
+        <div className="mt-6 rounded-2xl border border-blue-100 bg-blue-50 p-6 space-y-3">
+          <p className="text-sm font-extrabold text-blue-800">What clients experience:</p>
+          <ul className="space-y-2 text-sm text-blue-700">
+            <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />A "Book Now" button on your homepage and service listings</li>
+            <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />Real-time availability — they pick a time that works for them</li>
+            <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />Automatic confirmations and reminders via SMS and email</li>
+          </ul>
+          <p className="text-xs text-blue-500">We'll set everything up for you after launch.</p>
+        </div>
+      )}
+
+      <div className="mt-8 border-t border-slate-100 pt-6">
+        <p className="text-sm font-bold text-slate-700">Already using a booking service?</p>
+        <p className="mt-1 text-sm text-slate-500">Paste your booking link below and we'll add a "Book Now" button to your site that points there instead.</p>
+        <div className="mt-3 flex items-center gap-2">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-400">
+            <Link className="h-4 w-4" />
+          </div>
+          <Input
+            placeholder="https://your-booking-link.com"
+            value={existingUrl}
+            onChange={(e) => onExistingUrlChange(e.target.value)}
+            className="h-9 flex-1 border-slate-200 bg-slate-50 text-sm"
+          />
+        </div>
+      </div>
     </div>
   );
 }
@@ -1311,6 +1468,8 @@ export default function Onboarding() {
 
   // Feature sections
   const [includeCheckIn, setIncludeCheckIn] = useState(false);
+  const [includeBooking, setIncludeBooking] = useState(false);
+  const [existingBookingUrl, setExistingBookingUrl] = useState("");
   const [includeTeam, setIncludeTeam] = useState(false);
   const [teamMembers, setTeamMembers] = useState<BarberItem[]>([]);
   const [includeGallery, setIncludeGallery] = useState(false);
@@ -1326,14 +1485,15 @@ export default function Onboarding() {
   const [accountLoading, setAccountLoading] = useState(false);
 
   const stepLabels = STEP_LABELS;
-  const totalSteps = stepLabels.length; // 9
+  const totalSteps = stepLabels.length; // 10
   // Fixed step indices (Template step is gone — template comes from URL params)
   const CHECK_IN_STEP  = 4;
-  const LOCATIONS_STEP = 5;
-  const TEAM_STEP      = 6;
-  const GALLERY_STEP   = 7;
-  const LINKS_STEP     = 8;
-  const ACCOUNT_STEP   = 9;
+  const BOOKING_STEP   = 5;
+  const LOCATIONS_STEP = 6;
+  const TEAM_STEP      = 7;
+  const GALLERY_STEP   = 8;
+  const LINKS_STEP     = 9;
+  const ACCOUNT_STEP   = 10;
   const accountStep    = ACCOUNT_STEP;
 
   // Read template + type from URL params on mount; redirect if missing
@@ -1436,6 +1596,8 @@ export default function Onboarding() {
       hours,
       locations,
       includeCheckIn,
+      includeBooking,
+      existingBookingUrl,
       includeTeam,
       teamMembers,
       includeGallery,
@@ -1512,6 +1674,14 @@ export default function Onboarding() {
           {step === 3 && <HoursEditor hours={hours} onChange={setHours} />}
           {step === CHECK_IN_STEP && (
             <CheckInStep enabled={includeCheckIn} onToggle={setIncludeCheckIn} />
+          )}
+          {step === BOOKING_STEP && (
+            <BookingStep
+              enabled={includeBooking}
+              onToggle={setIncludeBooking}
+              existingUrl={existingBookingUrl}
+              onExistingUrlChange={setExistingBookingUrl}
+            />
           )}
           {step === LOCATIONS_STEP && (
             <LocationsEditor locations={locations} onChange={setLocations} />
