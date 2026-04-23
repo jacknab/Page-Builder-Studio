@@ -1648,10 +1648,6 @@ export default function Onboarding() {
       </header>
 
       <main className="mx-auto max-w-4xl px-6 py-10">
-        <div className="mb-10 flex justify-center">
-          <StepIndicator step={step} labels={stepLabels} />
-        </div>
-
         <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm md:p-10">
           {step === 1 && (
             <BusinessInfo
