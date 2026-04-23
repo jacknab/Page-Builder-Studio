@@ -92,7 +92,7 @@ interface Props {
 
 export default function BookingWidget({ theme, bookingSlug, bookingDomain }: Props) {
   const c = theme.colors;
-  const base = `https://${bookingDomain}`;
+  const base = bookingDomain ? `https://${bookingDomain}` : window.location.origin;
 
   const [step, setStep] = useState<Step>("client");
   const [clientType, setClientType] = useState<"new" | "returning" | null>(null);
