@@ -1099,7 +1099,7 @@ export default function Dashboard() {
 
         <div className="flex items-center gap-3">
           <button
-            onClick={() => navigate("/app?edit")}
+            onClick={() => { window.location.href = "/app?edit"; }}
             className="flex items-center gap-1.5 rounded-xl border border-slate-200 px-3.5 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition"
             title="Advanced editor — add photos, maps, new sections"
           >
