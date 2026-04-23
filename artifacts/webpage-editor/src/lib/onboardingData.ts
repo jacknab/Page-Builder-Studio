@@ -130,6 +130,17 @@ export const EMPTY_SOCIAL: SocialLinks = {
   other: "",
 };
 
+export const DEFAULT_DESCRIPTIONS: Record<BusinessType, string> = {
+  "barbershop":
+    "Welcome to our barbershop. We offer precision cuts and a great experience for every client. Our experienced barbers are dedicated to making you look and feel your best.",
+  "nail-salon":
+    "Welcome to our nail studio, where every detail matters. Our talented nail artists combine artistry and precision to give you flawless, long-lasting nails that you'll love. From classic manicures to intricate nail art, we offer a full range of services in a relaxing, elegant atmosphere.",
+  "hair-salon":
+    "Welcome to our salon. Our experienced stylists are passionate about helping you look and feel your best. Whether you're after a fresh cut, a bold colour, or a complete style transformation, we've got you covered.",
+  "haircut-studio":
+    "Welcome to our haircut studio. We keep it simple — great cuts, fair prices, no appointment needed. Walk in and walk out looking sharp.",
+};
+
 export const ONBOARDING_KEY = "launchsite-onboarding-v1";
 
 export function saveOnboarding(data: OnboardingData): void {

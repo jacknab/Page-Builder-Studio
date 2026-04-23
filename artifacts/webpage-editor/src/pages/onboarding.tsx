@@ -9,6 +9,7 @@ import {
 } from "@/lib/launchsiteTemplates";
 import {
   PRESET_SERVICES,
+  DEFAULT_DESCRIPTIONS,
   DEFAULT_HOURS,
   EMPTY_SOCIAL,
   saveOnboarding,
@@ -685,7 +686,11 @@ export default function Onboarding() {
 
   const handlePreviewSelect = (themeId: string) => {
     if (!previewCategory) return;
-    handleSelectTemplate(themeId, "launchsite", previewCategory.type as BusinessType);
+    const bType = previewCategory.type as BusinessType;
+    handleSelectTemplate(themeId, "launchsite", bType);
+    if (!description.trim()) {
+      setDescription(DEFAULT_DESCRIPTIONS[bType] ?? "");
+    }
     setPreviewCategory(null);
     setStep(2);
   };
