@@ -49,42 +49,9 @@ const BARBERSHOP_TEMPLATES: TemplateCard[] = [
   { id: "porcelain-ink",     name: "Porcelain & Ink",      description: "Delicate porcelain white with ink black",       category: "barbershop", heroImage: PEXELS_MIRROR,  accentColor: "#1a1a1a", bgColor: "#faf8f5",  style: "Art Deco" },
 ];
 
-const NAIL_SALON_TEMPLATES: TemplateCard[] = [
-  {
-    id: "glamour-nails-franchise",
-    name: "Glamour Nails",
-    description: "Bold walk-in nail salon with booking, services, and franchise-style navigation.",
-    category: "nail-salon",
-    heroImage: "https://images.pexels.com/photos/3997379/pexels-photo-3997379.jpeg?auto=compress&cs=tinysrgb&w=800",
-    accentColor: "#d0021b",
-    bgColor: "#ffffff",
-    style: "Bold",
-  },
-  {
-    id: "noir-nails-studio",
-    name: "NOIR Nails Studio",
-    description: "Dark editorial nail studio design with high-contrast gallery and premium booking.",
-    category: "nail-salon",
-    heroImage: "https://images.pexels.com/photos/3997383/pexels-photo-3997383.jpeg?auto=compress&cs=tinysrgb&w=800",
-    accentColor: "#c8f542",
-    bgColor: "#0a0a0a",
-    style: "Dark",
-  },
-  {
-    id: "lumiere-nails-luxury",
-    name: "Lumière Nails",
-    description: "Soft luxury nail studio with elegant typography, services, gallery, and booking.",
-    category: "nail-salon",
-    heroImage: "https://images.pexels.com/photos/939836/pexels-photo-939836.jpeg?auto=compress&cs=tinysrgb&w=800",
-    accentColor: "#C4A26B",
-    bgColor: "#FAF6F1",
-    style: "Luxury",
-  },
-];
-
 const CATEGORIES: { id: Category; label: string; emoji: string; count: number | null }[] = [
   { id: "barbershop",      label: "Barbershop",      emoji: "💈", count: BARBERSHOP_TEMPLATES.length },
-  { id: "nail-salon",      label: "Nail Salon",      emoji: "💅", count: NAIL_SALON_TEMPLATES.length },
+  { id: "nail-salon",      label: "Nail Salon",      emoji: "💅", count: null },
   { id: "hair-salon",      label: "Hair Salon",      emoji: "✂️", count: null },
   { id: "haircut-studio",  label: "Haircut Studio",  emoji: "🪒", count: null },
 ];
@@ -103,14 +70,9 @@ const included = [
 export default function Templates() {
   const [activeCategory, setActiveCategory] = useState<Category>("barbershop");
 
-  const visibleTemplates =
-    activeCategory === "barbershop"
-      ? BARBERSHOP_TEMPLATES
-      : activeCategory === "nail-salon"
-      ? NAIL_SALON_TEMPLATES
-      : [];
+  const visibleTemplates = activeCategory === "barbershop" ? BARBERSHOP_TEMPLATES : [];
 
-  const isComingSoon = activeCategory === "hair-salon" || activeCategory === "haircut-studio";
+  const isComingSoon = activeCategory !== "barbershop";
 
   return (
     <Layout currentPath="/templates">

@@ -1,10 +1,8 @@
-import type { BusinessType } from "./onboardingData";
-
 export interface LaunchsiteTemplate {
   id: string;
   name: string;
   description: string;
-  businessType: BusinessType;
+  businessType: string;
   heroImage: string;
   accentColor: string;
   bgColor: string;
@@ -45,44 +43,3 @@ export const BARBERSHOP_THEMES: LaunchsiteTemplate[] = [
   { id: "porcelain-ink",     name: "Porcelain & Ink",      description: "Delicate porcelain white with ink black",       businessType: "barbershop", heroImage: PEXELS_MIRROR,  accentColor: "#1a1a1a", bgColor: "#faf8f5",  style: "Art Deco" },
 ];
 
-export const NAIL_SALON_THEMES: LaunchsiteTemplate[] = [
-  {
-    id: "glamour-nails-franchise",
-    name: "Glamour Nails",
-    description: "Bold walk-in nail salon with booking, services, and franchise-style navigation.",
-    businessType: "nail-salon",
-    heroImage: "https://images.pexels.com/photos/3997379/pexels-photo-3997379.jpeg?auto=compress&cs=tinysrgb&w=800",
-    accentColor: "#d0021b",
-    bgColor: "#ffffff",
-    style: "Bold",
-  },
-  {
-    id: "noir-nails-studio",
-    name: "NOIR Nails Studio",
-    description: "Dark editorial nail studio design with high-contrast gallery and premium booking.",
-    businessType: "nail-salon",
-    heroImage: "https://images.pexels.com/photos/3997383/pexels-photo-3997383.jpeg?auto=compress&cs=tinysrgb&w=800",
-    accentColor: "#c8f542",
-    bgColor: "#0a0a0a",
-    style: "Dark",
-  },
-  {
-    id: "lumiere-nails-luxury",
-    name: "Lumière Nails",
-    description: "Soft luxury nail studio with elegant typography, services, gallery, and booking.",
-    businessType: "nail-salon",
-    heroImage: "https://images.pexels.com/photos/939836/pexels-photo-939836.jpeg?auto=compress&cs=tinysrgb&w=800",
-    accentColor: "#C4A26B",
-    bgColor: "#FAF6F1",
-    style: "Luxury",
-  },
-];
-
-export const ALL_LAUNCHSITE_TEMPLATES: LaunchsiteTemplate[] = [
-  ...BARBERSHOP_THEMES,
-  ...NAIL_SALON_THEMES,
-];
-
-export function getTemplatesByBusinessType(type: BusinessType): LaunchsiteTemplate[] {
-  return ALL_LAUNCHSITE_TEMPLATES.filter((t) => t.businessType === type);
-}
