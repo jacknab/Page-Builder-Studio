@@ -1230,8 +1230,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Right: sticky editor panel — anchored to viewport as page scrolls */}
-        <div className="sticky top-0 z-10 flex w-[360px] shrink-0 self-start flex-col border-l border-slate-200 bg-white shadow-xl overflow-hidden" style={{ height: "calc(100vh - 57px)" }}>
+        {/* Right: editor panel — flows alongside template, same height */}
+        <div className="z-10 flex w-[360px] shrink-0 flex-col border-l border-slate-200 bg-white shadow-xl">
 
           {/* Panel header */}
           <div className="shrink-0 border-b border-slate-100 px-5 py-4">
