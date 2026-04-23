@@ -3,7 +3,7 @@ import { TEMPLATES } from "@/templates/registry";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-dvh" style={{ background: "#e9e3d8", color: "#111" }}>
+    <div className="min-h-dvh" style={{ background: "linear-gradient(180deg, #f5efe4 0%, #e8e1d5 40%, #dfd8cc 100%)", color: "#111" }}>
 
       {/* ── Nav ────────────────────────────────────────── */}
       <header style={{ borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
@@ -203,7 +203,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Features ───────────────────────────────────── */}
-      <section id="features" style={{ borderTop: "1px solid rgba(0,0,0,0.08)", background: "rgba(255,255,255,0.35)", padding: "96px 0" }}>
+      <section id="features" style={{ borderTop: "1px solid rgba(0,0,0,0.07)", background: "rgba(255,255,255,0.25)", padding: "96px 0" }}>
         <div className="mx-auto max-w-7xl px-8">
           <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#1d4ed8", marginBottom: 12 }}>Why LaunchSite</p>
           <h2 style={{ fontSize: "clamp(36px, 4vw, 52px)", fontWeight: 900, letterSpacing: "-0.03em", lineHeight: 1.05, marginBottom: 56, maxWidth: 560 }}>
@@ -249,7 +249,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Templates ──────────────────────────────────── */}
-      <section id="templates" style={{ borderTop: "1px solid rgba(0,0,0,0.08)", background: "rgba(255,255,255,0.35)", padding: "96px 0" }}>
+      <section id="templates" style={{ borderTop: "1px solid rgba(0,0,0,0.07)", background: "rgba(255,255,255,0.25)", padding: "96px 0" }}>
         <div className="mx-auto max-w-7xl px-8">
           <div className="mb-14 flex flex-wrap items-end justify-between gap-8">
             <div>
