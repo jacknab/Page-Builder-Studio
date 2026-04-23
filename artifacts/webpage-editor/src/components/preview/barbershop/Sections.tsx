@@ -146,14 +146,6 @@ export function Hero({ theme, clientData }: Props) {
         style={{ backgroundImage: `url(${theme.heroImage})` }}
       />
       <div className="absolute inset-0" style={{ backgroundColor: c.heroOverlay }} />
-      {/* Extra gradient scrim — keeps text legible over any photo */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "linear-gradient(to right, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.48) 55%, rgba(0,0,0,0.10) 100%)",
-        }}
-      />
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-10 py-28">
         <div className="max-w-2xl">
@@ -178,7 +170,7 @@ export function Hero({ theme, clientData }: Props) {
           {/* Headline */}
           <h1
             className="text-5xl sm:text-6xl md:text-7xl font-black leading-[1.05] mb-3"
-            style={{ color: c.text, fontFamily: theme.fonts.heading }}
+            style={{ color: "#ffffff", fontFamily: theme.fonts.heading }}
           >
             {clientData.businessName}
           </h1>
@@ -192,7 +184,7 @@ export function Hero({ theme, clientData }: Props) {
           {/* Description */}
           <p
             className="text-base md:text-lg mb-8 max-w-xl leading-relaxed"
-            style={{ color: c.textSecondary, fontFamily: theme.fonts.body, opacity: 0.9 }}
+            style={{ color: "#ffffff", fontFamily: theme.fonts.body }}
           >
             {clientData.description?.slice(0, 160)}
           </p>
@@ -207,7 +199,7 @@ export function Hero({ theme, clientData }: Props) {
               <span
                 key={item}
                 className="flex items-center gap-1.5 text-sm font-semibold"
-                style={{ color: c.textSecondary, fontFamily: theme.fonts.body }}
+                style={{ color: "#ffffff", fontFamily: theme.fonts.body }}
               >
                 <Check size={15} style={{ color: c.accent }} />
                 {item}
@@ -246,7 +238,7 @@ export function Hero({ theme, clientData }: Props) {
           </div>
           <p
             className="mt-4 text-xs"
-            style={{ color: c.textSecondary, fontFamily: theme.fonts.body, opacity: 0.55 }}
+            style={{ color: "#ffffff", fontFamily: theme.fonts.body, opacity: 0.75 }}
           >
             ⚡ Join the queue online – skip the wait
           </p>
