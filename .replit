@@ -32,6 +32,10 @@ args = "Start Launchsite"
 task = "workflow.run"
 args = "Start Nail Salon Template"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start Barbershop Template"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -80,6 +84,18 @@ waitForPort = 5173
 [workflows.workflow.metadata]
 outputType = "console"
 
+[[workflows.workflow]]
+name = "Start Barbershop Template"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm --filter @workspace/barbershop-template run dev --port 6000"
+waitForPort = 6000
+
 [agent]
 stack = "BEST_EFFORT_FALLBACK"
 expertMode = true
@@ -100,6 +116,10 @@ externalPort = 5173
 [[ports]]
 localPort = 5174
 externalPort = 3001
+
+[[ports]]
+localPort = 6000
+externalPort = 6000
 
 [[ports]]
 localPort = 8080

@@ -1,6 +1,12 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useLocation } from "wouter";
-import { BARBERSHOP_THEMES, type LaunchsiteTemplate } from "@/lib/launchsiteTemplates";
+import {
+  BARBERSHOP_THEMES,
+  NAIL_SALON_THEMES,
+  TEMPLATE_CATEGORIES,
+  type LaunchsiteTemplate,
+  type TemplateCategory as TemplateCategoryConfig,
+} from "@/lib/launchsiteTemplates";
 import {
   PRESET_SERVICES,
   DEFAULT_HOURS,
@@ -23,6 +29,7 @@ import {
   Facebook,
   Globe2,
   Instagram,
+  Loader2,
   MapPin,
   Plus,
   Rocket,
@@ -84,136 +91,227 @@ function StepIndicator({ step }: { step: number }) {
   );
 }
 
-// ─── STEP 1: TEMPLATE PICKER ───────────────────────────────────────────────
-type TemplateCategory = "barbershop" | "nail-salon" | "hair-salon" | "haircut-studio";
+// ─── TEMPLATE URL HELPER ───────────────────────────────────────────────────
+function getTemplateUrl(port: number, themeId: string): string {
+  const { hostname, protocol } = window.location;
+  if (hostname === "localhost" || hostname === "127.0.0.1") {
+    return `${protocol}//${hostname}:${port}/?theme=${themeId}`;
+  }
+  const newHost = hostname.replace(/^\d+/, String(port));
+  return `${protocol}//${newHost}/?theme=${themeId}`;
+}
 
-const CATEGORY_LABELS: Record<TemplateCategory, string> = {
-  "barbershop":      "Barbershop",
-  "nail-salon":      "Nail Salon",
-  "hair-salon":      "Hair Salon",
-  "haircut-studio":  "Haircut Studio",
+const THEMES_BY_TYPE: Record<string, LaunchsiteTemplate[]> = {
+  "barbershop": BARBERSHOP_THEMES,
+  "nail-salon": NAIL_SALON_THEMES,
 };
 
-function LaunchsiteTemplateCard({
-  tpl,
-  isSelected,
+// ─── PREVIEW MODAL ─────────────────────────────────────────────────────────
+function PreviewModal({
+  category,
+  onClose,
   onSelect,
 }: {
-  tpl: LaunchsiteTemplate;
-  isSelected: boolean;
-  onSelect: () => void;
+  category: TemplateCategoryConfig;
+  onClose: () => void;
+  onSelect: (themeId: string) => void;
 }) {
+  const themes = THEMES_BY_TYPE[category.type] ?? [];
+  const [activeThemeId, setActiveThemeId] = useState(themes[0]?.id ?? "");
+  const [iframeLoaded, setIframeLoaded] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const iframeSrc = getTemplateUrl(category.port, themes[0]?.id ?? "");
+
+  useEffect(() => {
+    setIframeLoaded(false);
+  }, [category.type]);
+
+  const switchTheme = (themeId: string) => {
+    setActiveThemeId(themeId);
+    iframeRef.current?.contentWindow?.postMessage({ type: "SET_THEME", themeId }, "*");
+  };
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
+  const activeTheme = themes.find((t) => t.id === activeThemeId) ?? themes[0];
+
   return (
-    <button
-      onClick={onSelect}
-      className={`group relative overflow-hidden rounded-2xl border-2 bg-white text-left transition hover:-translate-y-0.5 hover:shadow-lg ${
-        isSelected ? "border-blue-600 shadow-lg shadow-blue-600/10" : "border-slate-200"
-      }`}
-    >
-      {isSelected && (
-        <div className="absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-white shadow">
-          <Check className="h-4 w-4" />
+    <div className="fixed inset-0 z-50 flex flex-col bg-black">
+      {/* Top bar */}
+      <div className="flex h-14 flex-shrink-0 items-center gap-3 border-b border-white/10 bg-[#111] px-4">
+        <button
+          onClick={onClose}
+          className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:bg-white/10 hover:text-white"
+        >
+          <X className="h-4 w-4" />
+        </button>
+
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span className="text-base">{category.emoji}</span>
+          <span className="hidden sm:block text-sm font-bold text-white">{category.label}</span>
+        </div>
+
+        <div className="mx-2 h-4 w-px flex-shrink-0 bg-white/20" />
+
+        {/* Scrollable theme pills */}
+        <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+          {themes.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => switchTheme(t.id)}
+              className="flex-shrink-0 rounded-full px-3 py-1 text-xs font-semibold transition"
+              style={{
+                backgroundColor: activeThemeId === t.id ? t.accentColor : "rgba(255,255,255,0.08)",
+                color: activeThemeId === t.id ? t.bgColor : "#cbd5e1",
+                border: `1px solid ${activeThemeId === t.id ? t.accentColor : "rgba(255,255,255,0.12)"}`,
+              }}
+            >
+              {t.name}
+            </button>
+          ))}
+        </div>
+
+        <button
+          onClick={() => onSelect(activeThemeId)}
+          className="flex-shrink-0 flex items-center gap-1.5 rounded-full bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-lg transition hover:bg-blue-500"
+        >
+          <Check className="h-3.5 w-3.5" />
+          Select
+        </button>
+      </div>
+
+      {/* Active theme label */}
+      {activeTheme && (
+        <div className="flex items-center gap-2 bg-[#111] px-4 pb-2 pt-0.5">
+          <div className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: activeTheme.accentColor }} />
+          <span className="text-xs text-slate-400">{activeTheme.name} — {activeTheme.description}</span>
         </div>
       )}
-      <div className="relative h-40 overflow-hidden bg-slate-100">
-        <img
-          src={tpl.heroImage}
-          alt={tpl.name}
-          className="h-full w-full object-cover"
-          style={{ filter: "brightness(0.82)" }}
+
+      {/* iframe */}
+      <div className="relative flex-1 bg-black">
+        {!iframeLoaded && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+            <p className="text-sm text-slate-400">Loading preview…</p>
+          </div>
+        )}
+        <iframe
+          ref={iframeRef}
+          src={iframeSrc}
+          className="h-full w-full border-none"
+          onLoad={() => setIframeLoaded(true)}
+          title="Template preview"
         />
-        <div
-          className="absolute inset-0 opacity-40"
-          style={{ background: `linear-gradient(135deg, ${tpl.bgColor} 0%, transparent 60%)` }}
-        />
-        <div
-          className="absolute bottom-0 left-0 right-0 h-1"
-          style={{ background: tpl.accentColor }}
-        />
-        <span
-          className="absolute bottom-3 left-3 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest"
-          style={{ background: tpl.accentColor, color: tpl.bgColor }}
-        >
-          {tpl.style}
-        </span>
       </div>
-      <div className="p-4">
-        <p className="font-extrabold tracking-tight">{tpl.name}</p>
-        <p className="mt-1 text-xs text-slate-500 line-clamp-2">{tpl.description}</p>
-      </div>
-    </button>
+    </div>
   );
 }
 
+// ─── STEP 1: TEMPLATE PICKER ───────────────────────────────────────────────
 function TemplatePicker({
   selected,
-  onSelect,
+  onPreview,
 }: {
   selected: { id: string; source: "blocks" | "html" | "launchsite" } | null;
-  onSelect: (id: string, source: "blocks" | "html" | "launchsite", businessType: BusinessType) => void;
+  onPreview: (category: TemplateCategoryConfig) => void;
 }) {
-  const [activeCategory, setActiveCategory] = useState<TemplateCategory>("barbershop");
-
-  const categories: TemplateCategory[] = ["barbershop", "nail-salon", "hair-salon", "haircut-studio"];
-  const hasTemplates: Record<TemplateCategory, boolean> = {
-    "barbershop":     true,
-    "nail-salon":     false,
-    "hair-salon":     false,
-    "haircut-studio": false,
-  };
+  const selectedCategory = selected
+    ? TEMPLATE_CATEGORIES.find((c) => THEMES_BY_TYPE[c.type]?.some((t) => t.id === selected.id))
+    : null;
+  const selectedTheme = selected
+    ? Object.values(THEMES_BY_TYPE).flat().find((t) => t.id === selected.id)
+    : null;
 
   return (
     <div>
       <h2 className="text-3xl font-black tracking-tight">Pick your template</h2>
       <p className="mt-2 text-base text-slate-500">
-        Browse by business type and choose the design that fits your brand.
+        Choose your business type to browse and preview real designs.
       </p>
 
-      {/* Category tabs */}
-      <div className="mt-6 flex flex-wrap gap-2">
-        {categories.map((cat) => (
+      {selected && selectedTheme && (
+        <div className="mt-5 flex items-center gap-3 rounded-2xl border border-blue-200 bg-blue-50 p-4">
+          <div className="h-8 w-8 rounded-full flex-shrink-0" style={{ backgroundColor: selectedTheme.accentColor }} />
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-blue-700">{selectedTheme.name} selected</p>
+            <p className="text-xs text-blue-500">{selectedCategory?.label} — {selectedTheme.description}</p>
+          </div>
           <button
-            key={cat}
-            onClick={() => setActiveCategory(cat)}
-            className={`relative rounded-full px-4 py-2 text-sm font-bold transition ${
-              activeCategory === cat
-                ? "bg-blue-600 text-white shadow-sm"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            onClick={() => {
+              const cat = TEMPLATE_CATEGORIES.find((c) => c.type === selectedCategory?.type);
+              if (cat) onPreview(cat);
+            }}
+            className="ml-auto flex-shrink-0 rounded-full px-3 py-1 text-xs font-bold text-blue-600 hover:bg-blue-100 transition"
+          >
+            Change
+          </button>
+        </div>
+      )}
+
+      <div className="mt-6 grid gap-5 sm:grid-cols-2">
+        {TEMPLATE_CATEGORIES.map((cat) => (
+          <button
+            key={cat.type}
+            disabled={!cat.available}
+            onClick={() => cat.available && onPreview(cat)}
+            className={`group relative overflow-hidden rounded-3xl text-left transition ${
+              cat.available
+                ? "hover:-translate-y-1 hover:shadow-2xl cursor-pointer"
+                : "cursor-not-allowed opacity-60"
+            } ${
+              selectedCategory?.type === cat.type
+                ? "ring-2 ring-blue-600 ring-offset-2"
+                : ""
             }`}
           >
-            {CATEGORY_LABELS[cat]}
-            {!hasTemplates[cat] && (
-              <span className="ml-1.5 rounded-full bg-white/20 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide">
-                Soon
-              </span>
-            )}
+            <div className="relative h-52 bg-slate-100">
+              <img
+                src={cat.heroImage}
+                alt={cat.label}
+                className="h-full w-full object-cover transition group-hover:scale-105"
+                style={{ filter: cat.available ? "brightness(0.75)" : "brightness(0.5) grayscale(0.4)" }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+              {!cat.available && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="rounded-full bg-white/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-white backdrop-blur-sm">
+                    Coming Soon
+                  </span>
+                </div>
+              )}
+
+              {selectedCategory?.type === cat.type && (
+                <div className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg">
+                  <Check className="h-4 w-4" />
+                </div>
+              )}
+
+              <div className="absolute bottom-0 left-0 right-0 p-5">
+                <div className="flex items-end justify-between">
+                  <div>
+                    <p className="text-xl font-black text-white">
+                      {cat.emoji} {cat.label}
+                    </p>
+                    <p className="mt-0.5 text-sm text-white/70">{cat.description}</p>
+                  </div>
+                  {cat.available && (
+                    <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm">
+                      {(THEMES_BY_TYPE[cat.type]?.length ?? 0)} styles
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
           </button>
         ))}
       </div>
-
-      {/* Barbershop templates */}
-      {activeCategory === "barbershop" && (
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {BARBERSHOP_THEMES.map((tpl) => (
-            <LaunchsiteTemplateCard
-              key={tpl.id}
-              tpl={tpl}
-              isSelected={selected?.id === tpl.id && selected?.source === "launchsite"}
-              onSelect={() => onSelect(tpl.id, "launchsite", "barbershop")}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Coming soon categories */}
-      {activeCategory !== "barbershop" && (
-        <div className="mt-6 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 py-20 text-center">
-          <p className="text-2xl font-black tracking-tight text-slate-300">Coming Soon</p>
-          <p className="mt-2 text-sm text-slate-400">
-            {CATEGORY_LABELS[activeCategory]} templates are in the works. Check back soon!
-          </p>
-        </div>
-      )}
     </div>
   );
 }
@@ -569,6 +667,7 @@ export default function Onboarding() {
   const [hours, setHours] = useState<BusinessHours[]>(DEFAULT_HOURS);
   const [googleUrl, setGoogleUrl] = useState("");
   const [social, setSocial] = useState(EMPTY_SOCIAL);
+  const [previewCategory, setPreviewCategory] = useState<TemplateCategoryConfig | null>(null);
 
   const handleSelectTemplate = (id: string, source: "blocks" | "html" | "launchsite", bType: BusinessType) => {
     setTemplateId(id);
@@ -582,6 +681,13 @@ export default function Onboarding() {
         }))
       );
     }
+  };
+
+  const handlePreviewSelect = (themeId: string) => {
+    if (!previewCategory) return;
+    handleSelectTemplate(themeId, "launchsite", previewCategory.type as BusinessType);
+    setPreviewCategory(null);
+    setStep(2);
   };
 
 
@@ -668,7 +774,7 @@ export default function Onboarding() {
           {step === 1 && (
             <TemplatePicker
               selected={templateId ? { id: templateId, source: templateSource } : null}
-              onSelect={handleSelectTemplate}
+              onPreview={setPreviewCategory}
             />
           )}
           {step === 2 && (
@@ -745,6 +851,14 @@ export default function Onboarding() {
           Step {step} of {TOTAL_STEPS} · You can update all of this later from your dashboard.
         </p>
       </main>
+
+      {previewCategory && (
+        <PreviewModal
+          category={previewCategory}
+          onClose={() => setPreviewCategory(null)}
+          onSelect={handlePreviewSelect}
+        />
+      )}
     </div>
   );
 }

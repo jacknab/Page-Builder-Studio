@@ -3,7 +3,8 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "resolveJsonModule": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "lib": ["es2022", "dom", "dom.iterable"]
   },
   "include": ["src", "prerender.mjs"],
   "exclude": ["node_modules", "dist"]

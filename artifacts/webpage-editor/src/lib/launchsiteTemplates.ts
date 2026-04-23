@@ -9,11 +9,64 @@ export interface LaunchsiteTemplate {
   style: string;
 }
 
-const PEXELS_BARBER = "https://images.pexels.com/photos/1805600/pexels-photo-1805600.jpeg?auto=compress&cs=tinysrgb&w=800";
-const PEXELS_SALON = "https://images.pexels.com/photos/3993312/pexels-photo-3993312.jpeg?auto=compress&cs=tinysrgb&w=800";
-const PEXELS_MIRROR = "https://images.pexels.com/photos/3993299/pexels-photo-3993299.jpeg?auto=compress&cs=tinysrgb&w=800";
-const PEXELS_DARK = "https://images.pexels.com/photos/1371360/pexels-photo-1371360.jpeg?auto=compress&cs=tinysrgb&w=800";
-const PEXELS_CHAIR = "https://images.pexels.com/photos/1813272/pexels-photo-1813272.jpeg?auto=compress&cs=tinysrgb&w=800";
+export interface TemplateCategory {
+  type: "barbershop" | "nail-salon" | "hair-salon" | "haircut-studio";
+  label: string;
+  emoji: string;
+  description: string;
+  port: number;
+  heroImage: string;
+  available: boolean;
+}
+
+const PEXELS_BARBER  = "https://images.pexels.com/photos/1805600/pexels-photo-1805600.jpeg?auto=compress&cs=tinysrgb&w=800";
+const PEXELS_SALON   = "https://images.pexels.com/photos/3993312/pexels-photo-3993312.jpeg?auto=compress&cs=tinysrgb&w=800";
+const PEXELS_MIRROR  = "https://images.pexels.com/photos/3993299/pexels-photo-3993299.jpeg?auto=compress&cs=tinysrgb&w=800";
+const PEXELS_DARK    = "https://images.pexels.com/photos/1371360/pexels-photo-1371360.jpeg?auto=compress&cs=tinysrgb&w=800";
+const PEXELS_CHAIR   = "https://images.pexels.com/photos/1813272/pexels-photo-1813272.jpeg?auto=compress&cs=tinysrgb&w=800";
+const PEXELS_NAILS_1 = "https://images.pexels.com/photos/3997391/pexels-photo-3997391.jpeg?auto=compress&cs=tinysrgb&w=800";
+const PEXELS_NAILS_2 = "https://images.pexels.com/photos/939836/pexels-photo-939836.jpeg?auto=compress&cs=tinysrgb&w=800";
+const PEXELS_HAIR_1  = "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=800";
+const PEXELS_CUT_1   = "https://images.pexels.com/photos/1813272/pexels-photo-1813272.jpeg?auto=compress&cs=tinysrgb&w=800";
+
+export const TEMPLATE_CATEGORIES: TemplateCategory[] = [
+  {
+    type: "barbershop",
+    label: "Barbershop",
+    emoji: "💈",
+    description: "Fades, shaves, beard trims & more",
+    port: 6000,
+    heroImage: PEXELS_BARBER,
+    available: true,
+  },
+  {
+    type: "nail-salon",
+    label: "Nail Salon",
+    emoji: "💅",
+    description: "Manicures, pedicures, nail art & more",
+    port: 5173,
+    heroImage: PEXELS_NAILS_2,
+    available: true,
+  },
+  {
+    type: "hair-salon",
+    label: "Hair Salon",
+    emoji: "✂️",
+    description: "Cuts, colour, styling & treatments",
+    port: 5175,
+    heroImage: PEXELS_HAIR_1,
+    available: false,
+  },
+  {
+    type: "haircut-studio",
+    label: "Haircut Studio",
+    emoji: "🪒",
+    description: "Walk-in cuts, quick & affordable",
+    port: 5176,
+    heroImage: PEXELS_CUT_1,
+    available: false,
+  },
+];
 
 export const BARBERSHOP_THEMES: LaunchsiteTemplate[] = [
   { id: "midnight-gold",     name: "Midnight & Gold",      description: "Dark luxury with gold accents",                  businessType: "barbershop", heroImage: PEXELS_BARBER,  accentColor: "#d4a853", bgColor: "#0a0a0a",  style: "Luxury" },
@@ -43,3 +96,15 @@ export const BARBERSHOP_THEMES: LaunchsiteTemplate[] = [
   { id: "porcelain-ink",     name: "Porcelain & Ink",      description: "Delicate porcelain white with ink black",       businessType: "barbershop", heroImage: PEXELS_MIRROR,  accentColor: "#1a1a1a", bgColor: "#faf8f5",  style: "Art Deco" },
 ];
 
+export const NAIL_SALON_THEMES: LaunchsiteTemplate[] = [
+  { id: "rose-quartz",      name: "Rose Quartz",         description: "Soft blush pink with rose gold accents",      businessType: "nail-salon", heroImage: PEXELS_NAILS_2, accentColor: "#c8748a", bgColor: "#fdf0f3",  style: "Romantic" },
+  { id: "midnight-noir",    name: "Midnight Noir",        description: "Dramatic black with rose gold glamour",       businessType: "nail-salon", heroImage: PEXELS_NAILS_1, accentColor: "#c9a87c", bgColor: "#0d0d0d",  style: "Luxury" },
+  { id: "ivory-gold",       name: "Ivory & Gold",         description: "Pristine ivory with warm gold accents",       businessType: "nail-salon", heroImage: PEXELS_NAILS_2, accentColor: "#b8860b", bgColor: "#fdfaf4",  style: "Classic" },
+  { id: "blush-luxe",       name: "Blush Luxe",           description: "Warm blush with mauve and dusty rose",        businessType: "nail-salon", heroImage: PEXELS_NAILS_1, accentColor: "#a0522d", bgColor: "#f8f0ee",  style: "Romantic" },
+  { id: "emerald-glam",     name: "Emerald Glam",         description: "Deep emerald green with champagne shimmer",   businessType: "nail-salon", heroImage: PEXELS_NAILS_1, accentColor: "#d4b483", bgColor: "#0d1f17",  style: "Luxury" },
+  { id: "nude-studio",      name: "Nude Studio",          description: "Clean neutral nudes with a modern edge",      businessType: "nail-salon", heroImage: PEXELS_NAILS_2, accentColor: "#8a7560", bgColor: "#f5f0eb",  style: "Minimal" },
+  { id: "plum-velvet",      name: "Plum Velvet",          description: "Deep plum luxury with lavender highlights",   businessType: "nail-salon", heroImage: PEXELS_NAILS_1, accentColor: "#c084fc", bgColor: "#1a0d2e",  style: "Luxury" },
+  { id: "champagne-cream",  name: "Champagne & Cream",    description: "Warm champagne bubbles with cream elegance",  businessType: "nail-salon", heroImage: PEXELS_NAILS_2, accentColor: "#c8a870", bgColor: "#faf6ee",  style: "Classic" },
+  { id: "carbon-coral",     name: "Carbon & Coral",       description: "Dark carbon modern with coral pop",           businessType: "nail-salon", heroImage: PEXELS_NAILS_1, accentColor: "#ff6b6b", bgColor: "#1a1a1a",  style: "Modern" },
+  { id: "sage-linen",       name: "Sage & Linen",         description: "Earthy sage green with natural linen warmth", businessType: "nail-salon", heroImage: PEXELS_NAILS_2, accentColor: "#6b7c5a", bgColor: "#f2f0ea",  style: "Botanical" },
+];

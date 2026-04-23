@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { getThemeById } from "./lib/themes";
 import { ClientData } from "./lib/types";
 import {
@@ -13,15 +13,22 @@ import {
 import rawClientData from "./client-data.json";
 
 const clientData = rawClientData as ClientData;
-const theme = getThemeById(clientData.themeId);
 
-function applyFonts() {
+function getInitialThemeId(): string {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("theme") || clientData.themeId;
+  } catch {
+    return clientData.themeId;
+  }
+}
+
+function applyFonts(headingFont: string, bodyFont: string) {
   const families = [
-    theme.fonts.heading.split(",")[0].trim().replace(/'/g, ""),
-    theme.fonts.body.split(",")[0].trim().replace(/'/g, ""),
+    headingFont.split(",")[0].trim().replace(/'/g, ""),
+    bodyFont.split(",")[0].trim().replace(/'/g, ""),
   ];
-  const unique = [...new Set(families)];
-  unique.forEach((font) => {
+  [...new Set(families)].forEach((font) => {
     const id = `gfont-${font.replace(/ /g, "-")}`;
     if (document.getElementById(id)) return;
     const link = document.createElement("link");
@@ -33,18 +40,28 @@ function applyFonts() {
 }
 
 export default function App() {
+  const [themeId, setThemeId] = useState(getInitialThemeId);
+  const theme = getThemeById(themeId);
+
   useEffect(() => {
-    applyFonts();
+    applyFonts(theme.fonts.heading, theme.fonts.body);
     document.title = `${clientData.businessName} – ${clientData.tagline}`;
+  }, [theme]);
+
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      if (e.data?.type === "SET_THEME" && typeof e.data.themeId === "string") {
+        setThemeId(e.data.themeId);
+      }
+    };
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
   }, []);
 
   const c = theme.colors;
 
   return (
-    <div
-      className="min-h-screen"
-      style={{ backgroundColor: c.bg, color: c.text }}
-    >
+    <div className="min-h-screen" style={{ backgroundColor: c.bg, color: c.text }}>
       <style>{`
         * { font-family: ${theme.fonts.body}; }
         h1,h2,h3,h4,h5,h6,.font-heading { font-family: ${theme.fonts.heading}; }
