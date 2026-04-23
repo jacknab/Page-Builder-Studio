@@ -1,60 +1,258 @@
-# Workspace
+# Launchsite – Project Setup Document
 
-## Overview
+## What This Is
 
-pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
+**Launchsite** is a done-for-you website launch service for local service businesses — nail salons, hair salons, haircut studios, and barbershops. It is **not** a website builder or drag-and-drop editor. Clients pick a pre-made template, complete a short onboarding questionnaire (business info, services/prices, hours, Google listing, social links), and the service launches a finished website for them.
 
-The primary user-facing app is **Webpage Editor**, a standalone React/Vite web app for selecting pre-made single-page HTML-style templates, editing copy and images, deleting unwanted blocks, previewing desktop/mobile layouts, and downloading generated HTML. It now supports both block-based templates and complete uploaded HTML page templates.
+This repository contains two user-facing products:
 
-The public root route `/` is a marketing homepage for LaunchSite. The authenticated editor/studio experience lives at `/app`, and admin/template management lives at `/admin`.
+1. **Webpage Editor** (`artifacts/webpage-editor`) — The main web app. Handles marketing homepage, signup, onboarding wizard, and the authenticated studio experience.
+2. **Launchsite SSG** (`artifacts/launchsite`) — A separate static marketing site built with Vite + React + TypeScript. Every page is fully pre-rendered to HTML at build time (SSG). No SSR runtime. No backend. No SPA-only rendering.
 
-The marketing homepage includes a public template gallery section. Each template card shows a preview and an "Edit this template" call-to-action that routes visitors to `/signup`.
+---
 
-The admin panel (`/admin`) includes an **AI Generate** tab powered by OpenAI (via Replit AI Integrations). It generates fully-responsive HTML templates for Nail Salon businesses across four styles (Luxury, Modern, Minimal, Bold). Templates are saved in the PostgreSQL `templates` table and are retrievable via the API.
+## Monorepo Structure
 
-## Stack
+```
+/
+├── artifacts/
+│   ├── api-server/          Express 5 backend API
+│   ├── launchsite/          Static marketing site (SSG)
+│   ├── mockup-sandbox/      Vite component preview server (canvas tool)
+│   └── webpage-editor/      Main React/Vite web app
+├── lib/
+│   ├── db/                  Drizzle ORM schema + migrations
+│   ├── api-spec/            OpenAPI spec + Orval codegen
+│   └── integrations/        Replit AI integration (OpenAI)
+├── scripts/
+│   └── post-merge.sh        Runs after task-agent merges
+├── tsconfig.base.json       Shared TypeScript config
+├── pnpm-workspace.yaml      Workspace + catalog deps
+└── replit.md                This file
+```
 
-- **Monorepo tool**: pnpm workspaces
-- **Node.js version**: 24
-- **Package manager**: pnpm
-- **TypeScript version**: 5.9
-- **API framework**: Express 5
-- **Database**: PostgreSQL + Drizzle ORM
-- **Validation**: Zod (`zod/v4`), `drizzle-zod`
-- **API codegen**: Orval (from OpenAPI spec)
-- **Build**: esbuild (CJS bundle)
-- **Frontend app**: React + Vite (`artifacts/webpage-editor`)
-- **Marketing site**: `artifacts/launchsite` — Vite + React + TypeScript static site with SSG (see below)
-- **Template sources**: built-in block templates, custom HTML templates, and AI-generated templates (PostgreSQL `templates` table)
-- **AI Integration**: OpenAI via Replit AI Integrations (`@workspace/integrations-openai-ai-server`)
+---
 
-## Launchsite SSG Package (`artifacts/launchsite`)
+## Tech Stack
 
-Standalone Vite + React + TypeScript marketing site for the Launchsite service. Uses static pre-rendering (SSG) — every route outputs a full HTML file at build time. No SSR runtime, no backend, no SPA-only rendering.
+| Concern | Technology |
+|---|---|
+| Monorepo | pnpm workspaces |
+| Node.js | 24 |
+| TypeScript | 5.9 |
+| Frontend framework | React 19 + Vite 7 |
+| Styling | Tailwind CSS v4 + `@tailwindcss/vite` |
+| Icons | lucide-react |
+| Backend framework | Express 5 |
+| Database | PostgreSQL + Drizzle ORM |
+| Validation | Zod (v4), drizzle-zod |
+| API codegen | Orval (from OpenAPI spec) |
+| AI | OpenAI via Replit AI Integrations |
 
-**Routes:** `/` (Home), `/how-it-works`, `/templates`
+---
 
-**Build pipeline (3 steps):**
-1. `vite build` → `dist/client/` (client bundle + CSS)
-2. `vite build --ssr src/entry-server.tsx` → `dist/server/entry-server.js`
-3. `node prerender.mjs` → injects `renderToString` output into each route's `index.html`
+## Ports & Workflows
 
-**Key files:**
-- `src/entry-client.tsx` — hydrates with `hydrateRoot` (or `createRoot` in dev)
-- `src/entry-server.tsx` — exports `render(url)` using `renderToString`
-- `prerender.mjs` — generates `dist/client/`, `dist/client/how-it-works/`, `dist/client/templates/` with full HTML
-- `vite.config.ts` — uses `isSsrBuild` to set `outDir` (client vs server)
+| Workflow | Command | Port | External |
+|---|---|---|---|
+| Start application | `webpage-editor` dev | 23795 | 80 |
+| Start Backend | `api-server` dev | 8080 | 8080 |
+| Start Launchsite | `launchsite` dev | 3000 | 3000 |
+| mockup-sandbox | `mockup-sandbox` dev | 8081 | 8081 |
 
-**Dev server:** `pnpm --filter @workspace/launchsite run dev` (port 3000)
-**Build:** `pnpm --filter @workspace/launchsite run build`
+---
+
+## Package 1: Webpage Editor (`artifacts/webpage-editor`)
+
+The main web app. Built with React 19 + Vite 7 + Tailwind CSS v4.
+
+### Routes
+
+| Path | Description |
+|---|---|
+| `/` | Marketing homepage — positions Launchsite as a service |
+| `/signup` | Account creation — redirects to `/onboarding` |
+| `/onboarding` | 6-step onboarding wizard |
+| `/app` | Authenticated studio / editor experience |
+| `/admin` | Admin panel + AI template generation |
+
+### Marketing Homepage (`/`)
+
+- Repositions Launchsite as a launch service, not a builder
+- Comparison strip: what we are vs. website builders
+- 3-step process overview
+- Onboarding preview mock
+- CTA: "Launch my site"
+
+### Onboarding Wizard (`/onboarding`)
+
+6 steps, implemented in `src/pages/onboarding.tsx`. State is persisted to `localStorage` between steps via helpers in `src/lib/onboardingData.ts`.
+
+| Step | Screen | Data collected |
+|---|---|---|
+| 1 | Template picker | Selected template |
+| 2 | Business type | Nail Salon / Hair Salon / Haircut Studio / Barbershop |
+| 3 | Business info | Name, tagline, description |
+| 4 | Services & prices | Pre-populated per business type; price is free text |
+| 5 | Hours | Open/close times per day, toggle open/closed |
+| 6 | Google & social | Google listing URL, Instagram, Facebook, TikTok, Yelp |
+
+**Preset services** (in `src/lib/onboardingData.ts`): each business type gets a default service list. Price field accepts `"$45"`, `"$30–$50"`, `"Call for details"`, or blank (hidden on site).
+
+### Admin Panel (`/admin`)
+
+Includes an **AI Generate** tab powered by OpenAI (via Replit AI Integrations). Generates fully-responsive HTML templates for four business styles (Luxury, Modern, Minimal, Bold). Templates are stored in the PostgreSQL `templates` table.
+
+### Key Files
+
+```
+artifacts/webpage-editor/src/
+├── App.tsx                  Route definitions
+├── pages/
+│   ├── landing.tsx          Marketing homepage
+│   ├── onboarding.tsx       6-step onboarding wizard
+│   └── home.tsx             Authenticated studio/editor
+└── lib/
+    └── onboardingData.ts    PRESET_SERVICES, DEFAULT_HOURS, types, localStorage helpers
+```
+
+---
+
+## Package 2: Launchsite SSG (`artifacts/launchsite`)
+
+A separate static marketing site. Every route outputs a complete HTML file at build time. No SSR runtime. No backend. No client-only rendering for page content.
+
+### Routes & Pages
+
+| Route | Page | Title |
+|---|---|---|
+| `/` | Home | "Your business website, done for you" |
+| `/how-it-works` | How It Works | Step-by-step guide + FAQ |
+| `/templates` | Templates | Grid of 8 template cards across 4 business types |
+
+### SSG Build Pipeline
+
+```
+pnpm run build
+```
+
+Three sequential steps:
+
+**Step 1 — Client bundle:**
+```
+vite build  →  dist/client/assets/  (JS + CSS)
+              dist/client/index.html (template with <!--ssr-outlet-->)
+```
+
+**Step 2 — SSR bundle:**
+```
+vite build --ssr src/entry-server.tsx  →  dist/server/entry-server.js
+```
+`isSsrBuild` in `vite.config.ts` switches `outDir` to `dist/server` automatically.
+
+**Step 3 — Prerender:**
+```
+node prerender.mjs
+```
+- Imports `render(url)` from `dist/server/entry-server.js`
+- Calls `renderToString(<App url={url} />)` for each route
+- Replaces `<!--ssr-outlet-->` with the rendered HTML string
+- Replaces `<title>` and `<!--meta-description-->` with per-route values
+- Writes output:
+  - `dist/client/index.html` — Home page
+  - `dist/client/how-it-works/index.html` — How It Works
+  - `dist/client/templates/index.html` — Templates
+
+Each output file is 19–35 KB of fully populated HTML with no placeholder content.
+
+### Key Files
+
+```
+artifacts/launchsite/
+├── index.html               Template with <!--ssr-outlet--> and <!--meta-description-->
+├── vite.config.ts           isSsrBuild → switches outDir (client vs server)
+├── prerender.mjs            Generates all static HTML files
+└── src/
+    ├── entry-client.tsx     hydrateRoot (prod) or createRoot (dev, empty root)
+    ├── entry-server.tsx     Exports render(url) using renderToString
+    ├── App.tsx              URL-based router: reads url prop (SSR) or window.location.pathname (client)
+    ├── index.css            @import "tailwindcss" — only loaded by entry-client
+    ├── components/
+    │   └── Layout.tsx       Sticky nav + footer, <a href> links (no JS router)
+    └── pages/
+        ├── Home.tsx         Hero, comparison strip, 3-step overview, business types, CTA
+        ├── HowItWorks.tsx   6-section onboarding breakdown + FAQ
+        └── Templates.tsx    8 template cards (2 per business type) + features list
+```
+
+### Routing Approach
+
+- **Dev:** Vite SPA mode — all routes serve `index.html`; `App.tsx` reads `window.location.pathname`
+- **Production:** Each route is its own `index.html` file; standard `<a href>` navigation causes full page loads
+- No `react-router-dom` dependency — URL matching is done directly in `App.tsx`
+
+### CSS in SSR
+
+`index.css` is only imported in `entry-client.tsx`. The SSR bundle (`entry-server.tsx`) has no CSS imports, keeping the server build clean. Tailwind v4 scans all `.tsx` template files during the client build.
+
+### Client Hydration Strategy
+
+```tsx
+// entry-client.tsx
+if (root.hasChildNodes()) {
+  hydrateRoot(root, <App url={window.location.pathname} />);
+} else {
+  createRoot(root).render(<App url={window.location.pathname} />);
+}
+```
+
+- `hasChildNodes()` — pre-rendered HTML is present → `hydrateRoot` (production)
+- Empty root → `createRoot` (dev server, no SSR content)
+
+---
 
 ## Key Commands
 
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- `pnpm --filter @workspace/api-server run dev` — run API server locally
-- `pnpm --filter @workspace/webpage-editor run dev` — run the Webpage Editor frontend
+```bash
+# Install all workspace dependencies
+pnpm install
 
-See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.
+# Run type checking across all packages
+pnpm run typecheck
+
+# Build all packages
+pnpm run build
+
+# --- Webpage Editor ---
+pnpm --filter @workspace/webpage-editor run dev       # dev server (port 23795)
+
+# --- API Server ---
+pnpm --filter @workspace/api-server run dev           # dev server (port 8080)
+
+# --- Database ---
+pnpm --filter @workspace/db run push                  # push schema changes (dev only)
+
+# --- Launchsite SSG ---
+pnpm --filter @workspace/launchsite run dev           # dev server (port 3000)
+pnpm --filter @workspace/launchsite run build         # full SSG build → dist/client/
+
+# --- API Codegen ---
+pnpm --filter @workspace/api-spec run codegen         # regenerate API hooks + Zod schemas
+```
+
+---
+
+## Environment & Secrets
+
+- `AI_INTEGRATIONS_OPENAI_BASE_URL` — provided by Replit AI Integrations
+- `AI_INTEGRATIONS_OPENAI_API_KEY` — provided by Replit AI Integrations
+- `JWT_SECRET` — set in `[userenv.shared]` in `.replit`
+- `DATABASE_URL` — provisioned by Replit PostgreSQL
+
+OpenAI model in use: `gpt-5.4` (non-coding tasks).
+
+---
+
+## Positioning Note
+
+Launchsite is a **service**, not a tool. Never describe it as a website builder, drag-and-drop editor, or DIY platform. The entire user experience (copy, CTAs, onboarding flow, marketing site) reflects this: the client answers questions, we build and launch the site.
