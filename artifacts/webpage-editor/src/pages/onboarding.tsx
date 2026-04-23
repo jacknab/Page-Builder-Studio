@@ -9,7 +9,6 @@ import {
   type TemplateCategory as TemplateCategoryConfig,
 } from "@/lib/launchsiteTemplates";
 import {
-  PRESET_SERVICES,
   DEFAULT_DESCRIPTIONS,
   DEFAULT_HOURS,
   EMPTY_SOCIAL,
@@ -21,6 +20,7 @@ import {
   type BusinessHours,
   type OnboardingData,
 } from "@/lib/onboardingData";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,6 +46,17 @@ import {
   X,
 } from "lucide-react";
 import TemplatePreview from "@/components/preview/TemplatePreview";
+
+async function fetchPresetServices(businessType: BusinessType): Promise<ServiceItem[]> {
+  try {
+    const res = await fetch(`/api/services/presets?businessType=${encodeURIComponent(businessType)}`);
+    if (!res.ok) throw new Error("Failed to fetch preset services");
+    const data = await res.json() as { services: ServiceItem[] };
+    return data.services;
+  } catch {
+    return [];
+  }
+}
 
 const STEP_LABELS = ["About", "Services", "Hours", "Check-In", "Locations", "Team", "Gallery", "Links", "Account"];
 
@@ -1282,14 +1293,12 @@ export default function Onboarding() {
     setTemplateId(themeId);
     setTemplateSource("launchsite");
     setBusinessType(bType);
-    if (PRESET_SERVICES[bType]) {
-      setServices(
-        PRESET_SERVICES[bType].map((s) => ({ ...s, id: Math.random().toString(36).slice(2, 9) }))
-      );
-    }
     if (DEFAULT_DESCRIPTIONS[bType]) {
       setDescription(DEFAULT_DESCRIPTIONS[bType]);
     }
+    fetchPresetServices(bType).then((presets) => {
+      if (presets.length > 0) setServices(presets);
+    });
   }, []);
 
   const handleSelectTemplate = (id: string, source: "blocks" | "html" | "launchsite", bType: BusinessType) => {
@@ -1297,12 +1306,9 @@ export default function Onboarding() {
     setTemplateSource(source);
     if (bType && bType !== businessType) {
       setBusinessType(bType);
-      setServices(
-        PRESET_SERVICES[bType].map((s) => ({
-          ...s,
-          id: Math.random().toString(36).slice(2, 9),
-        }))
-      );
+      fetchPresetServices(bType).then((presets) => {
+        if (presets.length > 0) setServices(presets);
+      });
     }
   };
 
