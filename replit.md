@@ -253,7 +253,102 @@ For client custom domains: client adds an `A` record pointing their domain to th
 
 ---
 
-## Package 3: Site Router (`artifacts/site-router`)
+## Package 3: Barbershop Template (`artifacts/barbershop-template`)
+
+A statically pre-rendered website template for barbershop clients. Implements all 25 bolt.new themes (color palettes + Google Fonts), adapted to be driven by a `client-data.json` file instead of hardcoded business data.
+
+### Architecture
+
+The template is a single-page site with 7 sections: Navbar, Hero, Services, About, Hours, Contact, Footer. All 25 themes share the exact same section components — visual differences are 100% CSS (colors + fonts via inline `style` props).
+
+**Data source:** `src/client-data.json` — written by the launch script at build time from the `client_sites` DB row.
+
+```json
+{
+  "themeId": "midnight-gold",
+  "businessName": "King's Cuts",
+  "tagline": "Sharp Cuts, Sharp Style",
+  "description": "...",
+  "phone": "(555) 123-4567",
+  "email": "...",
+  "address": "...",
+  "established": 2018,
+  "services": [
+    { "name": "Classic Haircut", "price": "$25", "category": "Haircut" }
+  ],
+  "hours": {
+    "monday": "9:00 AM – 7:00 PM",
+    ...
+    "sunday": "Closed"
+  },
+  "googleUrl": "...",
+  "instagramUrl": "...",
+  "facebookUrl": "..."
+}
+```
+
+### Build Pipeline (same SSG pattern as launchsite)
+
+```bash
+pnpm --filter @workspace/barbershop-template run build
+```
+
+1. `vite build` → `dist/client/` (JS + CSS assets, blank index.html)
+2. `vite build --ssr` → `dist/server/entry-server.js`
+3. `node prerender.mjs` → fills `dist/client/index.html` with SSR HTML, correct `<title>` and meta description
+
+Output: one complete `dist/client/index.html` file ready to be copied to `/var/www/clients/{id}/`.
+
+### Launch Script Flow (to be built)
+
+For each new client launch:
+1. Fetch client row from `client_sites` DB
+2. Write `artifacts/barbershop-template/src/client-data.json`
+3. Run `pnpm --filter @workspace/barbershop-template run build`
+4. Copy `dist/client/` → `/var/www/clients/{clientId}/`
+5. Update `client_sites.status = 'live'`
+
+### Themes (25 total)
+
+| Style | Themes |
+|---|---|
+| luxury | Midnight & Gold, Mahogany & Whiskey |
+| classic | Cream & Heritage, Ivory & Emerald |
+| modern | Slate & Steel, Midnight & Sapphire |
+| industrial | Obsidian & Copper, Graphite & Amber, Thunder & Platinum |
+| bold | Charcoal & Crimson, Volcanic & Ember |
+| minimal | Noir & Silver, Linen & Charcoal |
+| rustic | Walnut & Brass, Espresso & Cream, Sage & Terracotta |
+| scandinavian | Frost & Navy, Arctic & Fjord |
+| tropical | Sand & Turquoise, Desert & Sunset |
+| art-deco | Pearl & Rosewood, Porcelain & Ink |
+| contemporary | Onyx & Teal, Concrete & Moss |
+| retro | Neon & Carbon |
+
+### Key Files
+
+```
+artifacts/barbershop-template/
+├── package.json
+├── vite.config.ts
+├── index.html                ← contains <!--ssr-outlet--> <!--page-title--> <!--meta-description-->
+├── prerender.mjs             ← SSG step: reads client-data.json, writes final HTML
+└── src/
+    ├── entry-client.tsx      ← hydrateRoot
+    ├── entry-server.tsx      ← exports render() for SSG
+    ├── App.tsx               ← reads client-data.json, picks theme, renders all sections
+    ├── client-data.json      ← PLACEHOLDER (overwritten by launch script at build time)
+    ├── index.css             ← @import "tailwindcss"
+    ├── lib/
+    │   ├── themes.ts         ← all 25 Theme objects + getThemeById()
+    │   └── types.ts          ← ClientData + Service + Hours interfaces
+    └── components/
+        └── Sections.tsx      ← Navbar, Hero, Services, About, Hours, Contact, Footer
+```
+
+---
+
+## Package 4: Site Router (`artifacts/site-router`)
 
 A lightweight Express server (port 3002) that receives all client-site traffic and serves the correct static HTML files.
 
@@ -324,6 +419,10 @@ pnpm --filter @workspace/db run push                  # push schema changes (dev
 # --- Launchsite SSG ---
 pnpm --filter @workspace/launchsite run dev           # dev server (port 3000)
 pnpm --filter @workspace/launchsite run build         # full SSG build → dist/client/
+
+# --- Barbershop Template ---
+pnpm --filter @workspace/barbershop-template run dev   # dev server (port 5174)
+pnpm --filter @workspace/barbershop-template run build # full SSG build → dist/client/index.html
 
 # --- API Codegen ---
 pnpm --filter @workspace/api-spec run codegen         # regenerate API hooks + Zod schemas

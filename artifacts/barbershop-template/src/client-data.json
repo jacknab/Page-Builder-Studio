@@ -1,0 +1,34 @@
+{
+  "themeId": "midnight-gold",
+  "businessName": "Sample Barbershop",
+  "tagline": "Sharp Cuts, Sharp Style",
+  "description": "Welcome to our barbershop. We offer precision cuts and a great experience for every client. Our experienced barbers are dedicated to making you look and feel your best.",
+  "phone": "(555) 123-4567",
+  "email": "info@samplebarbershop.com",
+  "address": "123 Main Street, Anytown USA",
+  "established": 2018,
+  "services": [
+    { "name": "Classic Haircut", "price": "$25", "category": "Haircut" },
+    { "name": "Fade", "price": "$30", "category": "Haircut" },
+    { "name": "Buzz Cut", "price": "$20", "category": "Haircut" },
+    { "name": "Kids Haircut", "price": "$18", "category": "Haircut" },
+    { "name": "Beard Trim", "price": "$15", "category": "Beard" },
+    { "name": "Beard Line-Up", "price": "$12", "category": "Beard" },
+    { "name": "Hot Towel Shave", "price": "$30", "category": "Shave" },
+    { "name": "Haircut & Beard", "price": "$35", "category": "Combo" }
+  ],
+  "hours": {
+    "monday": "9:00 AM – 7:00 PM",
+    "tuesday": "9:00 AM – 7:00 PM",
+    "wednesday": "9:00 AM – 7:00 PM",
+    "thursday": "9:00 AM – 7:00 PM",
+    "friday": "9:00 AM – 7:00 PM",
+    "saturday": "8:00 AM – 6:00 PM",
+    "sunday": "Closed"
+  },
+  "googleUrl": "",
+  "instagramUrl": "",
+  "facebookUrl": "",
+  "tiktokUrl": "",
+  "yelpUrl": ""
+}
