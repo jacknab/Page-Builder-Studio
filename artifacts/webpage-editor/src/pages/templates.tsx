@@ -16,37 +16,66 @@ interface Category {
   id: FilterId;
   label: string;
   emoji: string;
-  port: number;
   themes: LaunchsiteTemplate[];
   available: boolean;
+  description: string;
 }
 
 const CATEGORIES: Category[] = [
-  { id: "hair-salon",     label: "Hair Salon",      emoji: "✂️", port: 5175, themes: [],                available: false },
-  { id: "nail-salon",     label: "Nail Salon",      emoji: "💅", port: 5173, themes: NAIL_SALON_THEMES, available: true },
-  { id: "barbershop",     label: "Barbershop",      emoji: "💈", port: 6000, themes: BARBERSHOP_THEMES, available: true },
-  { id: "haircut-studio", label: "Haircut Studio",  emoji: "🪒", port: 5176, themes: [],                available: false },
+  {
+    id: "hair-salon",
+    label: "Hair Salon",
+    emoji: "✂️",
+    themes: [],
+    available: false,
+    description: "Elegant sites for hair stylists and salons",
+  },
+  {
+    id: "nail-salon",
+    label: "Nail Salon",
+    emoji: "💅",
+    themes: NAIL_SALON_THEMES,
+    available: true,
+    description: "Polished, beautiful sites for nail studios",
+  },
+  {
+    id: "barbershop",
+    label: "Barbershop",
+    emoji: "💈",
+    themes: BARBERSHOP_THEMES,
+    available: true,
+    description: "Bold, sharp sites for barbershops",
+  },
+  {
+    id: "haircut-studio",
+    label: "Haircut Studio",
+    emoji: "🪒",
+    themes: [],
+    available: false,
+    description: "Modern sites for haircut studios",
+  },
 ];
 
+/* ─── Preview Modal ─────────────────────────────────────────────────────── */
 function PreviewModal({
-  template,
   category,
   onClose,
   onGetStarted,
 }: {
-  template: LaunchsiteTemplate;
   category: Category;
   onClose: () => void;
   onGetStarted: () => void;
 }) {
-  const [activeThemeId, setActiveThemeId] = useState(template.id);
-  const activeTheme = category.themes.find((t) => t.id === activeThemeId) ?? template;
+  const [activeThemeId, setActiveThemeId] = useState(category.themes[0]?.id ?? "");
+  const activeTheme = category.themes.find((t) => t.id === activeThemeId) ?? category.themes[0];
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [onClose]);
+
+  if (!activeTheme) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#0a0a0a" }}>
@@ -64,7 +93,9 @@ function PreviewModal({
           </button>
           <div className="flex items-center gap-2">
             <span className="text-lg">{category.emoji}</span>
-            <span className="text-sm font-bold text-white">{activeTheme.name}</span>
+            <span className="text-sm font-bold text-white">{category.label}</span>
+            <span className="text-sm text-white/40">—</span>
+            <span className="text-sm font-semibold text-white/80">{activeTheme.name}</span>
             <span
               className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest"
               style={{ background: activeTheme.accentColor, color: "#fff" }}
@@ -83,6 +114,7 @@ function PreviewModal({
           </Button>
         </div>
 
+        {/* Style pills */}
         <div className="flex flex-wrap gap-1.5 px-4 pb-3">
           {category.themes.map((t) => {
             const active = t.id === activeThemeId;
@@ -104,7 +136,7 @@ function PreviewModal({
         </div>
       </div>
 
-      {/* Native preview — no iframe, no separate server needed */}
+      {/* Native preview */}
       <div className="flex-1 overflow-y-auto">
         <TemplatePreview
           businessType={category.id as "barbershop" | "nail-salon"}
@@ -115,62 +147,83 @@ function PreviewModal({
   );
 }
 
-function TemplateCard({
-  template,
+/* ─── Category Card ─────────────────────────────────────────────────────── */
+function CategoryCard({
   category,
   onPreview,
   onGetStarted,
 }: {
-  template: LaunchsiteTemplate;
   category: Category;
   onPreview: () => void;
   onGetStarted: () => void;
 }) {
+  const previews = category.themes.slice(0, 4);
+
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
+    <div className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
+      {/* Thumbnail collage */}
       <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
-        <img
-          src={template.heroImage}
-          alt={template.name}
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-          style={{ filter: "brightness(0.75)" }}
-        />
-        <div
-          className="absolute inset-0 opacity-30"
-          style={{
-            background: `linear-gradient(140deg, ${template.bgColor} 0%, transparent 55%)`,
-          }}
-        />
-        <div
-          className="absolute bottom-0 left-0 right-0 h-1"
-          style={{ background: template.accentColor }}
-        />
-        <span
-          className="absolute left-3 top-3 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest shadow"
-          style={{ background: template.accentColor, color: "#fff" }}
-        >
-          {template.style}
-        </span>
-        <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+        {previews.length >= 4 ? (
+          <div className="grid h-full grid-cols-2 grid-rows-2 gap-0.5">
+            {previews.map((t) => (
+              <div key={t.id} className="overflow-hidden">
+                <img
+                  src={t.heroImage}
+                  alt={t.name}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  style={{ filter: "brightness(0.8)" }}
+                />
+              </div>
+            ))}
+          </div>
+        ) : previews.length > 0 ? (
+          <img
+            src={previews[0].heroImage}
+            alt={category.label}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            style={{ filter: "brightness(0.8)" }}
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center">
+            <span className="text-7xl opacity-10">{category.emoji}</span>
+          </div>
+        )}
+
+        {/* Style count badge */}
+        {category.themes.length > 0 && (
+          <div className="absolute right-3 top-3 rounded-full bg-black/70 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm">
+            {category.themes.length} styles
+          </div>
+        )}
+
+        {/* Hover overlay */}
+        <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/30 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
           <button
             onClick={onPreview}
-            className="rounded-xl bg-white px-4 py-2 text-sm font-bold text-slate-900 shadow-lg transition hover:bg-slate-50"
+            className="rounded-xl bg-white px-4 py-2 text-sm font-bold text-slate-900 shadow-lg transition hover:bg-slate-50 active:scale-95"
           >
             Preview
           </button>
           <button
             onClick={onGetStarted}
-            className="rounded-xl px-4 py-2 text-sm font-bold text-white shadow-lg transition"
-            style={{ background: template.accentColor }}
+            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-lg transition hover:bg-blue-500 active:scale-95"
           >
-            Use This
+            Get Started
           </button>
         </div>
       </div>
 
+      {/* Card footer */}
       <div className="p-4">
-        <p className="font-extrabold tracking-tight text-slate-900">{template.name}</p>
-        <p className="mt-0.5 text-xs leading-relaxed text-slate-500">{template.description}</p>
+        <div className="flex items-center gap-2">
+          <span className="text-xl">{category.emoji}</span>
+          <p className="font-extrabold tracking-tight text-slate-900">{category.label}</p>
+        </div>
+        <p className="mt-0.5 text-xs leading-relaxed text-slate-500">
+          {category.themes.length > 0
+            ? `${category.themes.length} styles to choose from`
+            : category.description}
+        </p>
         <div className="mt-3 flex items-center gap-2">
           <button
             onClick={onPreview}
@@ -180,10 +233,9 @@ function TemplateCard({
           </button>
           <button
             onClick={onGetStarted}
-            className="flex-1 rounded-lg py-1.5 text-xs font-bold text-white transition"
-            style={{ background: template.accentColor }}
+            className="flex-1 rounded-lg bg-blue-600 py-1.5 text-xs font-bold text-white transition hover:bg-blue-500"
           >
-            Use This
+            Get Started
           </button>
         </div>
       </div>
@@ -191,26 +243,38 @@ function TemplateCard({
   );
 }
 
+/* ─── Coming Soon Card ───────────────────────────────────────────────────── */
+function ComingSoonCard({ category }: { category: Category }) {
+  return (
+    <div className="overflow-hidden rounded-2xl border-2 border-dashed border-slate-200 bg-white/60">
+      <div className="relative aspect-[4/3] flex items-center justify-center bg-slate-50">
+        <span className="text-8xl opacity-[0.06]">{category.emoji}</span>
+        <span className="absolute rounded-full bg-amber-100 px-3 py-1 text-[11px] font-black uppercase tracking-widest text-amber-600">
+          Coming soon
+        </span>
+      </div>
+      <div className="p-4">
+        <div className="flex items-center gap-2">
+          <span className="text-xl opacity-30">{category.emoji}</span>
+          <p className="font-extrabold tracking-tight text-slate-300">{category.label}</p>
+        </div>
+        <p className="mt-0.5 text-xs text-slate-400">{category.description}</p>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Page ───────────────────────────────────────────────────────────────── */
 export default function TemplatesPage() {
   const [, navigate] = useLocation();
   const loggedIn = isLoggedIn();
-  const [activeFilter, setActiveFilter] = useState<FilterId>("all");
-  const [preview, setPreview] = useState<{ template: LaunchsiteTemplate; category: Category } | null>(null);
+  const [previewCategory, setPreviewCategory] = useState<Category | null>(null);
 
   const handleGetStarted = () => navigate(loggedIn ? "/onboarding" : "/signup");
 
-  const visibleCategories =
-    activeFilter === "all"
-      ? CATEGORIES.filter((c) => c.available)
-      : CATEGORIES.filter((c) => c.id === activeFilter);
-
-  const totalAvailable = CATEGORIES.filter((c) => c.available).reduce(
-    (sum, c) => sum + c.themes.length,
-    0
-  );
-
   return (
     <div className="min-h-screen bg-[#f5f1e8] text-slate-950">
+      {/* Header */}
       <header className="sticky top-0 z-20 border-b border-white/60 bg-[#f5f1e8]/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <button onClick={() => navigate("/")} className="flex items-center gap-3">
@@ -239,104 +303,36 @@ export default function TemplatesPage() {
       </header>
 
       <main className="mx-auto max-w-7xl px-6 py-12">
+        {/* Hero text */}
         <div className="mb-10 max-w-2xl">
           <p className="text-sm font-extrabold uppercase tracking-[0.2em] text-blue-600">
             Template gallery
           </p>
           <h1 className="mt-3 text-4xl font-black tracking-tight md:text-5xl">
-            {totalAvailable} designs.<br />Find yours.
+            One design.<br />Dozens of styles.
           </h1>
           <p className="mt-4 text-lg leading-8 text-slate-600">
-            Browse every design style across all business types. Click any card to preview the full live site, then get started — no account needed to look around.
+            Each template comes with multiple colour and font styles to match your brand. Click Preview to browse all styles — no account needed.
           </p>
         </div>
 
-        <div className="mb-10 flex flex-wrap gap-2">
-          <button
-            onClick={() => setActiveFilter("all")}
-            className={`rounded-full px-4 py-2 text-sm font-bold transition ${
-              activeFilter === "all"
-                ? "bg-slate-900 text-white shadow"
-                : "bg-white text-slate-600 shadow-sm hover:bg-slate-50"
-            }`}
-          >
-            All designs
-          </button>
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => cat.available && setActiveFilter(cat.id)}
-              disabled={!cat.available}
-              className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold transition ${
-                activeFilter === cat.id
-                  ? "bg-slate-900 text-white shadow"
-                  : cat.available
-                  ? "bg-white text-slate-600 shadow-sm hover:bg-slate-50"
-                  : "cursor-not-allowed bg-white/50 text-slate-300"
-              }`}
-            >
-              <span>{cat.emoji}</span>
-              {cat.label}
-              {!cat.available && (
-                <span className="ml-1 rounded-full bg-amber-100 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-amber-600">
-                  Soon
-                </span>
-              )}
-            </button>
-          ))}
+        {/* Card grid — one card per category */}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {CATEGORIES.map((cat) =>
+            cat.available ? (
+              <CategoryCard
+                key={cat.id}
+                category={cat}
+                onPreview={() => setPreviewCategory(cat)}
+                onGetStarted={handleGetStarted}
+              />
+            ) : (
+              <ComingSoonCard key={cat.id} category={cat} />
+            )
+          )}
         </div>
 
-        <div className="space-y-16">
-          {visibleCategories.map((cat) => (
-            <section key={cat.id}>
-              <div className="mb-6 flex items-end justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="text-3xl">{cat.emoji}</span>
-                  <div>
-                    <h2 className="text-2xl font-black tracking-tight">{cat.label}</h2>
-                    <p className="text-sm text-slate-500">
-                      {cat.themes.length} design{cat.themes.length !== 1 ? "s" : ""} available
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {cat.themes.map((tpl) => (
-                  <TemplateCard
-                    key={tpl.id}
-                    template={tpl}
-                    category={cat}
-                    onPreview={() => setPreview({ template: tpl, category: cat })}
-                    onGetStarted={handleGetStarted}
-                  />
-                ))}
-              </div>
-            </section>
-          ))}
-
-          {CATEGORIES.filter((c) => !c.available && (activeFilter === "all" || activeFilter === c.id)).map((cat) => (
-            <section key={cat.id}>
-              <div className="mb-6 flex items-center gap-3">
-                <span className="text-3xl opacity-30">{cat.emoji}</span>
-                <div>
-                  <h2 className="text-2xl font-black tracking-tight text-slate-300">{cat.label}</h2>
-                  <p className="text-sm font-bold text-amber-500">Coming soon</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-6 rounded-2xl border-2 border-dashed border-slate-200 bg-white/50 px-8 py-10">
-                <span className="text-5xl opacity-10">{cat.emoji}</span>
-                <div>
-                  <p className="text-lg font-black text-slate-300">Designs in progress</p>
-                  <p className="mt-1 text-sm text-slate-400">
-                    {cat.label} templates are being designed. Check back soon.
-                  </p>
-                </div>
-              </div>
-            </section>
-          ))}
-        </div>
-
+        {/* CTA band */}
         <div className="mt-20 overflow-hidden rounded-[2rem] bg-gradient-to-br from-blue-600 to-slate-950 p-10 text-center text-white md:p-14">
           <h2 className="mx-auto max-w-2xl text-3xl font-black tracking-tight md:text-4xl">
             Found your style?
@@ -355,12 +351,12 @@ export default function TemplatesPage() {
         </div>
       </main>
 
-      {preview && (
+      {/* Preview modal */}
+      {previewCategory && (
         <PreviewModal
-          template={preview.template}
-          category={preview.category}
-          onClose={() => setPreview(null)}
-          onGetStarted={() => { setPreview(null); handleGetStarted(); }}
+          category={previewCategory}
+          onClose={() => setPreviewCategory(null)}
+          onGetStarted={() => { setPreviewCategory(null); handleGetStarted(); }}
         />
       )}
     </div>
