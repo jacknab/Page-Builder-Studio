@@ -13,6 +13,13 @@ export interface BarberItem {
   photoUrl: string;
 }
 
+export interface LocationItem {
+  id: string;
+  name: string;
+  address: string;
+  phone: string;
+}
+
 export interface BusinessHours {
   day: string;
   open: boolean;
@@ -39,6 +46,7 @@ export interface OnboardingData {
   teamSize: number | null;
   services: ServiceItem[];
   hours: BusinessHours[];
+  locations: LocationItem[];
   barbers: BarberItem[];
   googleListingUrl: string;
   social: SocialLinks;

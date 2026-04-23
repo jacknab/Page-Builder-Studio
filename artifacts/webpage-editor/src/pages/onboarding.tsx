@@ -16,6 +16,7 @@ import {
   type BusinessType,
   type ServiceItem,
   type BarberItem,
+  type LocationItem,
   type BusinessHours,
   type OnboardingData,
 } from "@/lib/onboardingData";
@@ -34,6 +35,7 @@ import {
   Instagram,
   Loader2,
   MapPin,
+  Phone,
   Plus,
   Rocket,
   Share2,
@@ -42,8 +44,8 @@ import {
   X,
 } from "lucide-react";
 
-const DEFAULT_STEP_LABELS = ["Template", "About you", "Services", "Hours", "Links"];
-const BARBERSHOP_STEP_LABELS = ["Template", "About you", "Services", "Hours", "Barbers", "Links"];
+const DEFAULT_STEP_LABELS = ["Template", "About you", "Services", "Hours", "Locations", "Links"];
+const BARBERSHOP_STEP_LABELS = ["Template", "About you", "Services", "Hours", "Barbers", "Locations", "Links"];
 
 function StepIndicator({ step, labels }: { step: number; labels: string[] }) {
   return (
@@ -74,7 +76,7 @@ function StepIndicator({ step, labels }: { step: number; labels: string[] }) {
                 {label}
               </span>
             </div>
-            {i < TOTAL_STEPS - 1 && (
+            {i < labels.length - 1 && (
               <div
                 className={`mb-4 h-0.5 w-8 flex-shrink-0 rounded-full sm:w-12 ${
                   done ? "bg-green-400" : "bg-slate-200"
@@ -578,6 +580,129 @@ function HoursEditor({
   );
 }
 
+// ─── STEP 5/6: LOCATIONS ────────────────────────────────────────────────────
+const newLocation = (): LocationItem => ({
+  id: Math.random().toString(36).slice(2, 9),
+  name: "",
+  address: "",
+  phone: "",
+});
+
+function LocationsEditor({
+  locations,
+  onChange,
+}: {
+  locations: LocationItem[];
+  onChange: (locations: LocationItem[]) => void;
+}) {
+  const isMulti = locations.length > 1;
+
+  const update = (id: string, field: keyof Omit<LocationItem, "id">, value: string) => {
+    onChange(locations.map((l) => (l.id === id ? { ...l, [field]: value } : l)));
+  };
+
+  const remove = (id: string) => {
+    if (locations.length <= 1) return;
+    onChange(locations.filter((l) => l.id !== id));
+  };
+
+  return (
+    <div>
+      <h2 className="text-3xl font-black tracking-tight">Your location{isMulti ? "s" : ""}</h2>
+      <p className="mt-2 text-base text-slate-500">
+        {isMulti
+          ? "Each location will get its own section on your site with an address and phone number."
+          : "Where are you based? This appears in the contact section of your site."}
+      </p>
+
+      <div className="mt-6 space-y-4">
+        {locations.map((loc, idx) => (
+          <div
+            key={loc.id}
+            className="relative rounded-2xl border border-slate-200 bg-slate-50 p-5"
+          >
+            {/* Header */}
+            <div className="mb-4 flex items-center justify-between">
+              <p className="text-sm font-extrabold text-slate-700">
+                {isMulti ? `Location ${idx + 1}` : "Store address"}
+              </p>
+              {locations.length > 1 && (
+                <button
+                  onClick={() => remove(loc.id)}
+                  className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"
+                  title="Remove location"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              {/* Location nickname — only shown when multi */}
+              {isMulti && (
+                <div>
+                  <Label className="mb-1 block text-xs font-semibold text-slate-600">
+                    Location name <span className="text-slate-400 font-normal">(e.g. Downtown, North Side)</span>
+                  </Label>
+                  <Input
+                    placeholder="e.g. Downtown"
+                    value={loc.name}
+                    onChange={(e) => update(loc.id, "name", e.target.value)}
+                    className="h-9 text-sm"
+                  />
+                </div>
+              )}
+
+              {/* Address */}
+              <div>
+                <Label className="mb-1 block text-xs font-semibold text-slate-600">
+                  <MapPin className="mr-1 inline h-3.5 w-3.5 text-blue-500" />
+                  Street address <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  placeholder="e.g. 123 Main Street, Chicago, IL 60601"
+                  value={loc.address}
+                  onChange={(e) => update(loc.id, "address", e.target.value)}
+                  className="h-9 text-sm"
+                />
+              </div>
+
+              {/* Phone */}
+              <div>
+                <Label className="mb-1 block text-xs font-semibold text-slate-600">
+                  <Phone className="mr-1 inline h-3.5 w-3.5 text-blue-500" />
+                  Phone number
+                </Label>
+                <Input
+                  type="tel"
+                  placeholder="e.g. (312) 555-0100"
+                  value={loc.phone}
+                  onChange={(e) => update(loc.id, "phone", e.target.value)}
+                  className="h-9 text-sm"
+                />
+              </div>
+            </div>
+          </div>
+        ))}
+
+        <button
+          onClick={() => onChange([...locations, newLocation()])}
+          className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-200 bg-white py-4 text-sm font-semibold text-slate-500 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+        >
+          <Plus className="h-4 w-4" />
+          Add another location
+        </button>
+
+        {isMulti && (
+          <p className="text-center text-xs text-slate-400">
+            Your site will show a dedicated section listing all your locations.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── STEP 5b: BARBERS (barbershop only) ─────────────────────────────────────
 const newBarber = (): BarberItem => ({
   id: Math.random().toString(36).slice(2, 9),
@@ -797,6 +922,7 @@ export default function Onboarding() {
   const [hours, setHours] = useState<BusinessHours[]>(DEFAULT_HOURS);
   const [googleUrl, setGoogleUrl] = useState("");
   const [social, setSocial] = useState(EMPTY_SOCIAL);
+  const [locations, setLocations] = useState<LocationItem[]>([newLocation()]);
   const [barbers, setBarbers] = useState<BarberItem[]>([]);
   const [previewCategory, setPreviewCategory] = useState<TemplateCategoryConfig | null>(null);
 
@@ -804,7 +930,8 @@ export default function Onboarding() {
   const stepLabels = isBarbershop ? BARBERSHOP_STEP_LABELS : DEFAULT_STEP_LABELS;
   const totalSteps = stepLabels.length;
   const barbersStep = isBarbershop ? 5 : null;
-  const linksStep = isBarbershop ? 6 : 5;
+  const locationsStep = isBarbershop ? 6 : 5;
+  const linksStep = isBarbershop ? 7 : 6;
 
   const handleSelectTemplate = (id: string, source: "blocks" | "html" | "launchsite", bType: BusinessType) => {
     setTemplateId(id);
@@ -835,6 +962,7 @@ export default function Onboarding() {
   const canAdvance = () => {
     if (step === 1) return templateId !== null;
     if (step === 2) return businessName.trim().length > 0;
+    if (step === locationsStep) return locations.some((l) => l.address.trim().length > 0);
     return true;
   };
 
@@ -861,6 +989,7 @@ export default function Onboarding() {
       teamSize,
       services,
       hours,
+      locations,
       barbers: isBarbershop ? barbers : [],
       googleListingUrl: googleUrl,
       social,
@@ -940,6 +1069,9 @@ export default function Onboarding() {
           {step === 4 && <HoursEditor hours={hours} onChange={setHours} />}
           {barbersStep !== null && step === barbersStep && (
             <BarbersEditor barbers={barbers} onChange={setBarbers} />
+          )}
+          {step === locationsStep && (
+            <LocationsEditor locations={locations} onChange={setLocations} />
           )}
           {step === linksStep && (
             <LinksEditor
