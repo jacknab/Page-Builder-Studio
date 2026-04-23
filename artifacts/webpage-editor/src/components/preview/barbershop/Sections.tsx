@@ -16,23 +16,27 @@ import {
   Users,
   CalendarCheck,
 } from "lucide-react";
+import { SiteContent } from "@/lib/siteContent";
 
 interface Props {
   theme: Theme;
   clientData: ClientData;
+  content?: SiteContent;
 }
 
 // ─── ANNOUNCEMENT BAR ───────────────────────────────────────────────────────
 
-export function AnnouncementBar({ theme, clientData }: Props) {
+export function AnnouncementBar({ theme, clientData, content }: Props) {
   const c = theme.colors;
+  const announcement = content?.announcement ?? "Walk-ins Welcome · Online Check-In Available";
+  if (!announcement) return null;
   return (
     <div
       className="w-full text-center px-4 py-2 text-sm font-semibold"
       style={{ backgroundColor: c.accent, color: c.badgeText }}
     >
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-x-6 gap-y-1 flex-wrap">
-        <span>Walk-ins Welcome · Online Check-In Available</span>
+        <span>{announcement}</span>
         {clientData.address && (
           <>
             <span className="hidden sm:inline opacity-50">·</span>
@@ -49,7 +53,7 @@ export function AnnouncementBar({ theme, clientData }: Props) {
 
 // ─── NAVBAR ─────────────────────────────────────────────────────────────────
 
-export function Navbar({ theme, clientData }: Props) {
+export function Navbar({ theme, clientData, content }: Props) {
   const c = theme.colors;
   const bookingUrl = clientData.bookingUrl || "#location";
   return (
@@ -78,7 +82,7 @@ export function Navbar({ theme, clientData }: Props) {
                 className="text-[9px] tracking-[0.2em] uppercase"
                 style={{ color: c.textSecondary, fontFamily: theme.fonts.body, opacity: 0.6 }}
               >
-                Barbershop
+                {content?.navbarSubtitle ?? "Barbershop"}
               </p>
             </div>
           </div>
@@ -124,7 +128,7 @@ export function Navbar({ theme, clientData }: Props) {
                 fontFamily: theme.fonts.heading,
               }}
             >
-              Check In
+              {content?.navbarCta ?? "Check In"}
             </a>
           </div>
         </div>
@@ -135,7 +139,7 @@ export function Navbar({ theme, clientData }: Props) {
 
 // ─── HERO ────────────────────────────────────────────────────────────────────
 
-export function Hero({ theme, clientData }: Props) {
+export function Hero({ theme, clientData, content }: Props) {
   const c = theme.colors;
   const bookingUrl = clientData.bookingUrl || "#services";
 
@@ -163,7 +167,7 @@ export function Hero({ theme, clientData }: Props) {
               className="text-sm font-medium"
               style={{ color: "#fff", fontFamily: theme.fonts.body }}
             >
-              Walk-ins Welcome
+              {content?.heroBadge ?? "Walk-ins Welcome"}
             </span>
           </div>
 
@@ -192,9 +196,9 @@ export function Hero({ theme, clientData }: Props) {
           {/* Trust badges */}
           <div className="flex flex-wrap gap-x-6 gap-y-2 mb-10">
             {[
-              "Walk-ins Welcome",
-              "Expert Barbers",
-              clientData.established ? `Est. ${clientData.established}` : "Easy Booking",
+              content?.heroTrust1 ?? "Walk-ins Welcome",
+              content?.heroTrust2 ?? "Expert Barbers",
+              content?.heroTrust3 ?? (clientData.established ? `Est. ${clientData.established}` : "Easy Booking"),
             ].map((item) => (
               <span
                 key={item}
@@ -218,7 +222,7 @@ export function Hero({ theme, clientData }: Props) {
                 fontFamily: theme.fonts.heading,
               }}
             >
-              Check In Now
+              {content?.heroCtaPrimary ?? "Check In Now"}
             </a>
             {clientData.phone && (
               <a
@@ -232,16 +236,18 @@ export function Hero({ theme, clientData }: Props) {
                 }}
               >
                 <Phone size={16} />
-                Call Now
+                {content?.heroCtaSecondary ?? "Call Now"}
               </a>
             )}
           </div>
-          <p
-            className="mt-4 text-xs"
-            style={{ color: "#ffffff", fontFamily: theme.fonts.body, opacity: 0.75 }}
-          >
-            ⚡ Join the queue online – skip the wait
-          </p>
+          {(content?.heroHint ?? "⚡ Join the queue online – skip the wait") && (
+            <p
+              className="mt-4 text-xs"
+              style={{ color: "#ffffff", fontFamily: theme.fonts.body, opacity: 0.75 }}
+            >
+              {content?.heroHint ?? "⚡ Join the queue online – skip the wait"}
+            </p>
+          )}
         </div>
       </div>
     </section>
@@ -309,23 +315,23 @@ export function StatsBar({ theme, clientData }: Props) {
 
 // ─── WHY CHOOSE ──────────────────────────────────────────────────────────────
 
-export function WhyChoose({ theme, clientData }: Props) {
+export function WhyChoose({ theme, clientData, content }: Props) {
   const c = theme.colors;
   const features = [
     {
       Icon: Scissors,
-      title: "Expert Barbers",
-      desc: "Skilled professionals dedicated to delivering the perfect cut every visit — from clean fades to classic cuts.",
+      title: content?.feature1Title ?? "Expert Barbers",
+      desc: content?.feature1Desc ?? "Skilled professionals dedicated to delivering the perfect cut every visit — from clean fades to classic cuts.",
     },
     {
       Icon: Star,
-      title: "5-Star Rated",
-      desc: "Hundreds of satisfied clients trust us in our community. Real results, real reviews, real satisfaction.",
+      title: content?.feature2Title ?? "5-Star Rated",
+      desc: content?.feature2Desc ?? "Hundreds of satisfied clients trust us in our community. Real results, real reviews, real satisfaction.",
     },
     {
       Icon: CalendarCheck,
-      title: "In & Out, Looking Sharp",
-      desc: "Join our online queue from anywhere. We'll text you when it's almost your turn — no long waits.",
+      title: content?.feature3Title ?? "In & Out, Looking Sharp",
+      desc: content?.feature3Desc ?? "Join our online queue from anywhere. We'll text you when it's almost your turn — no long waits.",
     },
   ];
 
@@ -337,13 +343,13 @@ export function WhyChoose({ theme, clientData }: Props) {
             className="text-4xl md:text-5xl font-bold mb-4"
             style={{ color: c.text, fontFamily: theme.fonts.heading }}
           >
-            Why Choose {clientData.businessName}
+            {content?.aboutTitle ?? `Why Choose ${clientData.businessName}`}
           </h2>
           <p
             className="text-base max-w-xl mx-auto"
             style={{ color: c.textSecondary, fontFamily: theme.fonts.body, opacity: 0.7 }}
           >
-            More than a haircut. An experience built on skill, attention, and respect for the craft.
+            {content?.aboutSubtitle ?? "More than a haircut. An experience built on skill, attention, and respect for the craft."}
           </p>
         </div>
 
@@ -396,7 +402,7 @@ export function WhyChoose({ theme, clientData }: Props) {
 
 // ─── SERVICES ────────────────────────────────────────────────────────────────
 
-export function Services({ theme, clientData }: Props) {
+export function Services({ theme, clientData, content }: Props) {
   const c = theme.colors;
   const bookingUrl = clientData.bookingUrl || "#location";
   const displayed = clientData.services.slice(0, 6);
@@ -410,13 +416,13 @@ export function Services({ theme, clientData }: Props) {
               className="text-4xl md:text-5xl font-bold mb-2"
               style={{ color: c.text, fontFamily: theme.fonts.heading }}
             >
-              Popular Services
+              {content?.servicesTitle ?? "Popular Services"}
             </h2>
             <p
               className="text-sm"
               style={{ color: c.textSecondary, fontFamily: theme.fonts.body, opacity: 0.7 }}
             >
-              Our most requested cuts and grooming services.
+              {content?.servicesSubtitle ?? "Our most requested cuts and grooming services."}
             </p>
           </div>
           <a
@@ -428,7 +434,7 @@ export function Services({ theme, clientData }: Props) {
               fontFamily: theme.fonts.heading,
             }}
           >
-            View All Prices
+            {content?.servicesCtaLabel ?? "View All Prices"}
             <ChevronRight size={15} />
           </a>
         </div>
@@ -514,7 +520,7 @@ const GALLERY_FALLBACK = [
   "https://images.pexels.com/photos/3998391/pexels-photo-3998391.jpeg?auto=compress&cs=tinysrgb&w=800",
 ];
 
-export function Gallery({ theme, clientData }: Props) {
+export function Gallery({ theme, clientData, content }: Props) {
   const c = theme.colors;
   const images = clientData.galleryImages?.length ? clientData.galleryImages : GALLERY_FALLBACK;
   const displayed = images.slice(0, 4);
@@ -528,13 +534,13 @@ export function Gallery({ theme, clientData }: Props) {
               className="text-4xl md:text-5xl font-bold mb-2"
               style={{ color: c.text, fontFamily: theme.fonts.heading }}
             >
-              Our Work
+              {content?.galleryTitle ?? "Our Work"}
             </h2>
             <p
               className="text-sm"
               style={{ color: c.textSecondary, fontFamily: theme.fonts.body, opacity: 0.7 }}
             >
-              See the craft and transformations we deliver every day.
+              {content?.gallerySubtitle ?? "See the craft and transformations we deliver every day."}
             </p>
           </div>
         </div>
@@ -565,7 +571,7 @@ export function Gallery({ theme, clientData }: Props) {
 
 // ─── BARBERS ─────────────────────────────────────────────────────────────────
 
-export function Barbers({ theme, clientData }: Props) {
+export function Barbers({ theme, clientData, content }: Props) {
   const c = theme.colors;
   const barbers = clientData.barbers;
   if (!barbers || barbers.length === 0) return null;
@@ -588,13 +594,13 @@ export function Barbers({ theme, clientData }: Props) {
             className="text-4xl md:text-5xl font-bold mb-4"
             style={{ color: c.text, fontFamily: theme.fonts.heading }}
           >
-            Meet Your Barbers
+            {content?.teamTitle ?? "Meet Your Barbers"}
           </h2>
           <p
             className="text-base max-w-md mx-auto"
             style={{ color: c.textSecondary, fontFamily: theme.fonts.body, opacity: 0.7 }}
           >
-            Expert barbers dedicated to finding your perfect style.
+            {content?.teamSubtitle ?? "Expert barbers dedicated to finding your perfect style."}
           </p>
         </div>
 
@@ -689,7 +695,7 @@ const DAY_LABELS: Record<string, string> = {
   sunday: "Sun",
 };
 
-export function Location({ theme, clientData }: Props) {
+export function Location({ theme, clientData, content }: Props) {
   const c = theme.colors;
   const days = Object.entries(clientData.hours) as [string, string | undefined][];
   const mapEmbedUrl = clientData.address
@@ -711,13 +717,13 @@ export function Location({ theme, clientData }: Props) {
               className="text-4xl md:text-5xl font-bold mb-4"
               style={{ color: c.text, fontFamily: theme.fonts.heading }}
             >
-              Find Us
+              {content?.contactTitle ?? "Find Us"}
             </h2>
             <p
               className="text-base mb-10 max-w-sm"
               style={{ color: c.textSecondary, fontFamily: theme.fonts.body, opacity: 0.7 }}
             >
-              Come visit us. We're always ready to give you a great experience.
+              {content?.aboutBodyExtra || "Come visit us. We're always ready to give you a great experience."}
             </p>
 
             <div className="space-y-6 mb-10">

@@ -3,11 +3,17 @@ import { useLocation } from "wouter";
 import { signup } from "@/lib/auth";
 import {
   BARBERSHOP_THEMES,
+  BARBERSHOP2_THEMES,
   NAIL_SALON_THEMES,
   TEMPLATE_CATEGORIES,
   type LaunchsiteTemplate,
   type TemplateCategory as TemplateCategoryConfig,
 } from "@/lib/launchsiteTemplates";
+import {
+  defaultNailSalonContent,
+  defaultBarbershopContent,
+  defaultBarbershop2Content,
+} from "@/lib/siteContent";
 import {
   DEFAULT_DESCRIPTIONS,
   DEFAULT_HOURS,
@@ -1583,6 +1589,14 @@ export default function Onboarding() {
       return;
     }
 
+    const isNail = businessType === "nail-salon";
+    const isBS2 = BARBERSHOP2_THEMES.some((t) => t.id === templateId);
+    const siteContent = isNail
+      ? defaultNailSalonContent()
+      : isBS2
+      ? defaultBarbershop2Content()
+      : defaultBarbershopContent();
+
     const data: OnboardingData = {
       templateId,
       templateSource,
@@ -1604,6 +1618,7 @@ export default function Onboarding() {
       galleryPhotos,
       googleListingUrl: googleUrl,
       social,
+      siteContent,
     };
 
     saveOnboarding(data);

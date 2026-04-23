@@ -103,17 +103,54 @@ The main web app. Built with React 19 + Vite 7 + Tailwind CSS v4.
 
 Includes an **AI Generate** tab powered by OpenAI (via Replit AI Integrations). Generates fully-responsive HTML templates for four business styles (Luxury, Modern, Minimal, Bold). Templates are stored in the PostgreSQL `templates` table.
 
+### Routes
+
+| Path | Description |
+|---|---|
+| `/` | Marketing homepage |
+| `/onboarding` | Multi-step wizard (template → info → services → hours → social → account) |
+| `/dashboard` | Post-onboarding client dashboard with live site preview + inline editing |
+| `/app` | Legacy DIY editor (preserved, unused by new flow) |
+| `/admin` | Admin panel + AI template generation |
+
+### Dashboard (`/dashboard`)
+
+After onboarding completes, clients land here. Shows:
+- Full live preview of their site (rendered from `OnboardingData`)
+- Blue-ring hover wrappers on each section with an "Edit" button
+- Right-side slide-in panel (380px) with 5 edit modes:
+  - **Info** — business name, tagline, description
+  - **Services** — service names, prices, categories
+  - **Hours** — per-day open/close times
+  - **Contact** — phone, address, social links, Google URL
+  - **Text & Labels** — section headings, eyebrows, CTA labels, reviews text
+
+### SiteContent Schema (`src/lib/siteContent.ts`)
+
+All editable UI strings are defined in the `SiteContent` interface and stored in `OnboardingData.siteContent`. Three default factories:
+- `defaultNailSalonContent()` — nail salon strings
+- `defaultBarbershopContent()` — barbershop (original) strings
+- `defaultBarbershop2Content()` — barbershop2 strings
+
+Onboarding seeds these defaults when the client completes signup. Dashboard loads from `siteContent` or falls back to defaults. All template section components accept an optional `content?: SiteContent` prop.
+
 ### Key Files
 
 ```
 artifacts/webpage-editor/src/
-├── App.tsx                  Route definitions
+├── App.tsx                  Route definitions (includes /dashboard)
 ├── pages/
 │   ├── landing.tsx          Marketing homepage
-│   ├── onboarding.tsx       6-step onboarding wizard
-│   └── home.tsx             Authenticated studio/editor
+│   ├── onboarding.tsx       Multi-step wizard (seeds siteContent on completion)
+│   ├── dashboard.tsx        Client dashboard with preview + inline edit panel
+│   └── home.tsx             Legacy DIY editor
+├── components/preview/
+│   ├── nail-salon/Sections.tsx      All sections accept content?: SiteContent
+│   ├── barbershop/Sections.tsx      All sections accept content?: SiteContent
+│   └── barbershop2/Sections.tsx     All sections accept content?: SiteContent
 └── lib/
-    └── onboardingData.ts    PRESET_SERVICES, DEFAULT_HOURS, types, localStorage helpers
+    ├── onboardingData.ts    PRESET_SERVICES, DEFAULT_HOURS, types, localStorage helpers
+    └── siteContent.ts       SiteContent interface + 3 default generators
 ```
 
 ---

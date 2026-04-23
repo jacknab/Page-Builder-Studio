@@ -23,6 +23,12 @@ import {
 } from "lucide-react";
 
 import { BARBERSHOP2_THEMES, BARBERSHOP3_THEMES } from "@/lib/launchsiteTemplates";
+import {
+  type SiteContent,
+  defaultNailSalonContent,
+  defaultBarbershopContent,
+  defaultBarbershop2Content,
+} from "@/lib/siteContent";
 
 // ── Nail-salon section imports ────────────────────────────────────────────────
 import { getThemeById as getNailTheme } from "@/components/preview/nail-salon/themes";
@@ -72,7 +78,7 @@ import {
 // ─────────────────────────────────────────────────────────────────────────────
 
 type PreviewType = "nail-salon" | "barbershop" | "barbershop2" | "barbershop3";
-type EditSection = "info" | "services" | "hours" | "contact" | null;
+type EditSection = "info" | "services" | "hours" | "contact" | "text" | null;
 
 function formatTime(t: string): string {
   const [hr, min] = t.split(":").map(Number);
@@ -444,7 +450,207 @@ const PANEL_META: Record<Exclude<EditSection, null>, { title: string }> = {
   services: { title: "Services & Prices" },
   hours:    { title: "Hours" },
   contact:  { title: "Contact & Social" },
+  text:     { title: "Page Text & Labels" },
 };
+
+// ─── Text / Content Form ──────────────────────────────────────────────────────
+function TextField({
+  label,
+  value,
+  onChange,
+  multiline,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  multiline?: boolean;
+  placeholder?: string;
+}) {
+  return (
+    <div>
+      <Label className="text-xs font-bold uppercase tracking-wide text-slate-500">{label}</Label>
+      {multiline ? (
+        <Textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="mt-1.5 text-sm"
+          rows={2}
+          placeholder={placeholder}
+        />
+      ) : (
+        <Input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="mt-1.5 h-8 text-sm"
+          placeholder={placeholder}
+        />
+      )}
+    </div>
+  );
+}
+
+function TextForm({
+  content,
+  onChange,
+  previewType,
+}: {
+  content: SiteContent;
+  onChange: (c: SiteContent) => void;
+  previewType: string;
+}) {
+  const upd = (field: keyof SiteContent, val: string) =>
+    onChange({ ...content, [field]: val });
+  const updReview = (idx: number, field: string, val: string) => {
+    const reviews = content.reviews.map((r, i) =>
+      i === idx ? { ...r, [field]: field === "rating" ? parseInt(val) : val } : r
+    );
+    onChange({ ...content, reviews });
+  };
+  const isNail = previewType === "nail-salon";
+  const isBS = previewType === "barbershop" || previewType === "barbershop3";
+
+  return (
+    <div className="space-y-6">
+      {/* Announcement */}
+      {(isBS || previewType === "barbershop2") && (
+        <div>
+          <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Announcement Bar</p>
+          <TextField label="Announcement" value={content.announcement} onChange={(v) => upd("announcement", v)} placeholder="Walk-ins Welcome · Open Today" />
+        </div>
+      )}
+
+      {/* Hero section */}
+      <div>
+        <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Hero Section</p>
+        <div className="space-y-3">
+          <TextField label="Primary Button" value={content.heroCtaPrimary} onChange={(v) => upd("heroCtaPrimary", v)} />
+          <TextField label="Secondary Button" value={content.heroCtaSecondary} onChange={(v) => upd("heroCtaSecondary", v)} />
+          {!isNail && <TextField label="Badge" value={content.heroBadge} onChange={(v) => upd("heroBadge", v)} />}
+          {isBS && <TextField label="Hint text" value={content.heroHint} onChange={(v) => upd("heroHint", v)} placeholder="e.g. ⚡ Join the queue online…" />}
+          <TextField label="Trust badge 1" value={content.heroTrust1} onChange={(v) => upd("heroTrust1", v)} />
+          <TextField label="Trust badge 2" value={content.heroTrust2} onChange={(v) => upd("heroTrust2", v)} />
+          <TextField label="Trust badge 3" value={content.heroTrust3} onChange={(v) => upd("heroTrust3", v)} />
+        </div>
+      </div>
+
+      {/* Navbar */}
+      <div>
+        <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Navigation</p>
+        <div className="space-y-3">
+          <TextField label="CTA Button" value={content.navbarCta} onChange={(v) => upd("navbarCta", v)} />
+          {isBS && <TextField label="Sub-label" value={content.navbarSubtitle} onChange={(v) => upd("navbarSubtitle", v)} placeholder="e.g. Barbershop" />}
+        </div>
+      </div>
+
+      {/* Services section */}
+      <div>
+        <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Services Section</p>
+        <div className="space-y-3">
+          <TextField label="Eyebrow" value={content.servicesEyebrow} onChange={(v) => upd("servicesEyebrow", v)} />
+          <TextField label="Title" value={content.servicesTitle} onChange={(v) => upd("servicesTitle", v)} />
+          <TextField label="Subtitle" value={content.servicesSubtitle} onChange={(v) => upd("servicesSubtitle", v)} />
+          <TextField label="CTA Link" value={content.servicesCtaLabel} onChange={(v) => upd("servicesCtaLabel", v)} />
+        </div>
+      </div>
+
+      {/* About section */}
+      <div>
+        <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">About Section</p>
+        <div className="space-y-3">
+          <TextField label="Eyebrow" value={content.aboutEyebrow} onChange={(v) => upd("aboutEyebrow", v)} />
+          <TextField label="Title" value={content.aboutTitle} onChange={(v) => upd("aboutTitle", v)} />
+          <TextField label="Subtitle" value={content.aboutSubtitle} onChange={(v) => upd("aboutSubtitle", v)} multiline />
+          <TextField label="Extra body paragraph" value={content.aboutBodyExtra} onChange={(v) => upd("aboutBodyExtra", v)} multiline />
+        </div>
+      </div>
+
+      {/* Features (barbershop only) */}
+      {(isBS || isNail) && (
+        <div>
+          <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Feature Cards</p>
+          <div className="space-y-3">
+            <TextField label="Feature 1 title" value={content.feature1Title} onChange={(v) => upd("feature1Title", v)} />
+            <TextField label="Feature 1 desc" value={content.feature1Desc} onChange={(v) => upd("feature1Desc", v)} multiline />
+            <TextField label="Feature 2 title" value={content.feature2Title} onChange={(v) => upd("feature2Title", v)} />
+            <TextField label="Feature 2 desc" value={content.feature2Desc} onChange={(v) => upd("feature2Desc", v)} multiline />
+            <TextField label="Feature 3 title" value={content.feature3Title} onChange={(v) => upd("feature3Title", v)} />
+            <TextField label="Feature 3 desc" value={content.feature3Desc} onChange={(v) => upd("feature3Desc", v)} multiline />
+          </div>
+        </div>
+      )}
+
+      {/* Reviews */}
+      <div>
+        <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Reviews</p>
+        <div className="space-y-3">
+          <TextField label="Eyebrow" value={content.reviewsEyebrow} onChange={(v) => upd("reviewsEyebrow", v)} />
+          <TextField label="Title" value={content.reviewsTitle} onChange={(v) => upd("reviewsTitle", v)} />
+          {content.reviews.map((r, idx) => (
+            <div key={idx} className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
+              <p className="text-xs font-bold text-slate-400">Review {idx + 1}</p>
+              <Input
+                value={r.name}
+                onChange={(e) => updReview(idx, "name", e.target.value)}
+                className="h-7 text-xs bg-white"
+                placeholder="Reviewer name"
+              />
+              <Textarea
+                value={r.text}
+                onChange={(e) => updReview(idx, "text", e.target.value)}
+                className="text-xs bg-white"
+                rows={2}
+                placeholder="Review text"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Booking CTA */}
+      <div>
+        <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Booking CTA Section</p>
+        <div className="space-y-3">
+          <TextField label="Title" value={content.bookingCtaTitle} onChange={(v) => upd("bookingCtaTitle", v)} />
+          <TextField label="Subtitle" value={content.bookingCtaSubtitle} onChange={(v) => upd("bookingCtaSubtitle", v)} multiline />
+          <TextField label="Button" value={content.bookingCtaLabel} onChange={(v) => upd("bookingCtaLabel", v)} />
+        </div>
+      </div>
+
+      {/* Hours */}
+      <div>
+        <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Hours Section</p>
+        <div className="space-y-3">
+          <TextField label="Eyebrow" value={content.hoursEyebrow} onChange={(v) => upd("hoursEyebrow", v)} />
+          <TextField label="Title" value={content.hoursTitle} onChange={(v) => upd("hoursTitle", v)} />
+        </div>
+      </div>
+
+      {/* Contact */}
+      <div>
+        <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Contact Section</p>
+        <div className="space-y-3">
+          <TextField label="Eyebrow" value={content.contactEyebrow} onChange={(v) => upd("contactEyebrow", v)} />
+          <TextField label="Title" value={content.contactTitle} onChange={(v) => upd("contactTitle", v)} />
+          <TextField label="Walk-ins text" value={content.contactWalkins} onChange={(v) => upd("contactWalkins", v)} />
+        </div>
+      </div>
+
+      {/* Gallery / Team */}
+      {isBS && (
+        <div>
+          <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Gallery & Team</p>
+          <div className="space-y-3">
+            <TextField label="Gallery title" value={content.galleryTitle} onChange={(v) => upd("galleryTitle", v)} />
+            <TextField label="Gallery subtitle" value={content.gallerySubtitle} onChange={(v) => upd("gallerySubtitle", v)} />
+            <TextField label="Team title" value={content.teamTitle} onChange={(v) => upd("teamTitle", v)} />
+            <TextField label="Team subtitle" value={content.teamSubtitle} onChange={(v) => upd("teamSubtitle", v)} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main dashboard component
@@ -453,14 +659,26 @@ export default function Dashboard() {
   const [, navigate] = useLocation();
   const [data, setData] = useState<OnboardingData | null>(null);
   const [saved, setSaved] = useState<OnboardingData | null>(null);
+  const [content, setContent] = useState<SiteContent | null>(null);
+  const [savedContent, setSavedContent] = useState<SiteContent | null>(null);
   const [activeSection, setActiveSection] = useState<EditSection>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  function getDefaultContent(d: OnboardingData): SiteContent {
+    const pt = getPreviewType(d);
+    if (pt === "nail-salon") return defaultNailSalonContent();
+    if (pt === "barbershop2") return defaultBarbershop2Content();
+    return defaultBarbershopContent();
+  }
 
   useEffect(() => {
     const d = loadOnboarding();
     if (!d) { navigate("/onboarding"); return; }
     setData(d);
     setSaved(d);
+    const c = d.siteContent ?? getDefaultContent(d);
+    setContent(c);
+    setSavedContent(c);
   }, []);
 
   // Load Google Fonts for the active theme
@@ -488,25 +706,29 @@ export default function Dashboard() {
     });
   }, [data?.templateId]);
 
-  if (!data) return null;
+  if (!data || !content) return null;
 
   const previewType = getPreviewType(data);
 
   const handleEdit = (id: EditSection) => setActiveSection(id);
 
   const handleSave = () => {
-    if (!data) return;
-    saveOnboarding(data);
-    setSaved(data);
+    if (!data || !content) return;
+    saveOnboarding({ ...data, siteContent: content });
+    setSaved({ ...data, siteContent: content });
+    setSavedContent(content);
     setActiveSection(null);
   };
 
   const handleDiscard = () => {
     setData(saved);
+    setContent(savedContent);
     setActiveSection(null);
   };
 
-  const hasUnsaved = JSON.stringify(data) !== JSON.stringify(saved);
+  const hasUnsaved =
+    JSON.stringify(data) !== JSON.stringify(saved) ||
+    JSON.stringify(content) !== JSON.stringify(savedContent);
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-slate-100">
@@ -565,21 +787,26 @@ export default function Dashboard() {
                   <style>{`.ns-dash h1,.ns-dash h2,.ns-dash h3,.ns-dash h4,.ns-dash h5 { font-family: ${theme.fonts.heading}; }`}</style>
                   <div className="ns-dash">
                     <EditableSection label="Info" id="info" onEdit={handleEdit}>
-                      <NailNavbar theme={theme} clientData={cd} />
-                      <NailHero theme={theme} clientData={cd} />
+                      <NailNavbar theme={theme} clientData={cd} content={content} />
+                      <NailHero theme={theme} clientData={cd} content={content} />
                     </EditableSection>
                     <EditableSection label="About" id="info" onEdit={handleEdit}>
-                      <NailAbout theme={theme} clientData={cd} />
+                      <NailAbout theme={theme} clientData={cd} content={content} />
                     </EditableSection>
                     <EditableSection label="Services" id="services" onEdit={handleEdit}>
-                      <NailServices theme={theme} clientData={cd} />
+                      <NailServices theme={theme} clientData={cd} content={content} />
                     </EditableSection>
                     <EditableSection label="Hours" id="hours" onEdit={handleEdit}>
-                      <NailHours theme={theme} clientData={cd} />
+                      <NailHours theme={theme} clientData={cd} content={content} />
                     </EditableSection>
                     <EditableSection label="Contact" id="contact" onEdit={handleEdit}>
-                      <NailContact theme={theme} clientData={cd} />
-                      <NailFooter theme={theme} clientData={cd} />
+                      <NailContact theme={theme} clientData={cd} content={content} />
+                      <NailFooter theme={theme} clientData={cd} content={content} />
+                    </EditableSection>
+                    <EditableSection label="Text & Labels" id="text" onEdit={handleEdit}>
+                      <div style={{ background: c.bgAlt, color: c.textMuted }} className="py-4 text-center text-sm font-semibold">
+                        Edit section headings, taglines &amp; labels
+                      </div>
                     </EditableSection>
                   </div>
                 </div>
@@ -595,24 +822,29 @@ export default function Dashboard() {
                   <style>{`.bs-dash h1,.bs-dash h2,.bs-dash h3,.bs-dash h4,.bs-dash h5 { font-family: ${theme.fonts.heading}; }`}</style>
                   <div className="bs-dash">
                     <EditableSection label="Info" id="info" onEdit={handleEdit}>
-                      <AnnouncementBar theme={theme} clientData={cd} />
-                      <BsNavbar theme={theme} clientData={cd} />
-                      <BsHero theme={theme} clientData={cd} />
-                      <StatsBar theme={theme} clientData={cd} />
-                      <WhyChoose theme={theme} clientData={cd} />
+                      <AnnouncementBar theme={theme} clientData={cd} content={content} />
+                      <BsNavbar theme={theme} clientData={cd} content={content} />
+                      <BsHero theme={theme} clientData={cd} content={content} />
+                      <StatsBar theme={theme} clientData={cd} content={content} />
+                      <WhyChoose theme={theme} clientData={cd} content={content} />
                     </EditableSection>
                     <EditableSection label="Services" id="services" onEdit={handleEdit}>
-                      <BsServices theme={theme} clientData={cd} />
+                      <BsServices theme={theme} clientData={cd} content={content} />
                     </EditableSection>
                     {cd.barbers && cd.barbers.length > 0 && (
                       <EditableSection label="Team" id="info" onEdit={handleEdit}>
-                        <Barbers theme={theme} clientData={cd} />
+                        <Barbers theme={theme} clientData={cd} content={content} />
                       </EditableSection>
                     )}
                     <EditableSection label="Hours & Location" id="contact" onEdit={handleEdit}>
-                      <BsLocation theme={theme} clientData={cd} />
+                      <BsLocation theme={theme} clientData={cd} content={content} />
                     </EditableSection>
-                    <BsFooter theme={theme} clientData={cd} />
+                    <BsFooter theme={theme} clientData={cd} content={content} />
+                    <EditableSection label="Text & Labels" id="text" onEdit={handleEdit}>
+                      <div style={{ background: c.bgAlt, color: c.textMuted }} className="py-4 text-center text-sm font-semibold">
+                        Edit section headings, taglines &amp; labels
+                      </div>
+                    </EditableSection>
                   </div>
                 </div>
               );
@@ -627,21 +859,26 @@ export default function Dashboard() {
                   <style>{`.bs2-dash h1,.bs2-dash h2,.bs2-dash h3,.bs2-dash h4 { font-family: ${theme.fonts.heading}; }`}</style>
                   <div className="bs2-dash">
                     <EditableSection label="Info" id="info" onEdit={handleEdit}>
-                      <Bs2Navbar theme={theme} clientData={cd} />
-                      <Bs2Hero theme={theme} clientData={cd} />
+                      <Bs2Navbar theme={theme} clientData={cd} content={content} />
+                      <Bs2Hero theme={theme} clientData={cd} content={content} />
                     </EditableSection>
                     <EditableSection label="Services" id="services" onEdit={handleEdit}>
-                      <Bs2Services theme={theme} clientData={cd} />
+                      <Bs2Services theme={theme} clientData={cd} content={content} />
                     </EditableSection>
                     <EditableSection label="About" id="info" onEdit={handleEdit}>
-                      <Bs2About theme={theme} clientData={cd} />
+                      <Bs2About theme={theme} clientData={cd} content={content} />
                     </EditableSection>
-                    <Bs2Reviews theme={theme} clientData={cd} />
+                    <Bs2Reviews theme={theme} clientData={cd} content={content} />
                     <EditableSection label="Contact" id="contact" onEdit={handleEdit}>
-                      <BookingCTA theme={theme} clientData={cd} />
-                      <Bs2Contact theme={theme} clientData={cd} />
+                      <BookingCTA theme={theme} clientData={cd} content={content} />
+                      <Bs2Contact theme={theme} clientData={cd} content={content} />
                     </EditableSection>
                     <Bs2Footer theme={theme} clientData={cd} />
+                    <EditableSection label="Text & Labels" id="text" onEdit={handleEdit}>
+                      <div style={{ background: c.bgAlt, color: c.textMuted }} className="py-4 text-center text-sm font-semibold">
+                        Edit section headings, taglines &amp; labels
+                      </div>
+                    </EditableSection>
                   </div>
                 </div>
               );
@@ -677,6 +914,7 @@ export default function Dashboard() {
                 {activeSection === "services" && <ServicesForm data={data} onChange={setData} />}
                 {activeSection === "hours"    && <HoursForm    data={data} onChange={setData} />}
                 {activeSection === "contact"  && <ContactForm  data={data} onChange={setData} />}
+                {activeSection === "text"     && <TextForm     content={content} onChange={setContent} previewType={previewType} />}
               </div>
 
               {/* Panel footer */}

@@ -65,6 +65,7 @@ export interface OnboardingData {
   galleryPhotos: GalleryPhoto[];
   googleListingUrl: string;
   social: SocialLinks;
+  siteContent?: import("./siteContent").SiteContent;
 }
 
 export const BUSINESS_TYPES = [

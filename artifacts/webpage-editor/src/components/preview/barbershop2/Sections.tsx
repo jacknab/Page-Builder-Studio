@@ -1,11 +1,12 @@
 import { Theme } from "./themes";
 import { ClientData } from "./types";
 import { Phone, MapPin, Clock, Star, Instagram, Facebook, ExternalLink, Scissors } from "lucide-react";
+import { SiteContent } from "@/lib/siteContent";
 
-interface Props { theme: Theme; clientData: ClientData; }
+interface Props { theme: Theme; clientData: ClientData; content?: SiteContent; }
 
 /* ─── Navbar ─────────────────────────────────────────────────────────────── */
-export function Navbar({ theme, clientData }: Props) {
+export function Navbar({ theme, clientData, content }: Props) {
   const c = theme.colors;
   return (
     <nav style={{ background: c.navBg, borderBottom: `1px solid ${c.border}` }} className="sticky top-0 z-40">
@@ -30,7 +31,7 @@ export function Navbar({ theme, clientData }: Props) {
           style={{ background: c.accent, color: c.accentText }}
           className="rounded-lg px-5 py-2 text-sm font-bold transition hover:opacity-90"
         >
-          Check In
+          {content?.navbarCta ?? "Check In"}
         </a>
       </div>
     </nav>
@@ -38,7 +39,7 @@ export function Navbar({ theme, clientData }: Props) {
 }
 
 /* ─── Hero ────────────────────────────────────────────────────────────────── */
-export function Hero({ theme, clientData }: Props) {
+export function Hero({ theme, clientData, content }: Props) {
   const c = theme.colors;
   return (
     <section style={{ background: c.bg }} className="relative overflow-hidden">
@@ -46,7 +47,7 @@ export function Hero({ theme, clientData }: Props) {
         {/* Left — text */}
         <div className="flex flex-col justify-center px-6 py-20 lg:py-32">
           <div style={{ background: c.accent, color: c.accentText }} className="mb-4 inline-flex w-fit items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest">
-            <span>Est. {clientData.established ?? "2010"}</span>
+            <span>{content?.heroBadge ?? "Est."} {clientData.established ?? "2010"}</span>
           </div>
           <h1 style={{ color: c.text, fontFamily: theme.fonts.heading }} className="text-5xl font-black leading-none tracking-tight md:text-6xl lg:text-7xl">
             {clientData.tagline}
@@ -60,7 +61,7 @@ export function Hero({ theme, clientData }: Props) {
               style={{ background: c.accent, color: c.accentText }}
               className="rounded-xl px-8 py-3.5 font-bold transition hover:opacity-90"
             >
-              Check In Now
+              {content?.heroCtaPrimary ?? "Check In Now"}
             </a>
             {clientData.phone && (
               <a
@@ -89,7 +90,7 @@ export function Hero({ theme, clientData }: Props) {
 }
 
 /* ─── Services ────────────────────────────────────────────────────────────── */
-export function Services({ theme, clientData }: Props) {
+export function Services({ theme, clientData, content }: Props) {
   const c = theme.colors;
   const grouped: Record<string, typeof clientData.services> = {};
   for (const s of clientData.services) {
@@ -103,14 +104,14 @@ export function Services({ theme, clientData }: Props) {
       <div className="mx-auto max-w-6xl px-6">
         <div className="mb-12 flex items-end justify-between">
           <div>
-            <p style={{ color: c.accent }} className="mb-2 text-sm font-bold uppercase tracking-widest">What we offer</p>
+            <p style={{ color: c.accent }} className="mb-2 text-sm font-bold uppercase tracking-widest">{content?.servicesEyebrow ?? "What we offer"}</p>
             <h2 style={{ color: c.text, fontFamily: theme.fonts.heading }} className="text-4xl font-black tracking-tight">
-              Our Services
+              {content?.servicesTitle ?? "Our Services"}
             </h2>
           </div>
           {clientData.bookingUrl && (
             <a href={clientData.bookingUrl} style={{ color: c.accent }} className="hidden items-center gap-1 text-sm font-bold hover:underline md:flex">
-              Check in online <ExternalLink className="h-3.5 w-3.5" />
+              {content?.servicesCtaLabel ?? "Check in online"} <ExternalLink className="h-3.5 w-3.5" />
             </a>
           )}
         </div>
@@ -141,7 +142,7 @@ export function Services({ theme, clientData }: Props) {
 }
 
 /* ─── About / Story ───────────────────────────────────────────────────────── */
-export function About({ theme, clientData }: Props) {
+export function About({ theme, clientData, content }: Props) {
   const c = theme.colors;
   return (
     <section style={{ background: c.bg }} className="py-20">
@@ -161,15 +162,15 @@ export function About({ theme, clientData }: Props) {
           </div>
         </div>
         <div className="flex flex-col justify-center">
-          <p style={{ color: c.accent }} className="mb-3 text-sm font-bold uppercase tracking-widest">Our story</p>
+          <p style={{ color: c.accent }} className="mb-3 text-sm font-bold uppercase tracking-widest">{content?.aboutEyebrow ?? "Our story"}</p>
           <h2 style={{ color: c.text, fontFamily: theme.fonts.heading }} className="text-4xl font-black tracking-tight">
-            More than just a haircut
+            {content?.aboutTitle ?? "More than just a haircut"}
           </h2>
           <p style={{ color: c.textMuted }} className="mt-5 leading-relaxed">
             {clientData.description}
           </p>
           <p style={{ color: c.textMuted }} className="mt-4 leading-relaxed">
-            We believe every client deserves a great experience — from the moment you walk in to the moment you leave looking your best.
+            {content?.aboutBodyExtra ?? "We believe every client deserves a great experience — from the moment you walk in to the moment you leave looking your best."}
           </p>
           {clientData.phone && (
             <a href={`tel:${clientData.phone}`} style={{ color: c.text, borderColor: c.border }} className="mt-8 flex w-fit items-center gap-3 rounded-xl border-2 px-6 py-3 font-semibold transition hover:border-current">
@@ -184,9 +185,9 @@ export function About({ theme, clientData }: Props) {
 }
 
 /* ─── Reviews ─────────────────────────────────────────────────────────────── */
-export function Reviews({ theme, clientData }: Props) {
+export function Reviews({ theme, clientData, content }: Props) {
   const c = theme.colors;
-  const reviews = clientData.reviews ?? [
+  const reviews = content?.reviews ?? clientData.reviews ?? [
     { name: "James T.", text: "Best fade I've ever had. These guys know what they're doing.", rating: 5 },
     { name: "Marcus R.", text: "Walk in, walk out looking sharp. Every single time. My go-to shop.", rating: 5 },
     { name: "Derek W.", text: "Professional, fast, and the atmosphere is great. Highly recommend.", rating: 5 },
@@ -196,9 +197,9 @@ export function Reviews({ theme, clientData }: Props) {
     <section style={{ background: c.bgAlt }} className="py-20">
       <div className="mx-auto max-w-6xl px-6">
         <div className="mb-12 text-center">
-          <p style={{ color: c.accent }} className="mb-2 text-sm font-bold uppercase tracking-widest">What clients say</p>
+          <p style={{ color: c.accent }} className="mb-2 text-sm font-bold uppercase tracking-widest">{content?.reviewsEyebrow ?? "What clients say"}</p>
           <h2 style={{ color: c.text, fontFamily: theme.fonts.heading }} className="text-4xl font-black tracking-tight">
-            Reviews
+            {content?.reviewsTitle ?? "Reviews"}
           </h2>
         </div>
         <div className="grid gap-6 md:grid-cols-3">
@@ -220,23 +221,23 @@ export function Reviews({ theme, clientData }: Props) {
 }
 
 /* ─── Booking CTA ─────────────────────────────────────────────────────────── */
-export function BookingCTA({ theme, clientData }: Props) {
+export function BookingCTA({ theme, clientData, content }: Props) {
   const c = theme.colors;
   return (
     <section style={{ background: c.accent }} className="py-20">
       <div className="mx-auto max-w-3xl px-6 text-center">
         <h2 style={{ color: c.accentText, fontFamily: theme.fonts.heading }} className="text-4xl font-black tracking-tight md:text-5xl">
-          Skip the wait. Check in online.
+          {content?.bookingCtaTitle ?? "Skip the wait. Check in online."}
         </h2>
         <p style={{ color: c.accentText, opacity: 0.8 }} className="mt-4 text-lg">
-          Join our queue from anywhere — we'll text you when it's your turn.
+          {content?.bookingCtaSubtitle ?? "Join our queue from anywhere — we'll text you when it's your turn."}
         </p>
         <a
           href={clientData.bookingUrl ?? "#"}
           style={{ background: c.bg, color: c.text }}
           className="mt-8 inline-block rounded-xl px-10 py-4 font-black transition hover:opacity-90"
         >
-          Check In Now
+          {content?.bookingCtaLabel ?? "Check In Now"}
         </a>
       </div>
     </section>
@@ -244,7 +245,7 @@ export function BookingCTA({ theme, clientData }: Props) {
 }
 
 /* ─── Contact / Hours ─────────────────────────────────────────────────────── */
-export function Contact({ theme, clientData }: Props) {
+export function Contact({ theme, clientData, content }: Props) {
   const c = theme.colors;
   const hoursEntries = [
     ["Monday", clientData.hours.monday],
@@ -261,9 +262,9 @@ export function Contact({ theme, clientData }: Props) {
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-6 lg:grid-cols-2">
         {/* Hours */}
         <div>
-          <p style={{ color: c.accent }} className="mb-3 text-sm font-bold uppercase tracking-widest">Hours</p>
+          <p style={{ color: c.accent }} className="mb-3 text-sm font-bold uppercase tracking-widest">{content?.hoursEyebrow ?? "Hours"}</p>
           <h2 style={{ color: c.text, fontFamily: theme.fonts.heading }} className="mb-8 text-3xl font-black tracking-tight">
-            When we're open
+            {content?.hoursTitle ?? "When we're open"}
           </h2>
           <div className="space-y-2">
             {hoursEntries.map(([day, hours]) => (
@@ -277,9 +278,9 @@ export function Contact({ theme, clientData }: Props) {
 
         {/* Contact info */}
         <div>
-          <p style={{ color: c.accent }} className="mb-3 text-sm font-bold uppercase tracking-widest">Contact</p>
+          <p style={{ color: c.accent }} className="mb-3 text-sm font-bold uppercase tracking-widest">{content?.contactEyebrow ?? "Contact"}</p>
           <h2 style={{ color: c.text, fontFamily: theme.fonts.heading }} className="mb-8 text-3xl font-black tracking-tight">
-            Find us
+            {content?.contactTitle ?? "Find us"}
           </h2>
           <div className="space-y-6">
             {clientData.address && (
@@ -310,7 +311,7 @@ export function Contact({ theme, clientData }: Props) {
               </div>
               <div>
                 <p style={{ color: c.textMuted }} className="text-xs font-bold uppercase tracking-widest">Walk-ins</p>
-                <p style={{ color: c.text }} className="mt-1 font-semibold">Welcome during business hours</p>
+                <p style={{ color: c.text }} className="mt-1 font-semibold">{content?.contactWalkins ?? "Welcome during business hours"}</p>
               </div>
             </div>
           </div>

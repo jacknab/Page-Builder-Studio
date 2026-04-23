@@ -15,14 +15,16 @@ import {
   Check,
 } from "lucide-react";
 import BookingWidget from "./BookingWidget";
+import { SiteContent } from "@/lib/siteContent";
 
 interface Props {
   theme: Theme;
   clientData: ClientData;
+  content?: SiteContent;
 }
 
 /* ─── Navbar ─── */
-export function Navbar({ theme, clientData }: Props) {
+export function Navbar({ theme, clientData, content }: Props) {
   const c = theme.colors;
   const hasBooking = !!(clientData.bookingSlug && clientData.bookingDomain);
   return (
@@ -68,7 +70,7 @@ export function Navbar({ theme, clientData }: Props) {
               fontFamily: theme.fonts.body,
             }}
           >
-            {hasBooking ? "Book Now" : "Get In Touch"}
+            {content?.navbarCta ?? (hasBooking ? "Book Now" : "Get In Touch")}
           </a>
         </div>
       </div>
@@ -77,14 +79,14 @@ export function Navbar({ theme, clientData }: Props) {
 }
 
 /* ─── Hero ─── */
-export function Hero({ theme, clientData }: Props) {
+export function Hero({ theme, clientData, content }: Props) {
   const c = theme.colors;
   const hasBooking = !!(clientData.bookingSlug && clientData.bookingDomain);
 
   const trustItems = [
-    hasBooking ? "Book Online" : "Walk-ins Welcome",
-    clientData.established ? `Est. ${clientData.established}` : "Expert Team",
-    clientData.teamSize ? `${clientData.teamSize} Nail Artists` : "5-Star Service",
+    content?.heroTrust1 ?? (hasBooking ? "Book Online" : "Walk-ins Welcome"),
+    content?.heroTrust2 ?? (clientData.established ? `Est. ${clientData.established}` : "Expert Team"),
+    content?.heroTrust3 ?? (clientData.teamSize ? `${clientData.teamSize} Nail Artists` : "5-Star Service"),
   ];
 
   return (
@@ -172,7 +174,7 @@ export function Hero({ theme, clientData }: Props) {
               fontFamily: theme.fonts.body,
             }}
           >
-            {hasBooking ? "Book Your Appointment" : "View Services"}
+            {content?.heroCtaPrimary ?? (hasBooking ? "Book Your Appointment" : "View Services")}
             <ChevronRight size={18} />
           </a>
           <a
@@ -185,7 +187,7 @@ export function Hero({ theme, clientData }: Props) {
               fontFamily: theme.fonts.body,
             }}
           >
-            Our Services
+            {content?.heroCtaSecondary ?? "Our Services"}
           </a>
         </div>
       </div>
@@ -204,7 +206,7 @@ function groupServices(services: Service[]): Record<string, Service[]> {
   return grouped;
 }
 
-export function Services({ theme, clientData }: Props) {
+export function Services({ theme, clientData, content }: Props) {
   const c = theme.colors;
   const grouped = groupServices(clientData.services);
   const categories = Object.keys(grouped);
@@ -217,13 +219,13 @@ export function Services({ theme, clientData }: Props) {
             className="text-xs font-bold tracking-widest uppercase mb-3"
             style={{ color: c.accent, fontFamily: theme.fonts.body }}
           >
-            Our Menu
+            {content?.servicesEyebrow ?? "Our Menu"}
           </p>
           <h2
             className="text-4xl md:text-5xl font-bold mb-4"
             style={{ color: c.text, fontFamily: theme.fonts.heading }}
           >
-            Services & Pricing
+            {content?.servicesTitle ?? "Services & Pricing"}
           </h2>
           <div className="w-16 h-px mx-auto" style={{ backgroundColor: c.divider }} />
         </div>
@@ -391,7 +393,7 @@ export function Booking({ theme, clientData }: Props) {
 }
 
 /* ─── About ─── */
-export function About({ theme, clientData }: Props) {
+export function About({ theme, clientData, content }: Props) {
   const c = theme.colors;
   const currentYear = new Date().getFullYear();
   const yearsOpen = clientData.established ? currentYear - clientData.established : null;
@@ -405,7 +407,7 @@ export function About({ theme, clientData }: Props) {
     { value: "4.9★", label: "Star Rating" },
   ].filter(Boolean) as { value: string | number; label: string }[];
 
-  const reviews = [
+  const reviews = content?.reviews ?? [
     {
       name: "Sophia M.",
       text: "Absolutely stunning work. My gel nails have never looked this good — they lasted over three weeks without a chip.",
@@ -431,13 +433,13 @@ export function About({ theme, clientData }: Props) {
             className="text-xs font-bold tracking-widest uppercase mb-3"
             style={{ color: c.accent, fontFamily: theme.fonts.body }}
           >
-            Our Story
+            {content?.aboutEyebrow ?? "Our Story"}
           </p>
           <h2
             className="text-4xl md:text-5xl font-bold mb-4"
             style={{ color: c.text, fontFamily: theme.fonts.heading }}
           >
-            About Us
+            {content?.aboutTitle ?? "About Us"}
           </h2>
           <div className="w-16 h-px mx-auto" style={{ backgroundColor: c.divider }} />
         </div>
@@ -535,7 +537,7 @@ const DAY_LABELS: Record<string, string> = {
   sunday: "Sunday",
 };
 
-export function Hours({ theme, clientData }: Props) {
+export function Hours({ theme, clientData, content }: Props) {
   const c = theme.colors;
   const days = Object.entries(clientData.hours) as [string, string | undefined][];
 
@@ -547,13 +549,13 @@ export function Hours({ theme, clientData }: Props) {
             className="text-xs font-bold tracking-widest uppercase mb-3"
             style={{ color: c.accent, fontFamily: theme.fonts.body }}
           >
-            We're Open
+            {content?.hoursEyebrow ?? "We're Open"}
           </p>
           <h2
             className="text-4xl md:text-5xl font-bold mb-4"
             style={{ color: c.text, fontFamily: theme.fonts.heading }}
           >
-            Hours
+            {content?.hoursTitle ?? "Hours"}
           </h2>
           <div className="w-16 h-px mx-auto" style={{ backgroundColor: c.divider }} />
         </div>
@@ -594,7 +596,7 @@ export function Hours({ theme, clientData }: Props) {
 }
 
 /* ─── Contact ─── */
-export function Contact({ theme, clientData }: Props) {
+export function Contact({ theme, clientData, content }: Props) {
   const c = theme.colors;
   const cards = [
     clientData.address && {
@@ -630,13 +632,13 @@ export function Contact({ theme, clientData }: Props) {
             className="text-xs font-bold tracking-widest uppercase mb-3"
             style={{ color: c.accent, fontFamily: theme.fonts.body }}
           >
-            Find Us
+            {content?.contactEyebrow ?? "Find Us"}
           </p>
           <h2
             className="text-4xl md:text-5xl font-bold mb-4"
             style={{ color: c.text, fontFamily: theme.fonts.heading }}
           >
-            Get In Touch
+            {content?.contactTitle ?? "Get In Touch"}
           </h2>
           <div className="w-16 h-px mx-auto" style={{ backgroundColor: c.divider }} />
         </div>
