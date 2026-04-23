@@ -78,7 +78,7 @@ export default function Landing() {
           <nav className="hidden items-center gap-8 text-sm font-semibold text-slate-600 md:flex">
             <a href="#how-it-works" className="hover:text-slate-950">How it works</a>
             <a href="#onboarding" className="hover:text-slate-950">What we ask</a>
-            <a href="#templates" className="hover:text-slate-950">Templates</a>
+            <button onClick={() => navigate("/templates")} className="hover:text-slate-950">Templates</button>
           </nav>
           <div className="flex items-center gap-3">
             <Button variant="ghost" onClick={() => navigate(loggedIn ? "/app" : "/login")}>
