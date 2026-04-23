@@ -34,9 +34,11 @@ export interface Theme {
 
 const PEXELS_NAILS_1 = 'https://images.pexels.com/photos/3997391/pexels-photo-3997391.jpeg?auto=compress&cs=tinysrgb&w=1920';
 const PEXELS_NAILS_2 = 'https://images.pexels.com/photos/939836/pexels-photo-939836.jpeg?auto=compress&cs=tinysrgb&w=1920';
-const PEXELS_NAILS_3 = 'https://images.pexels.com/photos/1570807/pexels-photo-1570807.jpeg?auto=compress&cs=tinysrgb&w=1920';
-const PEXELS_NAILS_4 = 'https://images.pexels.com/photos/4210334/pexels-photo-4210334.jpeg?auto=compress&cs=tinysrgb&w=1920';
-const PEXELS_NAILS_5 = 'https://images.pexels.com/photos/3738383/pexels-photo-3738383.jpeg?auto=compress&cs=tinysrgb&w=1920';
+const HERO_EMERALD_GLAM = '/hero-emerald-glam.png';
+const HERO_NUDE_STUDIO = '/hero-nude-studio.png';
+const HERO_SAGE_LINEN = '/hero-sage-linen.png';
+const HERO_BLUSH_LUXE = '/hero-blush-luxe.png';
+const HERO_IVORY_GOLD = '/hero-ivory-gold.png';
 
 export const themes: Theme[] = [
   {
@@ -61,7 +63,7 @@ export const themes: Theme[] = [
     description: 'Pristine ivory with warm gold accents',
     colors: { bg:'#fdfaf4',bgSecondary:'#f5ede0',text:'#2a1f10',textSecondary:'#6b5a3e',accent:'#b8860b',accentHover:'#cfaa30',accentLight:'rgba(184,134,11,0.08)',card:'#ffffff',cardHover:'#fdfaf4',border:'#e0d4b8',heroOverlay:'rgba(42,31,16,0.4)',buttonPrimary:'#b8860b',buttonPrimaryHover:'#cfaa30',buttonSecondary:'transparent',buttonSecondaryHover:'rgba(184,134,11,0.08)',priceTag:'#b8860b',divider:'#b8860b',footerBg:'#2a1f10',footerText:'#d4c4a0',navBg:'rgba(253,250,244,0.95)',navText:'#2a1f10',badge:'#b8860b',badgeText:'#fdfaf4' },
     fonts: { heading:"'EB Garamond', serif", body:"'Lato', sans-serif" },
-    heroImage: PEXELS_NAILS_4, style:'classic',
+    heroImage: HERO_IVORY_GOLD, style:'classic',
   },
   {
     id: 'blush-luxe',
@@ -69,7 +71,7 @@ export const themes: Theme[] = [
     description: 'Warm blush with mauve and dusty rose',
     colors: { bg:'#f8f0ee',bgSecondary:'#edddd9',text:'#2e1c1a',textSecondary:'#7a5550',accent:'#a0522d',accentHover:'#b8633a',accentLight:'rgba(160,82,45,0.08)',card:'#ffffff',cardHover:'#f8f0ee',border:'#e0c8c4',heroOverlay:'rgba(46,28,26,0.4)',buttonPrimary:'#a0522d',buttonPrimaryHover:'#b8633a',buttonSecondary:'transparent',buttonSecondaryHover:'rgba(160,82,45,0.08)',priceTag:'#a0522d',divider:'#a0522d',footerBg:'#2e1c1a',footerText:'#d4b0a8',navBg:'rgba(248,240,238,0.95)',navText:'#2e1c1a',badge:'#a0522d',badgeText:'#f8f0ee' },
     fonts: { heading:"'Cormorant Garamond', serif", body:"'Jost', sans-serif" },
-    heroImage: PEXELS_NAILS_3, style:'romantic',
+    heroImage: HERO_BLUSH_LUXE, style:'romantic',
   },
   {
     id: 'emerald-glam',
@@ -77,7 +79,7 @@ export const themes: Theme[] = [
     description: 'Deep emerald green with champagne shimmer',
     colors: { bg:'#0d1f17',bgSecondary:'#081510',text:'#f0f8f0',textSecondary:'#88b898',accent:'#d4b483',accentHover:'#e0c898',accentLight:'rgba(212,180,131,0.1)',card:'#162a1e',cardHover:'#1e3828',border:'#245234',heroOverlay:'rgba(8,21,16,0.5)',buttonPrimary:'#d4b483',buttonPrimaryHover:'#e0c898',buttonSecondary:'transparent',buttonSecondaryHover:'rgba(212,180,131,0.1)',priceTag:'#d4b483',divider:'#d4b483',footerBg:'#040a07',footerText:'#88b898',navBg:'rgba(13,31,23,0.95)',navText:'#f0f8f0',badge:'#d4b483',badgeText:'#0d1f17' },
     fonts: { heading:"'Playfair Display', serif", body:"'DM Sans', sans-serif" },
-    heroImage: PEXELS_NAILS_5, style:'luxury',
+    heroImage: HERO_EMERALD_GLAM, style:'luxury',
   },
   {
     id: 'nude-studio',
@@ -85,7 +87,7 @@ export const themes: Theme[] = [
     description: 'Clean neutral nudes with a modern edge',
     colors: { bg:'#f5f0eb',bgSecondary:'#ebe3da',text:'#1a1614',textSecondary:'#5a5048',accent:'#8a7560',accentHover:'#9e8872',accentLight:'rgba(138,117,96,0.08)',card:'#faf7f4',cardHover:'#f5f0eb',border:'#d8cfc4',heroOverlay:'rgba(26,22,20,0.4)',buttonPrimary:'#8a7560',buttonPrimaryHover:'#9e8872',buttonSecondary:'transparent',buttonSecondaryHover:'rgba(138,117,96,0.08)',priceTag:'#8a7560',divider:'#8a7560',footerBg:'#1a1614',footerText:'#c0b8b0',navBg:'rgba(245,240,235,0.95)',navText:'#1a1614',badge:'#8a7560',badgeText:'#faf7f4' },
     fonts: { heading:"'DM Serif Display', serif", body:"'DM Sans', sans-serif" },
-    heroImage: PEXELS_NAILS_4, style:'minimal',
+    heroImage: HERO_NUDE_STUDIO, style:'minimal',
   },
   {
     id: 'plum-velvet',
@@ -117,7 +119,7 @@ export const themes: Theme[] = [
     description: 'Earthy sage green with natural linen warmth',
     colors: { bg:'#f2f0ea',bgSecondary:'#e4e0d5',text:'#252420',textSecondary:'#5a5848',accent:'#6b7c5a',accentHover:'#7e9069',accentLight:'rgba(107,124,90,0.08)',card:'#faf9f6',cardHover:'#f2f0ea',border:'#d0ccbf',heroOverlay:'rgba(37,36,32,0.4)',buttonPrimary:'#6b7c5a',buttonPrimaryHover:'#7e9069',buttonSecondary:'transparent',buttonSecondaryHover:'rgba(107,124,90,0.08)',priceTag:'#6b7c5a',divider:'#6b7c5a',footerBg:'#252420',footerText:'#b8b4a8',navBg:'rgba(242,240,234,0.95)',navText:'#252420',badge:'#6b7c5a',badgeText:'#f2f0ea' },
     fonts: { heading:"'Fraunces', serif", body:"'Karla', sans-serif" },
-    heroImage: PEXELS_NAILS_5, style:'botanical',
+    heroImage: HERO_SAGE_LINEN, style:'botanical',
   },
 ];
 

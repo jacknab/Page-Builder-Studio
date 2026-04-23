@@ -1,0 +1,49 @@
+uploads = []
+
+[[generated]]
+id = "rRSGlNlWsNQoUnE6bfhgp"
+uri = "file://artifacts/nail-salon-template/public/hero-ivory-gold.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "DMhLhxPvOnOXxsXIDwyZv"
+uri = "file://artifacts/nail-salon-template/public/hero-blush-luxe.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "NbhKB257GC4Ddb7smSDd9"
+uri = "file://artifacts/nail-salon-template/public/hero-sage-linen.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "oIOUr5hVy_Mo1inYsz33Y"
+uri = "file://artifacts/nail-salon-template/public/hero-emerald-glam.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "f7i7Q6wLsH2PefONnEyIn"
+uri = "file://artifacts/nail-salon-template/public/hero-nude-studio.png"
+type = "image"
+title = "generated_image"
+
+[[outputs]]
+id = "5TZcQTcBGx-TU9NMUUyC9"
+uri = "file://attached_assets/stock_images/sage-linen-nails.jpg"
+type = "image"
+title = "natural earthy spa nail salon botanical aesthetic sage green"
+
+[[outputs]]
+id = "euyiSPoBrTHIPlNtWulJw"
+uri = "file://attached_assets/stock_images/blush-luxe-nails.jpg"
+type = "image"
+title = "warm blush pink mauve nails manicure close up elegant"
+
+[[outputs]]
+id = "4vwrd9Kqm9XVQTnB54jhy"
+uri = "file://attached_assets/stock_images/ivory-gold-nails.jpg"
+type = "image"
+title = "luxury elegant gold nail art ivory nails manicure close up"
