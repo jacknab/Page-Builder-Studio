@@ -1,0 +1,6 @@
+{
+  "/api/auth/signup/route": "app/api/auth/signup/route.js",
+  "/api/sites/me/route": "app/api/sites/me/route.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/tenant-site/[host]/page": "app/tenant-site/[host]/page.js"
+}
