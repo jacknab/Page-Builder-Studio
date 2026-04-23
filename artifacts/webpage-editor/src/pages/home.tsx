@@ -238,7 +238,9 @@ export default function Home() {
     }
   });
   const [activeSiteId, setActiveSiteId] = useState(sites[0]?.id ?? "");
-  const [viewMode, setViewMode] = useState<ViewMode>("dashboard");
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    return new URLSearchParams(window.location.search).has("edit") ? "builder" : "dashboard";
+  });
   const [isPreview, setIsPreview] = useState(false);
   const [deviceMode, setDeviceMode] = useState<DeviceMode>("desktop");
   const [showCodeDialog, setShowCodeDialog] = useState(false);
