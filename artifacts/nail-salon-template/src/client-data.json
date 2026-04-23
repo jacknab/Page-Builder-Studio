@@ -1,0 +1,39 @@
+{
+  "themeId": "rose-quartz",
+  "businessName": "Luxe Nail Studio",
+  "tagline": "Beauty at Your Fingertips",
+  "description": "Welcome to Luxe Nail Studio, where every detail matters. Our talented nail artists combine artistry and precision to give you flawless, long-lasting nails that you'll love. From classic manicures to intricate nail art, we offer a full range of services in a relaxing, elegant atmosphere.",
+  "phone": "(555) 123-4567",
+  "email": "hello@luxenailstudio.com",
+  "address": "456 Beauty Lane, Anytown USA",
+  "established": 2019,
+  "teamSize": 6,
+  "services": [
+    { "name": "Classic Manicure", "price": "$30", "category": "Manicure" },
+    { "name": "Gel Manicure", "price": "$45", "category": "Manicure" },
+    { "name": "Dip Powder Manicure", "price": "$50", "category": "Manicure" },
+    { "name": "Acrylic Full Set", "price": "$60", "category": "Manicure" },
+    { "name": "Classic Pedicure", "price": "$40", "category": "Pedicure" },
+    { "name": "Deluxe Pedicure", "price": "$55", "category": "Pedicure" },
+    { "name": "Spa Pedicure", "price": "$70", "category": "Pedicure" },
+    { "name": "Nail Art (per nail)", "price": "$5+", "category": "Nail Art" },
+    { "name": "Ombre & Gradient", "price": "$20+", "category": "Nail Art" },
+    { "name": "Nail Repair", "price": "$8", "category": "Add-ons" }
+  ],
+  "hours": {
+    "monday": "9:00 AM – 7:00 PM",
+    "tuesday": "9:00 AM – 7:00 PM",
+    "wednesday": "9:00 AM – 7:00 PM",
+    "thursday": "9:00 AM – 8:00 PM",
+    "friday": "9:00 AM – 8:00 PM",
+    "saturday": "8:00 AM – 7:00 PM",
+    "sunday": "10:00 AM – 5:00 PM"
+  },
+  "googleUrl": "",
+  "instagramUrl": "",
+  "facebookUrl": "",
+  "tiktokUrl": "",
+  "yelpUrl": "",
+  "bookingSlug": "",
+  "bookingDomain": ""
+}

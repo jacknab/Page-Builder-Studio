@@ -28,6 +28,10 @@ args = "Start Backend"
 task = "workflow.run"
 args = "Start Launchsite"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start Nail Salon Template"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -64,6 +68,18 @@ waitForPort = 3000
 [workflows.workflow.metadata]
 outputType = "console"
 
+[[workflows.workflow]]
+name = "Start Nail Salon Template"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm --filter @workspace/nail-salon-template run dev --port 5173"
+waitForPort = 5173
+
+[workflows.workflow.metadata]
+outputType = "console"
+
 [agent]
 stack = "BEST_EFFORT_FALLBACK"
 expertMode = true
@@ -76,6 +92,10 @@ timeoutMs = 20000
 [[ports]]
 localPort = 3000
 externalPort = 3003
+
+[[ports]]
+localPort = 5173
+externalPort = 5173
 
 [[ports]]
 localPort = 5174
