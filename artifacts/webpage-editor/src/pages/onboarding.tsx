@@ -1624,7 +1624,7 @@ export default function Onboarding() {
     };
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify([site]));
-    navigate("/app");
+    navigate("/dashboard");
   };
 
   return (

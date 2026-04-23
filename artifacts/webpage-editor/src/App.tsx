@@ -6,6 +6,7 @@ import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import TemplatesPage from "@/pages/templates";
 import Home from "@/pages/home";
+import Dashboard from "@/pages/dashboard";
 import Admin from "@/pages/admin";
 import Login from "@/pages/login";
 import Signup from "@/pages/signup";
@@ -48,6 +49,7 @@ function Router() {
       <Route path="/reset-password" component={ResetPassword} />
       <Route path="/admin" component={() => <AdminRoute component={Admin} />} />
       <Route path="/app" component={() => <PrivateRoute component={Home} />} />
+      <Route path="/dashboard" component={() => <PrivateRoute component={Dashboard} />} />
       <Route component={NotFound} />
     </Switch>
   );
