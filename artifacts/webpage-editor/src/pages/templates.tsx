@@ -403,7 +403,7 @@ export default function TemplatesPage() {
           design={previewDesign.design}
           categoryEmoji={previewDesign.categoryEmoji}
           onClose={() => setPreviewDesign(null)}
-          onGetStarted={() => { setPreviewDesign(null); handleGetStarted(); }}
+          onGetStarted={(themeId, businessType) => { setPreviewDesign(null); handleGetStarted(themeId, businessType); }}
         />
       )}
     </div>

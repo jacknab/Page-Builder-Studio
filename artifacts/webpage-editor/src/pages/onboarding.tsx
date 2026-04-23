@@ -1309,7 +1309,7 @@ export default function Onboarding() {
     const themeId = params.get("theme");
     const bType   = params.get("type") as BusinessType | null;
 
-    if (!themeId || !bType) {
+    if (!themeId || !bType || themeId === "undefined" || bType === "undefined") {
       navigate("/templates");
       return;
     }
