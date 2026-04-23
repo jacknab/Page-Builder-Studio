@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
+import TemplatesPage from "@/pages/templates";
 import Home from "@/pages/home";
 import Admin from "@/pages/admin";
 import Login from "@/pages/login";
@@ -33,6 +34,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Landing} />
+      <Route path="/templates" component={TemplatesPage} />
       <Route path="/login" component={() => <PublicOnlyRoute component={Login} />} />
       <Route path="/signup" component={() => <PublicOnlyRoute component={Signup} />} />
       <Route path="/onboarding" component={() => <PrivateRoute component={Onboarding} />} />

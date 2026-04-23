@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { isLoggedIn } from "@/lib/auth";
-import { BARBERSHOP_THEMES } from "@/lib/launchsiteTemplates";
 
 const steps = [
   {
@@ -292,80 +291,32 @@ export default function Landing() {
           </div>
         </section>
 
-        <section id="templates" className="mx-auto max-w-7xl px-6 py-14 pb-24">
-          <div className="mb-10 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <p className="text-sm font-extrabold uppercase tracking-[0.2em] text-blue-600">Step one: pick a template</p>
-              <h2 className="mt-3 max-w-3xl text-4xl font-black tracking-tight md:text-5xl">
-                Start by choosing the look. We'll handle the rest.
-              </h2>
-              <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-600">
-                Browse our template library. Click the one that fits your business and we'll guide you straight into
-                the onboarding questionnaire.
-              </p>
+        <section className="mx-auto max-w-7xl px-6 pb-24">
+          <div className="overflow-hidden rounded-[2rem] bg-gradient-to-br from-blue-600 to-slate-950 p-10 text-white md:p-14">
+            <div className="flex flex-col items-center gap-6 text-center lg:flex-row lg:items-center lg:justify-between lg:text-left">
+              <div>
+                <p className="text-sm font-extrabold uppercase tracking-[0.2em] text-blue-300">
+                  Step one
+                </p>
+                <h2 className="mt-2 text-3xl font-black tracking-tight md:text-4xl">
+                  Start by choosing your template.
+                </h2>
+                <p className="mt-3 max-w-xl text-base text-white/70">
+                  Browse our full library — organised by business type. Click any design you
+                  like and we'll take you straight into setup.
+                </p>
+              </div>
+              <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
+                <Button
+                  size="lg"
+                  onClick={() => navigate("/templates")}
+                  className="h-14 gap-2 rounded-2xl bg-white px-8 text-base font-extrabold text-blue-700 hover:bg-blue-50"
+                >
+                  Browse templates
+                  <ArrowRight className="h-5 w-5" />
+                </Button>
+              </div>
             </div>
-            <Button
-              size="lg"
-              onClick={() => navigate("/signup")}
-              className="h-14 gap-2 rounded-2xl bg-blue-600 px-7 text-base font-extrabold hover:bg-blue-700"
-            >
-              Start my launch
-              <ArrowRight className="h-5 w-5" />
-            </Button>
-          </div>
-
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {BARBERSHOP_THEMES.map((tpl) => (
-              <article
-                key={tpl.id}
-                onClick={() => navigate("/signup")}
-                className="group cursor-pointer overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
-              >
-                <div className="relative h-44 overflow-hidden bg-slate-100">
-                  <img
-                    src={tpl.heroImage}
-                    alt={tpl.name}
-                    className="h-full w-full object-cover transition group-hover:scale-105"
-                    style={{ filter: "brightness(0.8)" }}
-                  />
-                  <div
-                    className="absolute inset-0 opacity-35"
-                    style={{ background: `linear-gradient(135deg, ${tpl.bgColor} 0%, transparent 60%)` }}
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 h-1" style={{ background: tpl.accentColor }} />
-                  <span
-                    className="absolute bottom-3 left-3 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest shadow"
-                    style={{ background: tpl.accentColor, color: "#fff" }}
-                  >
-                    {tpl.style}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between gap-2 px-4 py-4">
-                  <div className="min-w-0">
-                    <h3 className="text-base font-bold tracking-tight text-slate-900 truncate">{tpl.name}</h3>
-                    <p className="mt-0.5 text-xs text-slate-500 truncate">{tpl.description}</p>
-                  </div>
-                  <ArrowRight className="h-4 w-4 shrink-0 text-slate-400 transition group-hover:translate-x-1 group-hover:text-blue-600" />
-                </div>
-              </article>
-            ))}
-          </div>
-
-          <div className="mt-14 rounded-[2rem] bg-gradient-to-br from-blue-600 to-slate-950 p-10 text-center text-white md:p-14">
-            <h2 className="mx-auto max-w-2xl text-3xl font-black tracking-tight md:text-4xl">
-              Ready to skip the editor and just launch your site?
-            </h2>
-            <p className="mx-auto mt-4 max-w-xl text-base text-white/75">
-              Pick a template, answer the questionnaire, and we'll do the rest.
-            </p>
-            <Button
-              size="lg"
-              onClick={() => navigate(loggedIn ? "/app" : "/signup")}
-              className="mt-8 h-14 gap-2 rounded-2xl bg-white px-7 text-base font-extrabold text-blue-700 hover:bg-blue-50"
-            >
-              Start my launch
-              <ArrowRight className="h-5 w-5" />
-            </Button>
           </div>
         </section>
       </main>
