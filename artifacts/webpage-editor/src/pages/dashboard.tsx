@@ -996,10 +996,8 @@ export default function Dashboard() {
   const [saved, setSaved] = useState<OnboardingData | null>(null);
   const [content, setContent] = useState<SiteContent | null>(null);
   const [savedContent, setSavedContent] = useState<SiteContent | null>(null);
-  const [activeSection, setActiveSection] = useState<EditSection>(null);
   const [publishOpen, setPublishOpen] = useState(false);
   const [publishData, setPublishData] = useState<PublishData | null>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
 
   function getDefaultContent(d: OnboardingData): SiteContent {
     const pt = getPreviewType(d);
@@ -1051,20 +1049,16 @@ export default function Dashboard() {
 
   const previewType = getPreviewType(data);
 
-  const handleEdit = (id: EditSection) => setActiveSection(id);
-
   const handleSave = () => {
     if (!data || !content) return;
     saveOnboarding({ ...data, siteContent: content });
     setSaved({ ...data, siteContent: content });
     setSavedContent(content);
-    setActiveSection(null);
   };
 
   const handleDiscard = () => {
     setData(saved);
     setContent(savedContent);
-    setActiveSection(null);
   };
 
   const hasUnsaved =
@@ -1163,15 +1157,12 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* ── Body: preview + panel ───────────────────────────────────────────── */}
-      <div className="relative flex flex-1 overflow-hidden">
+      {/* ── Body: preview (left) + editor panel (right) ─────────────────────── */}
+      <div className="flex flex-1 overflow-hidden">
 
-        {/* Scrollable preview area */}
-        <div
-          className="flex-1 overflow-y-auto"
-          style={{ scrollbarWidth: "thin" }}
-        >
-          <div id="launchsite-preview" className="mx-auto w-full max-w-[1280px]">
+        {/* Left: scrollable template preview */}
+        <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
+          <div id="launchsite-preview">
             {previewType === "nail-salon" && (() => {
               const theme = getNailTheme(data.templateId);
               const c = theme.colors;
@@ -1180,28 +1171,13 @@ export default function Dashboard() {
                 <div style={{ backgroundColor: c.bg, color: c.text, fontFamily: theme.fonts.body }}>
                   <style>{`.ns-dash h1,.ns-dash h2,.ns-dash h3,.ns-dash h4,.ns-dash h5 { font-family: ${theme.fonts.heading}; }`}</style>
                   <div className="ns-dash">
-                    <EditableSection label="Info" id="info" onEdit={handleEdit}>
-                      <NailNavbar theme={theme} clientData={cd} content={content} />
-                      <NailHero theme={theme} clientData={cd} content={content} />
-                    </EditableSection>
-                    <EditableSection label="About" id="info" onEdit={handleEdit}>
-                      <NailAbout theme={theme} clientData={cd} content={content} />
-                    </EditableSection>
-                    <EditableSection label="Services" id="services" onEdit={handleEdit}>
-                      <NailServices theme={theme} clientData={cd} content={content} />
-                    </EditableSection>
-                    <EditableSection label="Hours" id="hours" onEdit={handleEdit}>
-                      <NailHours theme={theme} clientData={cd} content={content} />
-                    </EditableSection>
-                    <EditableSection label="Contact" id="contact" onEdit={handleEdit}>
-                      <NailContact theme={theme} clientData={cd} content={content} />
-                      <NailFooter theme={theme} clientData={cd} content={content} />
-                    </EditableSection>
-                    <EditableSection label="Text & Labels" id="text" onEdit={handleEdit}>
-                      <div style={{ background: c.bgAlt, color: c.textMuted }} className="py-4 text-center text-sm font-semibold">
-                        Edit section headings, taglines &amp; labels
-                      </div>
-                    </EditableSection>
+                    <NailNavbar theme={theme} clientData={cd} content={content} />
+                    <NailHero theme={theme} clientData={cd} content={content} />
+                    <NailAbout theme={theme} clientData={cd} content={content} />
+                    <NailServices theme={theme} clientData={cd} content={content} />
+                    <NailHours theme={theme} clientData={cd} content={content} />
+                    <NailContact theme={theme} clientData={cd} content={content} />
+                    <NailFooter theme={theme} clientData={cd} content={content} />
                   </div>
                 </div>
               );
@@ -1215,30 +1191,17 @@ export default function Dashboard() {
                 <div style={{ backgroundColor: c.bg, color: c.text, fontFamily: theme.fonts.body }}>
                   <style>{`.bs-dash h1,.bs-dash h2,.bs-dash h3,.bs-dash h4,.bs-dash h5 { font-family: ${theme.fonts.heading}; }`}</style>
                   <div className="bs-dash">
-                    <EditableSection label="Info" id="info" onEdit={handleEdit}>
-                      <AnnouncementBar theme={theme} clientData={cd} content={content} />
-                      <BsNavbar theme={theme} clientData={cd} content={content} />
-                      <BsHero theme={theme} clientData={cd} content={content} />
-                      <StatsBar theme={theme} clientData={cd} content={content} />
-                      <WhyChoose theme={theme} clientData={cd} content={content} />
-                    </EditableSection>
-                    <EditableSection label="Services" id="services" onEdit={handleEdit}>
-                      <BsServices theme={theme} clientData={cd} content={content} />
-                    </EditableSection>
+                    <AnnouncementBar theme={theme} clientData={cd} content={content} />
+                    <BsNavbar theme={theme} clientData={cd} content={content} />
+                    <BsHero theme={theme} clientData={cd} content={content} />
+                    <StatsBar theme={theme} clientData={cd} content={content} />
+                    <WhyChoose theme={theme} clientData={cd} content={content} />
+                    <BsServices theme={theme} clientData={cd} content={content} />
                     {cd.barbers && cd.barbers.length > 0 && (
-                      <EditableSection label="Team" id="info" onEdit={handleEdit}>
-                        <Barbers theme={theme} clientData={cd} content={content} />
-                      </EditableSection>
+                      <Barbers theme={theme} clientData={cd} content={content} />
                     )}
-                    <EditableSection label="Hours & Location" id="contact" onEdit={handleEdit}>
-                      <BsLocation theme={theme} clientData={cd} content={content} />
-                    </EditableSection>
+                    <BsLocation theme={theme} clientData={cd} content={content} />
                     <BsFooter theme={theme} clientData={cd} content={content} />
-                    <EditableSection label="Text & Labels" id="text" onEdit={handleEdit}>
-                      <div style={{ background: c.bgAlt, color: c.textMuted }} className="py-4 text-center text-sm font-semibold">
-                        Edit section headings, taglines &amp; labels
-                      </div>
-                    </EditableSection>
                   </div>
                 </div>
               );
@@ -1252,27 +1215,14 @@ export default function Dashboard() {
                 <div style={{ backgroundColor: c.bg, color: c.text, fontFamily: theme.fonts.body }}>
                   <style>{`.bs2-dash h1,.bs2-dash h2,.bs2-dash h3,.bs2-dash h4 { font-family: ${theme.fonts.heading}; }`}</style>
                   <div className="bs2-dash">
-                    <EditableSection label="Info" id="info" onEdit={handleEdit}>
-                      <Bs2Navbar theme={theme} clientData={cd} content={content} />
-                      <Bs2Hero theme={theme} clientData={cd} content={content} />
-                    </EditableSection>
-                    <EditableSection label="Services" id="services" onEdit={handleEdit}>
-                      <Bs2Services theme={theme} clientData={cd} content={content} />
-                    </EditableSection>
-                    <EditableSection label="About" id="info" onEdit={handleEdit}>
-                      <Bs2About theme={theme} clientData={cd} content={content} />
-                    </EditableSection>
+                    <Bs2Navbar theme={theme} clientData={cd} content={content} />
+                    <Bs2Hero theme={theme} clientData={cd} content={content} />
+                    <Bs2Services theme={theme} clientData={cd} content={content} />
+                    <Bs2About theme={theme} clientData={cd} content={content} />
                     <Bs2Reviews theme={theme} clientData={cd} content={content} />
-                    <EditableSection label="Contact" id="contact" onEdit={handleEdit}>
-                      <BookingCTA theme={theme} clientData={cd} content={content} />
-                      <Bs2Contact theme={theme} clientData={cd} content={content} />
-                    </EditableSection>
+                    <BookingCTA theme={theme} clientData={cd} content={content} />
+                    <Bs2Contact theme={theme} clientData={cd} content={content} />
                     <Bs2Footer theme={theme} clientData={cd} />
-                    <EditableSection label="Text & Labels" id="text" onEdit={handleEdit}>
-                      <div style={{ background: c.bgAlt, color: c.textMuted }} className="py-4 text-center text-sm font-semibold">
-                        Edit section headings, taglines &amp; labels
-                      </div>
-                    </EditableSection>
                   </div>
                 </div>
               );
@@ -1280,55 +1230,73 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* ── Right edit panel ──────────────────────────────────────────────── */}
-        <div
-          ref={panelRef}
-          className={`absolute right-0 top-0 flex h-full w-[380px] flex-col border-l border-slate-200 bg-white shadow-2xl transition-transform duration-300 ease-in-out ${
-            activeSection ? "translate-x-0" : "translate-x-full"
-          }`}
-        >
-          {activeSection && (
-            <>
-              {/* Panel header */}
-              <div className="flex shrink-0 items-center justify-between border-b border-slate-100 px-6 py-4">
-                <h2 className="text-base font-extrabold text-slate-900">
-                  {PANEL_META[activeSection].title}
-                </h2>
-                <button
-                  onClick={handleDiscard}
-                  className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
+        {/* Right: permanent editor panel */}
+        <div className="z-10 flex w-[360px] shrink-0 flex-col border-l border-slate-200 bg-white shadow-xl overflow-hidden">
 
-              {/* Panel body */}
-              <div className="flex-1 overflow-y-auto px-6 py-5">
-                {activeSection === "info"     && <InfoForm     data={data} onChange={setData} />}
-                {activeSection === "services" && <ServicesForm data={data} onChange={setData} />}
-                {activeSection === "hours"    && <HoursForm    data={data} onChange={setData} />}
-                {activeSection === "contact"  && <ContactForm  data={data} onChange={setData} />}
-                {activeSection === "text"     && <TextForm     content={content} onChange={setContent} previewType={previewType} />}
-              </div>
+          {/* Panel header */}
+          <div className="shrink-0 border-b border-slate-100 px-5 py-4">
+            <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">Site Editor</p>
+            <p className="text-xs text-slate-400 mt-0.5">Changes update live in the preview</p>
+          </div>
 
-              {/* Panel footer */}
-              <div className="shrink-0 border-t border-slate-100 p-4 flex gap-3">
-                <button
-                  onClick={handleDiscard}
-                  className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition"
-                >
-                  Discard
-                </button>
-                <button
-                  onClick={handleSave}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 py-2.5 text-sm font-bold text-white hover:bg-blue-700 transition"
-                >
-                  <Check className="h-4 w-4" />
-                  Save changes
-                </button>
-              </div>
-            </>
-          )}
+          {/* Scrollable form body */}
+          <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
+
+            <div className="border-b border-slate-100 px-5 py-3 bg-slate-50">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Business Info</p>
+            </div>
+            <div className="px-5 py-4">
+              <InfoForm data={data} onChange={setData} />
+            </div>
+
+            <div className="border-b border-t border-slate-100 px-5 py-3 bg-slate-50">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Services</p>
+            </div>
+            <div className="px-5 py-4">
+              <ServicesForm data={data} onChange={setData} />
+            </div>
+
+            <div className="border-b border-t border-slate-100 px-5 py-3 bg-slate-50">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Hours</p>
+            </div>
+            <div className="px-5 py-4">
+              <HoursForm data={data} onChange={setData} />
+            </div>
+
+            <div className="border-b border-t border-slate-100 px-5 py-3 bg-slate-50">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Contact & Links</p>
+            </div>
+            <div className="px-5 py-4">
+              <ContactForm data={data} onChange={setData} />
+            </div>
+
+            <div className="border-b border-t border-slate-100 px-5 py-3 bg-slate-50">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Headings & Labels</p>
+            </div>
+            <div className="px-5 py-4">
+              <TextForm content={content} onChange={setContent} previewType={previewType} />
+            </div>
+
+          </div>
+
+          {/* Sticky footer */}
+          <div className="shrink-0 border-t border-slate-100 p-4 flex gap-3">
+            <button
+              onClick={handleDiscard}
+              disabled={!hasUnsaved}
+              className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Discard
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={!hasUnsaved}
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 py-2.5 text-sm font-bold text-white hover:bg-blue-700 transition disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Check className="h-4 w-4" />
+              Save changes
+            </button>
+          </div>
         </div>
       </div>
 
