@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Luna Atelier Nails — Modern Nail salon in Seattle</title>
+  <meta name="description" content="Luna Atelier Nails in Seattle — precision gel manicures, luxe nail art, and advanced nail care. Book online or call (206) 555-0198." />
+  <style>
+    :root{
+      --bg:#fff;
+      --indigo:#4f46e5;
+      --slate:#1e293b;
+      --muted:rgba(30,41,59,0.07);
+      --radius:14px;
+      --max-width:1100px;
+      --gap:1.25rem;
+    }
+    *{box-sizing:border-box}
+    html{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size:16px; color:var(--slate); background:var(--bg); -webkit-font-smoothing:antialiased}
+    body{margin:0; line-height:1.4}
+    a{color:inherit; text-decoration:none}
+    header.site{
+      display:grid;
+      grid-template-columns: 1fr 2fr;
+      gap:var(--gap);
+      align-items:start;
+      max-width:calc(var(--max-width) + 4rem);
+      margin:1.5rem auto;
+      padding:1rem;
+    }
+    .brand{
+      position:sticky;
+      top:1rem;
+      align-self:start;
+      background:linear-gradient(180deg,var(--indigo),#6b5bff);
+      color:white;
+      padding:1.25rem;
+      border-radius:12px;
+      box-shadow:0 6px 20px rgba(79,70,229,0.18);
+      display:flex;
+      flex-direction:column;
+      gap:.5rem;
+    }
+    .brand .name{font-weight:800; font-size:1.125rem; letter-spacing:.02em}
+    .brand .tag{font-size:.875rem; opacity:.95}
+    .brand .contact{margin-top:.5rem; font-weight:600; font-size:.95rem}
+    .brand .addr{font-size:.8rem; opacity:.9}
+    nav.toplinks{display:flex; gap:.5rem; margin-top:.75rem; flex-wrap:wrap}
+    nav.toplinks a{background:rgba(255,255,255,0.07); padding:.35rem .6rem; border-radius:8px; font-weight:600; font-size:.85rem}
+    main{
+      padding:0 1rem;
+      display:block;
+    }
+
+    /* HERO */
+    .hero{
+      position:relative;
+      overflow:visible;
+      display:grid;
+      grid-template-columns: 1fr;
+      align-items:stretch;
+      margin-bottom:1.5rem;
+      max-width:calc(var(--max-width) + 4rem);
+      margin-left:auto;
+      margin-right:auto;
+      gap:0;
+    }
+    .hero-inner{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:1rem;
+      align-items:stretch;
+    }
+    .hero-card{
+      position:relative;
+      background:var(--bg);
+      padding:2rem;
+      border-radius:16px;
+      box-shadow: 0 10px 30px rgba(30,41,59,0.06);
+      z-index:3;
+      margin-left: -6%;
+      max-width:100%;
+    }
+    .hero h1{
+      margin:0 0 .5rem 0;
+      font-size:2.25rem;
+      line-height:1.02;
+      color:var(--slate);
+      letter-spacing:-0.02em;
+    }
+    .kicker{display:inline-block; background:var(--muted); color:var(--slate); padding:.35rem .6rem; border-radius:999px; font-weight:700; font-size:.8rem; margin-bottom:.6rem}
+    .hero p{margin:0 0 1rem 0; color: #334155; font-size:1rem}
+    .cta-row{display:flex; gap:.75rem; flex-wrap:wrap}
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:.7rem 1rem; border-radius:10px; font-weight:700; font-size:.95rem; cursor:pointer; border:0;
+    }
+    .btn.primary{background:var(--indigo); color:white; box-shadow:0 8px 24px rgba(79,70,229,0.18)}
+    .btn.ghost{background:transparent; color:var(--slate); border:1px solid rgba(30,41,59,0.06)}
+    .hero-image{
+      position:relative;
+      border-radius:16px;
+      overflow:hidden;
+      min-height:220px;
+      display:block;
+      box-shadow:0 30px 60px rgba(30,41,59,0.08);
+    }
+    .hero-image img{width:100%; height:100%; object-fit:cover; display:block}
+
+    /* Overlap headline onto image */
+    .hero-card.overlap{
+      margin-top:3rem;
+      transform:translateY(-10%);
+    }
+
+    /* SERVICES MASONRY */
+    section.services{
+      max-width:var(--max-width);
+      margin:2rem auto;
+      padding:0 1rem;
+      display:block;
+    }
+    .services-grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:var(--gap);
+      align-items:start;
+    }
+    .svc{
+      background:white;
+      border-radius:12px;
+      overflow:hidden;
+      box-shadow:0 12px 30px rgba(30,41,59,0.04);
+      display:flex;
+      flex-direction:column;
+    }
+    .svc img{width:100%; height:220px; object-fit:cover; display:block}
+    .svc .meta{padding:1rem; display:flex; flex-direction:column; gap:.5rem}
+    .svc h3{margin:0; font-size:1.05rem}
+    .svc p{margin:0; color:#475569; font-size:.95rem}
+    .svc.tall{grid-row:span 2}
+    .svc.wide{grid-column: span 2}
+
+    /* TESTIMONIAL STRIP */
+    .testimonials{
+      margin:2rem 0;
+      padding:1rem 0;
+      background:linear-gradient(90deg, rgba(79,70,229,0.06), rgba(30,41,59,0.02));
+      border-top:1px solid rgba(30,41,59,0.02);
+      border-bottom:1px solid rgba(30,41,59,0.02);
+    }
+    .testimonials .wrap{
+      max-width:var(--max-width);
+      margin:0 auto;
+      padding:1rem;
+      display:flex;
+      gap:1rem;
+      align-items:stretch;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .quote{
+      background:white;
+      padding:1rem;
+      border-radius:12px;
+      box-shadow:0 8px 20px rgba(30,41,59,0.04);
+      flex:1 1 30%;
+      min-width:220px;
+      display:flex;
+      flex-direction:column;
+      gap:.5rem;
+    }
+    .quote p{margin:0; color:#334155}
+    .quote .who{font-weight:700; color:var(--slate); font-size:.95rem}
+
+    /* GALLERY editorial mosaic */
+    .gallery{
+      max-width:calc(var(--max-width) + 4rem);
+      margin:2rem auto;
+      padding:0 1rem;
+    }
+    .mosaic{
+      display:grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-auto-rows: 120px;
+      gap:.6rem;
+      align-items:stretch;
+      border-radius:12px;
+    }
+    .mosaic img{width:100%; height:100%; object-fit:cover; display:block; border-radius:8px}
+    .m1{grid-column:1 / span 2; grid-row:1 / span 2}
+    .m2{grid-column:3 / span 2; grid-row:1 / span 1}
+    .m3{grid-column:5 / span 2; grid-row:1 / span 2}
+    .m4{grid-column:1 / span 3; grid-row:3 / span 1}
+    .m5{grid-column:4 / span 2; grid-row:3 / span 1}
+    .m6{grid-column:6 / span 1; grid-row:3 / span 1}
+
+    /* ABOUT */
+    .about{
+      max-width:var(--max-width);
+      margin:2rem auto;
+      padding:1rem;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:1rem;
+      align-items:center;
+    }
+    .about .copy{padding:1rem}
+    .about img{width:100%; height:100%; object-fit:cover; border-radius:12px}
+
+    /* CONTACT */
+    .contact{
+      max-width:var(--max-width);
+      margin:2rem auto 4rem;
+      padding:1rem;
+      display:grid;
+      grid-template-columns: 1fr 420px;
+      gap:1rem;
+      align-items:start;
+    }
+    .contact .form{
+      background:white;
+      padding:1rem;
+      border-radius:12px;
+      box-shadow:0 16px 40px rgba(30,41,59,0.06);
+    }
+    form{display:grid; gap:.6rem}
+    label{font-size:.85rem; color:#475569; font-weight:700}
+    input, textarea, select{
+      padding:.65rem .75rem;
+      border-radius:10px;
+      border:1px solid rgba(30,41,59,0.08);
+      font-size:1rem;
+      color:var(--slate);
+      resize:vertical;
+    }
+    .small{display:flex; gap:.6rem}
+    .small input{flex:1}
+    .submit{background:var(--indigo); color:white; padding:.85rem; border-radius:10px; border:0; font-weight:800; cursor:pointer; margin-top:.5rem}
+    .contact .side{
+      background: linear-gradient(180deg, rgba(79,70,229,0.06), rgba(79,70,229,0.02));
+      padding:1rem;
+      border-radius:12px;
+      display:flex;
+      flex-direction:column;
+      gap:.6rem;
+      justify-content:flex-start;
+    }
+    .contact .side img{width:100%; border-radius:10px; height:180px; object-fit:cover}
+    .contact .side .info{font-weight:700; color:var(--slate)}
+    footer{max-width:var(--max-width); margin:2rem auto; padding:1rem; text-align:center; color:#64748b; font-size:.9rem}
+
+    /* Responsive */
+    @media (max-width:1000px){
+      header.site{grid-template-columns: 1fr; margin:1rem; padding:0}
+      .hero-inner{grid-template-columns: 1fr; gap:1rem}
+      .hero-card{margin-left:0}
+      .brand{position:relative; top:auto}
+      .services-grid{grid-template-columns: repeat(2, 1fr)}
+      .svc img{height:180px}
+      .about{grid-template-columns:1fr}
+      .contact{grid-template-columns:1fr}
+      .mosaic{grid-template-columns: repeat(4, 1fr); grid-auto-rows:100px}
+      .m1{grid-column:1 / span 2; grid-row:1 / span 2}
+      .m3{grid-column:3 / span 2; grid-row:1 / span 2}
+      .m4{grid-column:1 / span 2}
+      .m5{grid-column:3 / span 1}
+      .m6{grid-column:4 / span 1}
+    }
+    @media (max-width:420px){
+      :root{--gap:0.9rem}
+      html{font-size:15px}
+      .hero h1{font-size:1.5rem}
+      .hero-card{padding:1rem; border-radius:12px}
+      .hero-image{min-height:160px}
+      .services-grid{grid-template-columns:1fr}
+      .svc img{height:160px}
+      .mosaic{grid-template-columns: repeat(2, 1fr); grid-auto-rows:100px}
+      .m1{grid-column:1 / span 2; grid-row:1 / span 2}
+      .m2{grid-column:1 / span 1}
+      .m3{grid-column:2 / span 1; grid-row:1 / span 2}
+      .m4,.m5,.m6{grid-column:1 / span 1}
+      .brand{display:flex; flex-direction:row; align-items:center; gap:.75rem; padding:.6rem}
+      .brand .name{font-size:.95rem}
+      nav.toplinks{display:none}
+      .testimonials .wrap{flex-direction:column}
+      .quote{min-width:100%}
+    }
+  </style>
+</head>
+<body>
+  <header class="site" role="banner">
+    <div class="brand" aria-label="Luna Atelier Nails branding and contact">
+      <div style="display:flex;flex-direction:column;">
+        <div style="display:flex;align-items:center;gap:.6rem">
+          <div style="width:46px;height:46px;border-radius:10px;background:white;color:var(--indigo);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.05rem">LA</div>
+          <div>
+            <div class="name">Luna Atelier Nails</div>
+            <div class="tag">Precision gel & editorial nail art</div>
+          </div>
+        </div>
+      </div>
+      <div class="contact">Call to book: <a href="tel:+12065550198" style="color:white">(206) 555‑0198</a></div>
+      <div class="addr">1222 Pine St, Suite 3 • Seattle, WA</div>
+      <nav class="toplinks" aria-label="Quick links">
+        <a href="#services">Services</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#contact">Book</a>
+      </nav>
+    </div>
+
+    <main>
+      <section class="hero" aria-labelledby="main-heading">
+        <div class="hero-inner" role="region">
+          <article class="hero-card overlap">
+            <span class="kicker">Seattle • Capitol Hill</span>
+            <h1 id="main-heading">Luxe Gel Manicures with Editorial Nail Art</h1>
+            <p>At Luna Atelier Nails we blend advanced gel techniques with modern design. Long‑wear finishes, precision cuticle care, and custom nail art for a confident look.</p>
+            <div class="cta-row">
+              <a class="btn primary" href="#contact" aria-label="Book appointment">Book Appointment</a>
+              <a class="btn ghost" href="#services" aria-label="View services">View Services</a>
+            </div>
+            <div style="margin-top:.9rem;display:flex;gap:.5rem;flex-wrap:wrap;color:#475569;font-weight:600">
+              <div style="background:var(--muted);padding:.4rem .6rem;border-radius:8px">Walk‑ins welcome</div>
+              <div style="background:var(--muted);padding:.4rem .6rem;border-radius:8px">Sanitary single‑use tools</div>
+              <div style="background:var(--muted);padding:.4rem .6rem;border-radius:8px">Vegan & cruelty‑free polish</div>
+            </div>
+          </article>
+
+          <div class="hero-image" aria-hidden="false" role="img">
+            <img src="https://loremflickr.com/1400/800/manicure,nails,studio?lock=102" alt="manicure close-up in a modern nail salon studio with technician at work, showcasing gel nails" />
+          </div>
+        </div>
+      </section>
+
+      <section id="services" class="services" aria-labelledby="services-heading">
+        <h2 id="services-heading" style="margin:0 0 1rem 0; font-size:1.25rem; color:var(--slate)">Services — precision & creativity</h2>
+        <div class="services-grid" role="list">
+          <div class="svc tall" role="listitem">
+            <img src="https://loremflickr.com/800/600/nail,manicure,tools?lock=201" alt="manicure tools and nail salon setup for gel manicure service" />
+            <div class="meta">
+              <h3>Signature Gel Manicure</h3>
+              <p>Long‑lasting gloss, protective strengthener, and tailored shaping. Includes cuticle spa and hand massage — 60–75 mins.</p>
+            </div>
+          </div>
+
+          <div class="svc wide" role="listitem">
+            <img src="https://loremflickr.com/800/600/gel,nails,hands?lock=202" alt="gel nails applied on client hands with precise brush strokes in nail salon" />
+            <div class="meta">
+              <h3>Advanced Gel Extensions</h3>
+              <p>Sculpted extensions with sculpting gel or soft forms, reinforced tips, and high‑gloss finish. Perfect for editorial looks — 90 mins.</p>
+            </div>
+          </div>
+
+          <div class="svc" role="listitem">
+            <img src="https://loremflickr.com/800/600/nail,polish,beauty?lock=203" alt="variety of nail polish colors and swatches for modern nail designs" />
+            <div class="meta">
+              <h3>Bespoke Nail Art</h3>
+              <p>Hand‑painted accents, foil, and texture work created to complement your style. Add‑on to any service.</p>
+            </div>
+          </div>
+
+          <div class="svc" role="listitem">
+            <img src="https://loremflickr.com/800/600/manicure,spa,hands?lock=204" alt="relaxing manicure spa service with hand soak and massage at a nail salon" />
+            <div class="meta">
+              <h3>Revive Spa Manicure</h3>
+              <p>Deep hydration, exfoliation, paraffin option, and calming hand massage — ideal for dry or brittle nails.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="testimonials" aria-labelledby="testimonials-heading">
+        <h2 id="testimonials-heading" style="max-width:var(--max-width);margin:0 auto 1rem;padding:0 1rem;font-size:1.1rem">What clients say</h2>
+        <div class="wrap">
+          <figure class="quote" aria-label="Client testimonial 1">
+            <p>"The precision and creativity here are unmatched. My gel manicure lasted three weeks without chipping — and the sculpting is flawless."</p>
+            <figcaption class="who">— Mara T., Seattle</figcaption>
+          </figure>
+
+          <figure class="quote" aria-label="Client testimonial 2">
+            <p>"I loved the custom nail art; they translated my moodboard into something wearable and elegant. The team is professional and meticulous."</p>
+            <figcaption class="who">— Jasmine R., Capitol Hill</figcaption>
+          </figure>
+
+          <figure class="quote" aria-label="Client testimonial 3">
+            <p>"Clean studio, single‑use tools, and great hygiene protocols. The spa manicure felt indulgent and the polish stayed perfect."</p>
+            <figcaption class="who">— Oliver P., Seattle</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section id="gallery" class="gallery" aria-labelledby="gallery-heading">
+        <h2 id="gallery-heading" style="margin:0 0 .75rem 0; font-size:1.15rem; color:var(--slate)">Editorial Gallery</h2>
+        <div class="mosaic" role="list">
+          <div class="m1" role="listitem"><img src="https://loremflickr.com/600/600/nail,art,design?lock=301" alt="close-up nail art design with geometric patterns in a nail salon context" /></div>
+          <div class="m2" role="listitem"><img src="https://loremflickr.com/600/600/manicure,nails,pink?lock=302" alt="soft pink manicure with glossy finish photographed in salon lighting" /></div>
+          <div class="m3" role="listitem"><img src="https://loremflickr.com/600/600/gel,nails,design?lock=303" alt="gel nails with layered color and modern design in a nail studio" /></div>
+          <div class="m4" role="listitem"><img src="https://loremflickr.com/600/600/nail,art,macro?lock=304" alt="macro shot of nail art and tiny details illustrating salon craftsmanship" /></div>
+          <div class="m5" role="listitem"><img src="https://loremflickr.com/600/600/nails,beauty,fashion?lock=305" alt="fashion-forward nails with bold color and glossy finish in beauty salon" /></div>
+          <div class="m6" role="listitem"><img src="https://loremflickr.com/600/600/nail,glitter,design?lock=306" alt="glitter accent nail with textured finish showcased at a nail salon" /></div>
+        </div>
+      </section>
+
+      <section class="about" aria-labelledby="about-heading">
+        <div class="copy">
+          <h2 id="about-heading" style="margin-top:0;font-size:1.15rem">About Luna Atelier</h2>
+          <p style="color:#334155">Founded by nail technician Luna Park, our studio blends technical excellence with an editorial approach. We prioritize nail health, use medical‑grade sanitation processes, and source high‑performance gel products for resilience and shine.</p>
+          <h3 style="margin-top:.75rem;font-size:1rem">Our promise</h3>
+          <ul style="margin:.5rem 0 0 1rem;color:#475569">
+            <li>Single‑use implements where applicable</li>
+            <li>Advanced nail repair and strengthening</li>
+            <li>Collaborative design sessions for custom art</li>
+          </ul>
+        </div>
+        <div>
+          <img src="https://loremflickr.com/900/600/nail,technician,working?lock=403" alt="nail technician working on gel manicure in a professional nail salon environment" />
+        </div>
+      </section>
+
+      <section id="contact" class="contact" aria-labelledby="contact-heading">
+        <div class="form" role="region" aria-labelledby="contact-heading">
+          <h2 id="contact-heading" style="margin-top:0;font-size:1.15rem">Book an appointment</h2>
+          <p style="margin:0 0 .6rem 0;color:#475569">Prefer a call? (206) 555‑0198. Or request online — we’ll confirm availability within 4 hours.</p>
+          <form action="#" method="post" aria-label="Appointment request form">
+            <label for="name">Full name</label>
+            <input id="name" name="name" type="text" placeholder="Your full name" required />
+
+            <label for="phone">Phone</label>
+            <input id="phone" name="phone" type="tel" placeholder="(206) 555-0198" required />
+
+            <label for="service">Desired service</label>
+            <select id="service" name="service" required>
+              <option>Signature Gel Manicure — 60–75 min</option>
+              <option>Advanced Gel Extensions — 90 min</option>
+              <option>Bespoke Nail Art — add‑on</option>
+              <option>Revive Spa Manicure — 45 min</option>
+            </select>
+
+            <div class="small">
+              <div style="flex:1">
+                <label for="date">Preferred date</label>
+                <input id="date" name="date" type="date" />
+              </div>
+              <div style="flex:1">
+                <label for="time">Preferred time</label>
+                <input id="time" name="time" type="time" />
+              </div>
+            </div>
+
+            <label for="notes">Design notes</label>
+            <textarea id="notes" name="notes" rows="4" placeholder="Colors, references, or accessibility needs"></textarea>
+
+            <button type="submit" class="submit">Request Appointment</button>
+          </form>
+        </div>
+
+        <aside class="side" aria-label="Contact details and studio image">
+          <img src="https://loremflickr.com/900/600/salon,desk,reception?lock=501" alt="salon reception desk and interior of a modern nail salon" />
+          <div class="info">Luna Atelier Nails • 1222 Pine St, Suite 3 • Seattle, WA 98101</div>
+          <div style="font-weight:700;color:#475569">(206) 555‑0198 • hello@lunaateliernails.com</div>
+          <div style="font-size:.95rem;color:#64748b;margin-top:.4rem">Hours: Tue–Sat 10am–7pm • Closed Sun–Mon</div>
+        </aside>
+      </section>
+
+      <footer role="contentinfo">
+        <div>© <strong>Luna Atelier Nails</strong> — Professional nail salon in Seattle • All rights reserved.</div>
+      </footer>
+    </main>
+  </header>
+</body>
+</html>

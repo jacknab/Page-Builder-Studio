@@ -1,94 +1,39 @@
-# LaunchSite
+# Workspace
 
 ## Overview
 
-**LaunchSite** is a done-for-you website launch service (not a DIY builder). Clients pick a template, fill out an onboarding questionnaire (business info, services & prices, hours, Google listing URL, social links), and the platform launches their site. The platform is multi-tenant: each site is reachable on a launchsite subdomain (`<slug>.<PRIMARY_HOST>`) and optionally a customer-pointed custom domain (Host-header routed).
+pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
 
-Three plans:
+The primary user-facing app is **Webpage Editor**, a standalone React/Vite web app for selecting pre-made single-page HTML-style templates, editing copy and images, deleting unwanted blocks, previewing desktop/mobile layouts, and downloading generated HTML. It now supports both block-based templates and complete uploaded HTML page templates.
 
-1. **Free** — 1 site on a launchsite subdomain.
-2. **Domain Forward** — point an existing domain at a launched site (default for all new clients).
-3. **Domain Purchase** — we buy and configure a domain via Namecheap (future).
+The public root route `/` is a marketing homepage for LaunchSite. The authenticated editor/studio experience lives at `/app`, and admin/template management lives at `/admin`.
+
+The marketing homepage includes a public template gallery section. Each template card shows a preview and an "Edit this template" call-to-action that routes visitors to `/signup`.
+
+The admin panel (`/admin`) includes an **AI Generate** tab powered by OpenAI (via Replit AI Integrations). It generates fully-responsive HTML templates for Nail Salon businesses across four styles (Luxury, Modern, Minimal, Bold). Templates are saved in the PostgreSQL `templates` table and are retrievable via the API.
 
 ## Stack
 
-- **Monorepo**: pnpm workspaces (Node 24)
-- **App**: Next.js 15 (App Router) at `artifacts/web`
-- **DB**: PostgreSQL + Drizzle ORM, schema in `lib/db` (`@workspace/db`)
-- **Styling**: Tailwind CSS v4
-- **Auth**: JWT in httpOnly cookie (`launchsite_session`), bcrypt password hashing
-- **Validation**: Zod
+- **Monorepo tool**: pnpm workspaces
+- **Node.js version**: 24
+- **Package manager**: pnpm
+- **TypeScript version**: 5.9
+- **API framework**: Express 5
+- **Database**: PostgreSQL + Drizzle ORM
+- **Validation**: Zod (`zod/v4`), `drizzle-zod`
+- **API codegen**: Orval (from OpenAPI spec)
+- **Build**: esbuild (CJS bundle)
+- **Frontend app**: React + Vite (`artifacts/webpage-editor`)
+- **Template sources**: built-in block templates, custom HTML templates, and AI-generated templates (PostgreSQL `templates` table)
+- **AI Integration**: OpenAI via Replit AI Integrations (`@workspace/integrations-openai-ai-server`)
 
-## Workflows
+## Key Commands
 
-- **Start application** — `PORT=5000 pnpm --filter @workspace/web run dev` (single Next dev server)
+- `pnpm run typecheck` — full typecheck across all packages
+- `pnpm run build` — typecheck + build all packages
+- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from OpenAPI spec
+- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
+- `pnpm --filter @workspace/api-server run dev` — run API server locally
+- `pnpm --filter @workspace/webpage-editor run dev` — run the Webpage Editor frontend
 
-## Routes
-
-Public:
-
-- `/` — marketing landing
-- `/login`, `/signup`, `/forgot-password`, `/reset-password`
-
-Authenticated client:
-
-- `/onboarding` — 5-step questionnaire (template, business, services, hours, links)
-- `/onboarding/edit` — edit content after launch
-- `/dashboard` — site URLs, custom domain mapping, template switcher
-
-Admin (`isAdmin = true`):
-
-- `/admin` — list of all client sites
-- `/admin/sites/[id]` — view/edit any site
-- `/admin/plans` — manage the 3 plans
-
-API:
-
-- `/api/auth/{signup,login,logout,me,forgot-password,reset-password}`
-- `/api/plans`, `/api/sites/me`, `/api/sites/me/template`, `/api/sites/me/domain`
-- `/api/admin/sites`, `/api/admin/sites/[id]`, `/api/admin/plans`
-- `/api/health`
-
-## Multi-tenancy
-
-`src/middleware.ts` inspects the `Host` header. Requests to `PRIMARY_HOST` (and Replit dev domains, localhost, `*.replit.dev`) hit the app shell. Anything else is rewritten to `/tenant-site/[host]/page.tsx`, which:
-
-1. Looks up `sites.custom_domain = host`, OR
-2. Strips the `.<PRIMARY_HOST>` suffix and looks up `sites.slug = subdomain`.
-
-The matched site is rendered by selecting the correct React template from `src/templates/registry.tsx`.
-
-Set `PRIMARY_HOST` in env to the apex domain (e.g. `launchsite.app`).
-
-## Templates
-
-React components in `src/templates/`. Each template is a `(content: SiteContent) => JSX` and is registered in `registry.tsx`. Currently shipping:
-
-- `modern-services` — generic services landing
-- `luxury-salon` — dark editorial layout for beauty/wellness
-
-To add a template, write the component, add the entry to `TEMPLATES`.
-
-## Onboarding content shape
-
-`SiteContent` (in `lib/db/src/schema/sites.ts`) captures: business info, services list, weekly hours, Google listing URL, social links, brand colors. Stored as `jsonb` on `sites.content`.
-
-## Seed
-
-```
-pnpm --filter @workspace/web run seed
-```
-
-Seeds the 3 plans and creates an admin user (`admin@launchsite.local` / `launchsite-admin` by default; override with `SEED_ADMIN_EMAIL`/`SEED_ADMIN_PASSWORD`).
-
-## Schema push
-
-```
-pnpm --filter @workspace/db run push
-```
-
-## Env
-
-- `DATABASE_URL` — Postgres
-- `JWT_SECRET` — JWT signing
-- `PRIMARY_HOST` — apex hostname for tenant routing (defaults to `localhost` in dev)
+See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.

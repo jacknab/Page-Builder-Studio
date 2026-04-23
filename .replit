@@ -24,10 +24,6 @@ args = "Start application"
 task = "workflow.run"
 args = "Start Backend"
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Port Proxy"
-
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -37,8 +33,8 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "PORT=5000 pnpm --filter @workspace/web run dev"
-waitForPort = 5000
+args = "PORT=23795 BASE_PATH=/ pnpm --filter @workspace/webpage-editor run dev"
+waitForPort = 23795
 
 [[workflows.workflow]]
 name = "Start Backend"
@@ -46,18 +42,8 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "echo 'Backend not used'"
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow]]
-name = "Port Proxy"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "node proxy.mjs"
+args = "PORT=8080 pnpm --filter @workspace/api-server run dev"
+waitForPort = 8080
 
 [workflows.workflow.metadata]
 outputType = "console"
@@ -72,12 +58,12 @@ path = "scripts/post-merge.sh"
 timeoutMs = 20000
 
 [[ports]]
-localPort = 3000
-externalPort = 3001
+localPort = 8080
+externalPort = 8080
 
 [[ports]]
-localPort = 5000
-externalPort = 80
+localPort = 8081
+externalPort = 8081
 
 [[ports]]
 localPort = 23795
@@ -86,10 +72,6 @@ externalPort = 80
 [[ports]]
 localPort = 23796
 externalPort = 3000
-
-[[ports]]
-localPort = 8080
-externalPort = 8080
 
 [userenv]
 
