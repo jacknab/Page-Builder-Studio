@@ -33,6 +33,7 @@ import {
   Clock,
   Facebook,
   Globe2,
+  ImageIcon,
   Instagram,
   MapPin,
   Phone,
@@ -41,12 +42,12 @@ import {
   Share2,
   Trash2,
   User,
+  Users,
   X,
 } from "lucide-react";
 import TemplatePreview from "@/components/preview/TemplatePreview";
 
-const DEFAULT_STEP_LABELS = ["Template", "About you", "Services", "Hours", "Locations", "Links", "Account"];
-const BARBERSHOP_STEP_LABELS = ["Template", "About you", "Services", "Hours", "Barbers", "Locations", "Links", "Account"];
+const STEP_LABELS = ["Template", "About", "Services", "Hours", "Check-In", "Locations", "Team", "Gallery", "Links", "Account"];
 
 function StepIndicator({ step, labels }: { step: number; labels: string[] }) {
   return (
@@ -750,29 +751,125 @@ function LocationsEditor({
   );
 }
 
-// ─── STEP 5b: BARBERS (barbershop only) ─────────────────────────────────────
-const newBarber = (): BarberItem => ({
+// ─── FEATURE STEP SHARED TOGGLE ─────────────────────────────────────────────
+function FeatureToggle({
+  enabled,
+  onToggle,
+  icon: Icon,
+  title,
+  description,
+  yesLabel = "Yes, include this section",
+  noLabel = "No thanks, skip it",
+}: {
+  enabled: boolean;
+  onToggle: (v: boolean) => void;
+  icon: React.ElementType;
+  title: string;
+  description: string;
+  yesLabel?: string;
+  noLabel?: string;
+}) {
+  return (
+    <div className="mb-8">
+      <div className="mb-6 flex items-center gap-4">
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+          <Icon className="h-7 w-7" />
+        </div>
+        <div>
+          <h2 className="text-3xl font-black tracking-tight">{title}</h2>
+          <p className="mt-1 text-base text-slate-500">{description}</p>
+        </div>
+      </div>
+
+      <div className="flex gap-3">
+        <button
+          onClick={() => onToggle(true)}
+          className={`flex flex-1 items-center justify-center gap-2 rounded-2xl border-2 py-4 text-sm font-bold transition-all ${
+            enabled
+              ? "border-blue-500 bg-blue-600 text-white shadow-md shadow-blue-200"
+              : "border-slate-200 bg-white text-slate-600 hover:border-blue-300 hover:bg-blue-50"
+          }`}
+        >
+          {enabled && <Check className="h-4 w-4" />}
+          {yesLabel}
+        </button>
+        <button
+          onClick={() => onToggle(false)}
+          className={`flex flex-1 items-center justify-center gap-2 rounded-2xl border-2 py-4 text-sm font-bold transition-all ${
+            !enabled
+              ? "border-slate-400 bg-slate-100 text-slate-700"
+              : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
+          }`}
+        >
+          {noLabel}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── STEP 5: CHECK-IN QUEUE ──────────────────────────────────────────────────
+function CheckInStep({
+  enabled,
+  onToggle,
+}: {
+  enabled: boolean;
+  onToggle: (v: boolean) => void;
+}) {
+  return (
+    <div>
+      <FeatureToggle
+        enabled={enabled}
+        onToggle={onToggle}
+        icon={Rocket}
+        title="Online Check-In Queue"
+        description="Let customers join a virtual queue from their phone — they see their position and estimated wait time in real time."
+        yesLabel="Yes, add a check-in queue"
+        noLabel="No, appointments only"
+      />
+      {enabled && (
+        <div className="rounded-2xl border border-blue-100 bg-blue-50 p-6 space-y-3">
+          <p className="text-sm font-extrabold text-blue-800">What your customers will see:</p>
+          <ul className="space-y-2 text-sm text-blue-700">
+            <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />A "Check In Now" button on your homepage</li>
+            <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />Their queue position and estimated wait time</li>
+            <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />A live progress bar so they know when to head over</li>
+          </ul>
+          <p className="text-xs text-blue-500">No extra setup needed — we handle everything.</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── STEP 7: TEAM SECTION ────────────────────────────────────────────────────
+const newMember = (): BarberItem => ({
   id: Math.random().toString(36).slice(2, 9),
   name: "",
   bio: "",
   photoUrl: "",
 });
 
-function BarbersEditor({
-  barbers,
-  onChange,
+function TeamStep({
+  enabled,
+  onToggle,
+  members,
+  onMembersChange,
+  businessType,
 }: {
-  barbers: BarberItem[];
-  onChange: (barbers: BarberItem[]) => void;
+  enabled: boolean;
+  onToggle: (v: boolean) => void;
+  members: BarberItem[];
+  onMembersChange: (m: BarberItem[]) => void;
+  businessType: BusinessType | null;
 }) {
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const memberLabel = businessType === "barbershop" ? "barber" : businessType === "nail-salon" ? "nail tech" : "team member";
 
   const update = (id: string, field: keyof Omit<BarberItem, "id">, value: string) => {
-    onChange(barbers.map((b) => (b.id === id ? { ...b, [field]: value } : b)));
+    onMembersChange(members.map((b) => (b.id === id ? { ...b, [field]: value } : b)));
   };
-
-  const remove = (id: string) => onChange(barbers.filter((b) => b.id !== id));
-
+  const remove = (id: string) => onMembersChange(members.filter((b) => b.id !== id));
   const handlePhoto = (id: string, file: File) => {
     const reader = new FileReader();
     reader.onload = (e) => update(id, "photoUrl", e.target?.result as string);
@@ -781,104 +878,189 @@ function BarbersEditor({
 
   return (
     <div>
-      <div className="flex items-start justify-between">
-        <div>
-          <h2 className="text-3xl font-black tracking-tight">Meet the team</h2>
-          <p className="mt-2 text-base text-slate-500">
-            Add your barbers so clients know who they're booking with. This section is{" "}
-            <span className="font-semibold text-slate-700">optional</span> — skip it if you'd rather leave it out.
-          </p>
-        </div>
-        <span className="mt-1 shrink-0 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-600">
-          Optional
-        </span>
-      </div>
+      <FeatureToggle
+        enabled={enabled}
+        onToggle={(v) => {
+          onToggle(v);
+          if (v && members.length === 0) onMembersChange([newMember()]);
+        }}
+        icon={Users}
+        title="Meet the Team"
+        description="Show your team with photos and bios. Clients love knowing who they're walking in to see."
+        yesLabel="Yes, add a team section"
+        noLabel="No thanks, skip it"
+      />
 
-      <div className="mt-6 space-y-4">
-        {barbers.map((barber) => (
-          <div
-            key={barber.id}
-            className="relative rounded-2xl border border-slate-200 bg-slate-50 p-5"
-          >
-            <button
-              onClick={() => remove(barber.id)}
-              className="absolute right-4 top-4 rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"
-              title="Remove barber"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
+      {enabled && (
+        <div className="space-y-4">
+          {members.map((member) => (
+            <div key={member.id} className="relative rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <button
+                onClick={() => remove(member.id)}
+                className="absolute right-4 top-4 rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
 
-            <div className="flex gap-4">
-              {/* Photo */}
-              <div className="shrink-0">
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  ref={(el) => { fileRefs.current[barber.id] = el; }}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) handlePhoto(barber.id, file);
-                  }}
-                />
-                <button
-                  onClick={() => fileRefs.current[barber.id]?.click()}
-                  className="group relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-slate-300 bg-white hover:border-blue-400 hover:bg-blue-50 transition-colors"
-                >
-                  {barber.photoUrl ? (
-                    <>
-                      <img
-                        src={barber.photoUrl}
-                        alt={barber.name}
-                        className="h-full w-full object-cover"
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Camera className="h-5 w-5 text-white" />
+              <div className="flex gap-4">
+                <div className="shrink-0">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    ref={(el) => { fileRefs.current[member.id] = el; }}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handlePhoto(member.id, file);
+                    }}
+                  />
+                  <button
+                    onClick={() => fileRefs.current[member.id]?.click()}
+                    className="group relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-slate-300 bg-white hover:border-blue-400 hover:bg-blue-50 transition-colors"
+                  >
+                    {member.photoUrl ? (
+                      <>
+                        <img src={member.photoUrl} alt={member.name} className="h-full w-full object-cover" />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Camera className="h-5 w-5 text-white" />
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex flex-col items-center gap-1 text-slate-400 group-hover:text-blue-500 transition-colors">
+                        <User className="h-6 w-6" />
+                        <span className="text-[10px] font-semibold">Photo</span>
                       </div>
-                    </>
-                  ) : (
-                    <div className="flex flex-col items-center gap-1 text-slate-400 group-hover:text-blue-500 transition-colors">
-                      <User className="h-6 w-6" />
-                      <span className="text-[10px] font-semibold">Photo</span>
-                    </div>
-                  )}
-                </button>
-              </div>
-
-              {/* Name + Bio */}
-              <div className="flex-1 space-y-3">
-                <div>
-                  <Label className="mb-1 block text-xs font-semibold text-slate-600">Name</Label>
-                  <Input
-                    placeholder="e.g. Marcus Johnson"
-                    value={barber.name}
-                    onChange={(e) => update(barber.id, "name", e.target.value)}
-                    className="h-9 text-sm"
-                  />
+                    )}
+                  </button>
                 </div>
-                <div>
-                  <Label className="mb-1 block text-xs font-semibold text-slate-600">Short bio</Label>
-                  <Textarea
-                    placeholder="e.g. 8 years experience, specialises in fades and beard work."
-                    value={barber.bio}
-                    onChange={(e) => update(barber.id, "bio", e.target.value)}
-                    rows={2}
-                    className="resize-none text-sm"
-                  />
+
+                <div className="flex-1 space-y-3">
+                  <div>
+                    <Label className="mb-1 block text-xs font-semibold text-slate-600">Name</Label>
+                    <Input
+                      placeholder={`e.g. Marcus Johnson`}
+                      value={member.name}
+                      onChange={(e) => update(member.id, "name", e.target.value)}
+                      className="h-9 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <Label className="mb-1 block text-xs font-semibold text-slate-600">Short bio</Label>
+                    <Textarea
+                      placeholder={`e.g. 8 years experience, specialises in fades and beard work.`}
+                      value={member.bio}
+                      onChange={(e) => update(member.id, "bio", e.target.value)}
+                      rows={2}
+                      className="resize-none text-sm"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
 
-        <button
-          onClick={() => onChange([...barbers, newBarber()])}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-200 bg-white py-4 text-sm font-semibold text-slate-500 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-        >
-          <Plus className="h-4 w-4" />
-          Add a barber
-        </button>
-      </div>
+          <button
+            onClick={() => onMembersChange([...members, newMember()])}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-200 bg-white py-4 text-sm font-semibold text-slate-500 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            Add another {memberLabel}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── STEP 8: GALLERY ─────────────────────────────────────────────────────────
+function GalleryStep({
+  enabled,
+  onToggle,
+  photos,
+  onPhotosChange,
+}: {
+  enabled: boolean;
+  onToggle: (v: boolean) => void;
+  photos: Array<{ id: string; url: string; caption: string }>;
+  onPhotosChange: (p: Array<{ id: string; url: string; caption: string }>) => void;
+}) {
+  const fileRef = useRef<HTMLInputElement | null>(null);
+
+  const handleFiles = (files: FileList | null) => {
+    if (!files) return;
+    Array.from(files).forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        onPhotosChange([
+          ...photos,
+          { id: Math.random().toString(36).slice(2, 9), url: e.target?.result as string, caption: "" },
+        ]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removePhoto = (id: string) => onPhotosChange(photos.filter((p) => p.id !== id));
+  const updateCaption = (id: string, caption: string) =>
+    onPhotosChange(photos.map((p) => (p.id === id ? { ...p, caption } : p)));
+
+  return (
+    <div>
+      <FeatureToggle
+        enabled={enabled}
+        onToggle={onToggle}
+        icon={ImageIcon}
+        title="Photo Gallery"
+        description="Showcase your best work. A gallery section lets clients see the quality of cuts, styles, or work before they visit."
+        yesLabel="Yes, add a gallery"
+        noLabel="No thanks, skip it"
+      />
+
+      {enabled && (
+        <div className="space-y-4">
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            onChange={(e) => handleFiles(e.target.files)}
+          />
+
+          {photos.length > 0 && (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {photos.map((photo) => (
+                <div key={photo.id} className="group relative">
+                  <div className="relative aspect-square overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
+                    <img src={photo.url} alt={photo.caption || "Gallery photo"} className="h-full w-full object-cover" />
+                    <button
+                      onClick={() => removePhoto(photo.id)}
+                      className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white opacity-0 shadow transition-opacity group-hover:opacity-100"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  <input
+                    placeholder="Add a caption (optional)"
+                    value={photo.caption}
+                    onChange={(e) => updateCaption(photo.id, e.target.value)}
+                    className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-600 outline-none focus:border-blue-400"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-slate-300 bg-white py-8 text-sm font-semibold text-slate-500 transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600"
+          >
+            <ImageIcon className="h-5 w-5" />
+            {photos.length === 0 ? "Upload your first photos" : "Add more photos"}
+          </button>
+          <p className="text-center text-xs text-slate-400">You can add or remove photos later from your dashboard.</p>
+        </div>
+      )}
     </div>
   );
 }
@@ -1058,7 +1240,14 @@ export default function Onboarding() {
   const [googleUrl, setGoogleUrl] = useState("");
   const [social, setSocial] = useState(EMPTY_SOCIAL);
   const [locations, setLocations] = useState<LocationItem[]>([newLocation()]);
-  const [barbers, setBarbers] = useState<BarberItem[]>([]);
+
+  // Feature sections
+  const [includeCheckIn, setIncludeCheckIn] = useState(false);
+  const [includeTeam, setIncludeTeam] = useState(false);
+  const [teamMembers, setTeamMembers] = useState<BarberItem[]>([]);
+  const [includeGallery, setIncludeGallery] = useState(false);
+  const [galleryPhotos, setGalleryPhotos] = useState<Array<{ id: string; url: string; caption: string }>>([]);
+
   const [previewCategory, setPreviewCategory] = useState<TemplateCategoryConfig | null>(null);
   const [previewInitialThemeId, setPreviewInitialThemeId] = useState<string>("");
 
@@ -1068,13 +1257,16 @@ export default function Onboarding() {
   const [accountError, setAccountError] = useState("");
   const [accountLoading, setAccountLoading] = useState(false);
 
-  const isBarbershop = businessType === "barbershop";
-  const stepLabels = isBarbershop ? BARBERSHOP_STEP_LABELS : DEFAULT_STEP_LABELS;
-  const totalSteps = stepLabels.length;
-  const barbersStep = isBarbershop ? 5 : null;
-  const locationsStep = isBarbershop ? 6 : 5;
-  const linksStep = isBarbershop ? 7 : 6;
-  const accountStep = totalSteps; // always last
+  const stepLabels = STEP_LABELS;
+  const totalSteps = stepLabels.length; // 10
+  // Fixed step indices
+  const CHECK_IN_STEP  = 5;
+  const LOCATIONS_STEP = 6;
+  const TEAM_STEP      = 7;
+  const GALLERY_STEP   = 8;
+  const LINKS_STEP     = 9;
+  const ACCOUNT_STEP   = 10;
+  const accountStep    = ACCOUNT_STEP;
 
   const handleSelectTemplate = (id: string, source: "blocks" | "html" | "launchsite", bType: BusinessType) => {
     setTemplateId(id);
@@ -1112,8 +1304,8 @@ export default function Onboarding() {
   const canAdvance = () => {
     if (step === 1) return templateId !== null;
     if (step === 2) return businessName.trim().length > 0;
-    if (step === locationsStep) return locations.some((l) => l.address.trim().length > 0);
-    if (step === accountStep) {
+    if (step === LOCATIONS_STEP) return locations.some((l) => l.address.trim().length > 0);
+    if (step === ACCOUNT_STEP) {
       return (
         accountEmail.trim().length > 0 &&
         accountPassword.length >= 6 &&
@@ -1157,7 +1349,11 @@ export default function Onboarding() {
       services,
       hours,
       locations,
-      barbers: isBarbershop ? barbers : [],
+      includeCheckIn,
+      includeTeam,
+      teamMembers,
+      includeGallery,
+      galleryPhotos,
       googleListingUrl: googleUrl,
       social,
     };
@@ -1238,13 +1434,30 @@ export default function Onboarding() {
           )}
           {step === 3 && <ServicesEditor services={services} onChange={setServices} />}
           {step === 4 && <HoursEditor hours={hours} onChange={setHours} />}
-          {barbersStep !== null && step === barbersStep && (
-            <BarbersEditor barbers={barbers} onChange={setBarbers} />
+          {step === CHECK_IN_STEP && (
+            <CheckInStep enabled={includeCheckIn} onToggle={setIncludeCheckIn} />
           )}
-          {step === locationsStep && (
+          {step === LOCATIONS_STEP && (
             <LocationsEditor locations={locations} onChange={setLocations} />
           )}
-          {step === linksStep && (
+          {step === TEAM_STEP && (
+            <TeamStep
+              enabled={includeTeam}
+              onToggle={setIncludeTeam}
+              members={teamMembers}
+              onMembersChange={setTeamMembers}
+              businessType={businessType}
+            />
+          )}
+          {step === GALLERY_STEP && (
+            <GalleryStep
+              enabled={includeGallery}
+              onToggle={setIncludeGallery}
+              photos={galleryPhotos}
+              onPhotosChange={setGalleryPhotos}
+            />
+          )}
+          {step === LINKS_STEP && (
             <LinksEditor
               googleUrl={googleUrl}
               social={social}
@@ -1252,7 +1465,7 @@ export default function Onboarding() {
               onSocialChange={(field, val) => setSocial((s) => ({ ...s, [field]: val }))}
             />
           )}
-          {step === accountStep && (
+          {step === ACCOUNT_STEP && (
             <AccountStep
               email={accountEmail}
               password={accountPassword}

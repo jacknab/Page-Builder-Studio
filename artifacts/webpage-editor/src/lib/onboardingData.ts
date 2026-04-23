@@ -35,6 +35,12 @@ export interface SocialLinks {
   other: string;
 }
 
+export interface GalleryPhoto {
+  id: string;
+  url: string;
+  caption: string;
+}
+
 export interface OnboardingData {
   templateId: string;
   templateSource: "blocks" | "html" | "launchsite";
@@ -47,7 +53,11 @@ export interface OnboardingData {
   services: ServiceItem[];
   hours: BusinessHours[];
   locations: LocationItem[];
-  barbers: BarberItem[];
+  includeCheckIn: boolean;
+  includeTeam: boolean;
+  teamMembers: BarberItem[];
+  includeGallery: boolean;
+  galleryPhotos: GalleryPhoto[];
   googleListingUrl: string;
   social: SocialLinks;
 }
