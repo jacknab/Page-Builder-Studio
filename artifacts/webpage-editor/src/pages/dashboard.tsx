@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { logout, getToken } from "@/lib/auth";
+import { toSubdomain } from "@/lib/slug";
 import {
   loadOnboarding,
   saveOnboarding,
@@ -676,9 +677,6 @@ interface PublishData {
   publishedAt?: string;
 }
 
-function toSlug(name: string): string {
-  return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "my-business";
-}
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -711,7 +709,7 @@ function PublishModal({
   onPublished: (data: PublishData) => void;
 }) {
   const [option, setOption] = useState<PublishOption>("subdomain");
-  const [subdomain, setSubdomain] = useState(toSlug(businessName));
+  const [subdomain, setSubdomain] = useState(toSubdomain(businessName) || "mybusiness");
   const [customDomain, setCustomDomain] = useState("");
   const [launched, setLaunched] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -881,9 +879,9 @@ function PublishModal({
                     <div className="mt-1.5 flex items-center gap-0 overflow-hidden rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200">
                       <input
                         value={subdomain}
-                        onChange={(e) => setSubdomain(toSlug(e.target.value) || e.target.value.toLowerCase())}
+                        onChange={(e) => setSubdomain(toSubdomain(e.target.value))}
                         className="flex-1 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 outline-none"
-                        placeholder="your-business"
+                        placeholder="yourbusiness"
                         spellCheck={false}
                       />
                       <span className="shrink-0 border-l border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-400 font-medium">
