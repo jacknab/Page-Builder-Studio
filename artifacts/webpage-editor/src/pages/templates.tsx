@@ -22,9 +22,9 @@ interface Category {
 }
 
 const CATEGORIES: Category[] = [
-  { id: "barbershop",     label: "Barbershop",     emoji: "💈", port: 6000, themes: BARBERSHOP_THEMES, available: true },
-  { id: "nail-salon",     label: "Nail Salon",      emoji: "💅", port: 5173, themes: NAIL_SALON_THEMES, available: true },
   { id: "hair-salon",     label: "Hair Salon",      emoji: "✂️", port: 5175, themes: [],                available: false },
+  { id: "nail-salon",     label: "Nail Salon",      emoji: "💅", port: 5173, themes: NAIL_SALON_THEMES, available: true },
+  { id: "barbershop",     label: "Barbershop",      emoji: "💈", port: 6000, themes: BARBERSHOP_THEMES, available: true },
   { id: "haircut-studio", label: "Haircut Studio",  emoji: "🪒", port: 5176, themes: [],                available: false },
 ];
 
