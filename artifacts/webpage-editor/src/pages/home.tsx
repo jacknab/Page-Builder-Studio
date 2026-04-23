@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { Block, TEMPLATES, Template, generateId, GOOGLE_FONTS } from "@/lib/templates";
 import { HTML_TEMPLATES, HtmlTemplate } from "@/lib/htmlTemplates";
 import { ADMIN_STORAGE_EVENT, getCustomTemplates, getCategories, type CustomHtmlTemplate, type Category } from "@/lib/adminStorage";
-import { logout, getUser } from "@/lib/auth";
+import { logout, getUser, isAdmin } from "@/lib/auth";
 import { BlockRenderer } from "@/components/editor/blocks";
 import { HtmlTemplateEditor } from "@/components/editor/HtmlTemplateEditor";
 import { Button } from "@/components/ui/button";
@@ -465,10 +465,12 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-2">
               <span className="hidden text-sm text-slate-400 sm:block">{getUser()?.email}</span>
-              <Button variant="outline" onClick={() => navigate("/admin")} className="gap-2">
-                <Settings className="h-4 w-4" />
-                Admin
-              </Button>
+              {isAdmin() && (
+                <Button variant="outline" onClick={() => navigate("/admin")} className="gap-2">
+                  <Settings className="h-4 w-4" />
+                  Admin
+                </Button>
+              )}
               <Button onClick={() => openSite(activeSite.id)} className="gap-2 bg-blue-600 hover:bg-blue-700">
                 <PenTool className="h-4 w-4" />
                 Edit my site
@@ -543,10 +545,12 @@ export default function Home() {
               </div>
               <div className="flex items-center gap-2">
                 <TemplateCounter />
-                <Button variant="outline" size="sm" onClick={() => navigate("/admin")} className="gap-2">
-                  <Settings className="h-3.5 w-3.5" />
-                  Manage
-                </Button>
+                {isAdmin() && (
+                  <Button variant="outline" size="sm" onClick={() => navigate("/admin")} className="gap-2">
+                    <Settings className="h-3.5 w-3.5" />
+                    Manage
+                  </Button>
+                )}
               </div>
             </div>
             <TemplateLibrary onSelect={addSite} onSelectHtml={addHtmlSite} />

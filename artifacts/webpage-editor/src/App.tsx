@@ -12,7 +12,7 @@ import Signup from "@/pages/signup";
 import Onboarding from "@/pages/onboarding";
 import ForgotPassword from "@/pages/forgot-password";
 import ResetPassword from "@/pages/reset-password";
-import { isLoggedIn } from "@/lib/auth";
+import { isLoggedIn, isAdmin } from "@/lib/auth";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +30,12 @@ function PublicOnlyRoute({ component: Component }: { component: React.ComponentT
   return <Component />;
 }
 
+function AdminRoute({ component: Component }: { component: React.ComponentType }) {
+  if (!isLoggedIn()) return <Redirect to="/login" />;
+  if (!isAdmin()) return <Redirect to="/app" />;
+  return <Component />;
+}
+
 function Router() {
   return (
     <Switch>
@@ -40,7 +46,7 @@ function Router() {
       <Route path="/onboarding" component={() => <PrivateRoute component={Onboarding} />} />
       <Route path="/forgot-password" component={ForgotPassword} />
       <Route path="/reset-password" component={ResetPassword} />
-      <Route path="/admin" component={() => <PrivateRoute component={Admin} />} />
+      <Route path="/admin" component={() => <AdminRoute component={Admin} />} />
       <Route path="/app" component={() => <PrivateRoute component={Home} />} />
       <Route component={NotFound} />
     </Switch>

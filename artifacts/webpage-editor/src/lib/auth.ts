@@ -4,6 +4,7 @@ const USER_KEY = "launchsite-user";
 export interface AuthUser {
   id: number;
   email: string;
+  isAdmin?: boolean;
 }
 
 export function getToken(): string | null {
@@ -29,6 +30,10 @@ export function getUser(): AuthUser | null {
 
 export function isLoggedIn(): boolean {
   return getToken() !== null;
+}
+
+export function isAdmin(): boolean {
+  return getUser()?.isAdmin === true;
 }
 
 export function logout(): void {
